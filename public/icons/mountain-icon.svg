@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="40" fill="#2d7d2d"/>
+  <!-- Mountain silhouette -->
+  <polygon points="96,30 140,130 52,130" fill="white" opacity="0.95"/>
+  <!-- Snow cap -->
+  <polygon points="96,30 115,72 77,72" fill="white"/>
+  <!-- Secondary peak -->
+  <polygon points="140,60 165,130 115,130" fill="white" opacity="0.7"/>
+  <!-- MT letters -->
+  <text x="96" y="170" font-family="Arial,sans-serif" font-weight="bold" font-size="22" text-anchor="middle" fill="white" opacity="0.9">MT Tracker</text>
+</svg>

@@ -1,0 +1,153 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Qualification {
+  id                  String    @id @default(cuid())
+  slug                String    @unique
+  title               String
+  category            String    // "walking" | "climbing" | "coaching"
+  pathway             String    // display name e.g. "Walking" | "Climbing & Coaching"
+  qualType            String    @default("qualification") // "qualification" | "module"
+  officialUrl         String
+  handbookUrl         String?
+  checklistUrl        String?
+  summary             String?
+  keyInfo             String?   // JSON string for SQLite compatibility
+  sourceLastCheckedAt DateTime?
+  sourceLastChangedAt DateTime?
+  isActive            Boolean   @default(true)
+  isFavourite         Boolean   @default(false)
+  lastViewedAt        DateTime?
+  sections            Section[]
+  refreshRuns         RefreshRun[]
+  snapshots           ProgressSnapshot[]
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model Section {
+  id              String         @id @default(cuid())
+  qualificationId String
+  qualification   Qualification  @relation(fields: [qualificationId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  order           Int
+  parentSectionId String?
+  parentSection   Section?       @relation("SectionHierarchy", fields: [parentSectionId], references: [id])
+  childSections   Section[]      @relation("SectionHierarchy")
+  items           ChecklistItem[]
+  weight          Float          @default(1.0)
+  isActive        Boolean        @default(true)
+  createdAt       DateTime       @default(now())
+}
+
+model ChecklistItem {
+  id                   String      @id @default(cuid())
+  qualificationId      String
+  sectionId            String
+  section              Section     @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  stableKey            String
+  prompt               String
+  description          String?
+  sourceType           String      @default("manual") // "checklist_pdf" | "handbook_pdf" | "qual_page" | "manual"
+  sourceUrl            String?
+  sourceAnchor         String?
+  order                Int
+  extractionConfidence Float       @default(1.0)
+  isActive             Boolean     @default(true)
+  defaultTags          String      @default("[]") // JSON array string
+  rating               UserRating?
+  createdAt            DateTime    @default(now())
+
+  @@unique([qualificationId, stableKey])
+}
+
+model UserRating {
+  id                String        @id @default(cuid())
+  checklistItemId   String        @unique
+  checklistItem     ChecklistItem @relation(fields: [checklistItemId], references: [id], onDelete: Cascade)
+  ratingValue       Int?          // 1-5
+  confidenceValue   Int?          // 1-5
+  status            String        @default("not_started")
+  needsCoaching     Boolean       @default(false)
+  notes             String?
+  evidenceSummary   String?
+  tags              String        @default("[]") // JSON array string
+  lastPractisedAt   DateTime?
+  history           RatingHistory[]
+  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime      @default(now())
+}
+
+model RatingHistory {
+  id              String      @id @default(cuid())
+  userRatingId    String
+  userRating      UserRating  @relation(fields: [userRatingId], references: [id], onDelete: Cascade)
+  ratingValue     Int?
+  confidenceValue Int?
+  status          String?
+  notes           String?
+  recordedAt      DateTime    @default(now())
+}
+
+model RefreshRun {
+  id              String          @id @default(cuid())
+  qualificationId String?
+  qualification   Qualification?  @relation(fields: [qualificationId], references: [id])
+  startedAt       DateTime        @default(now())
+  completedAt     DateTime?
+  status          String          @default("running") // running|completed|failed|partial
+  triggeredBy     String          @default("user")
+  log             String?
+  errors          String?
+  fetchMethod     String?         // "fetch" | "playwright"
+  urlsFetched     String          @default("[]") // JSON array string
+  changeSet       ChangeSet?
+}
+
+model ChangeSet {
+  id              String      @id @default(cuid())
+  refreshRunId    String      @unique
+  refreshRun      RefreshRun  @relation(fields: [refreshRunId], references: [id])
+  qualificationId String
+  itemsAdded      Int         @default(0)
+  itemsRemoved    Int         @default(0)
+  itemsChanged    Int         @default(0)
+  sectionsChanged Int         @default(0)
+  summary         String?
+  details         String?     // JSON string
+  requiresReview  Boolean     @default(false)
+  createdAt       DateTime    @default(now())
+}
+
+model ItemMapping {
+  id           String   @id @default(cuid())
+  refreshRunId String
+  oldStableKey String
+  newStableKey String
+  confidence   Float
+  method       String   // "exact" | "fuzzy" | "manual" | "unmatched"
+  createdAt    DateTime @default(now())
+}
+
+model ProgressSnapshot {
+  id                String        @id @default(cuid())
+  qualificationId   String
+  qualification     Qualification @relation(fields: [qualificationId], references: [id], onDelete: Cascade)
+  overallScore      Float
+  completionPct     Float
+  sectionScores     String        // JSON string
+  totalItems        Int
+  ratedItems        Int
+  takenAt           DateTime      @default(now())
+  label             String?
+}

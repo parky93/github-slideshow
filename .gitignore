@@ -1,4 +1,37 @@
+# Jekyll
 _site/
 .sass-cache/
 .jekyll-metadata
 .bundle
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Database
+prisma/dev.db
+prisma/dev.db-journal
+
+# PWA (generated)
+public/sw.js
+public/workbox-*.js
+public/worker-*.js
+public/fallback-*.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
