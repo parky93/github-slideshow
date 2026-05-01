@@ -1,0 +1,113 @@
+export type RatingValue = 1 | 2 | 3 | 4 | 5
+
+export const RATING_LABELS: Record<RatingValue, string> = {
+  1: 'Not yet',
+  2: 'Aware',
+  3: 'Practicing',
+  4: 'Confident',
+  5: 'Ready',
+}
+
+export const RATING_COLORS: Record<RatingValue, string> = {
+  1: '#fecaca',
+  2: '#fde68a',
+  3: '#bfdbfe',
+  4: '#bbf7d0',
+  5: '#6ee7b7',
+}
+
+export const RATING_ACTIVE_COLORS: Record<RatingValue, string> = {
+  1: '#ef4444',
+  2: '#f59e0b',
+  3: '#3b82f6',
+  4: '#10b981',
+  5: '#059669',
+}
+
+export const CONFIDENCE_LABELS: Record<number, string> = {
+  1: 'Very unsure',
+  2: 'Unsure',
+  3: 'Moderate',
+  4: 'Confident',
+  5: 'Very confident',
+}
+
+export type TrafficLight = 'red' | 'amber' | 'green'
+
+export const TRAFFIC_COLORS: Record<TrafficLight, string> = {
+  red: '#ef4444',
+  amber: '#f59e0b',
+  green: '#22c55e',
+}
+
+export interface UserRating {
+  id: number
+  itemId: number
+  ratingValue: RatingValue | null
+  confidenceValue: number | null
+  notes: string
+  tags: string[]
+  needsCoaching: boolean
+  updatedAt: string
+}
+
+export interface ChecklistItem {
+  id: number
+  sectionId: number
+  prompt: string
+  detail: string | null
+  sortOrder: number
+  isCoachingItem: boolean
+  rating: UserRating | null
+}
+
+export interface Section {
+  id: number
+  qualificationId: number
+  title: string
+  sortOrder: number
+  items: ChecklistItem[]
+}
+
+export interface Qualification {
+  id: number
+  slug: string
+  name: string
+  category: string
+  qualType: string
+  pathway: string | null
+  summary: string | null
+  officialUrl: string | null
+  isFavourite: boolean
+  lastViewedAt: string | null
+}
+
+export interface QualificationWithMeta extends Qualification {
+  totalItems: number
+  ratedItems: number
+  readinessScore: number
+}
+
+export interface SectionScore {
+  sectionId: number
+  title: string
+  score: number
+  completion: number
+  light: TrafficLight
+}
+
+export interface ReadinessScore {
+  overall: number
+  completion: number
+  light: TrafficLight
+  sectionScores: SectionScore[]
+}
+
+export interface ProgressSnapshot {
+  id: number
+  qualificationId: number
+  score: number
+  completion: number
+  label: string | null
+  createdAt: string
+}
