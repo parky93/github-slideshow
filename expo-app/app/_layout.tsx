@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
+import { View } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { initDatabase } from '@/lib/db/client'
 import { seedDatabase } from '@/lib/db/seed'
 
@@ -12,7 +12,7 @@ export default function RootLayout() {
   }, [])
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <View style={{ flex: 1 }}>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -28,6 +28,6 @@ export default function RootLayout() {
         <Stack.Screen name="qualification/[slug]/checklist" options={{ title: 'Checklist' }} />
         <Stack.Screen name="qualification/[slug]/history" options={{ title: 'Progress History' }} />
       </Stack>
-    </GestureHandlerRootView>
+    </View>
   )
 }
