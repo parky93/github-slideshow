@@ -12,9 +12,15 @@ export default function HistoryScreen() {
   const [snapshots, setSnapshots] = useState<ProgressSnapshot[]>([])
 
   useFocusEffect(useCallback(() => {
-    const q = getQualificationBySlug(slug)
-    if (!q) return
-    setSnapshots(getSnapshots(q.id))
+    let active = true
+    async function load() {
+      const q = await getQualificationBySlug(slug)
+      if (!q || !active) return
+      const snaps = await getSnapshots(q.id)
+      if (active) setSnapshots(snaps)
+    }
+    load()
+    return () => { active = false }
   }, [slug]))
 
   if (snapshots.length === 0) {
@@ -36,13 +42,8 @@ export default function HistoryScreen() {
         const prev = snapshots[index + 1]
         const delta = prev ? item.score - prev.score : null
         const light = getTrafficLight(item.score)
-        const date = new Date(item.createdAt).toLocaleDateString('en-GB', {
-          day: 'numeric', month: 'short', year: 'numeric',
-        })
-        const time = new Date(item.createdAt).toLocaleTimeString('en-GB', {
-          hour: '2-digit', minute: '2-digit',
-        })
-
+        const date = new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+        const time = new Date(item.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
         return (
           <View style={styles.card}>
             <ReadinessRing score={item.score} light={light} size={80} />
@@ -66,19 +67,7 @@ export default function HistoryScreen() {
 const styles = StyleSheet.create({
   list: { padding: 16, paddingBottom: 40 },
   heading: { fontSize: 13, color: '#9ca3af', marginBottom: 12 },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 16, flexDirection: 'row', alignItems: 'center', marginBottom: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3, elevation: 1 },
   cardBody: { flex: 1, marginLeft: 16 },
   date: { fontSize: 13, fontWeight: '600', color: '#111827' },
   label: { fontSize: 12, color: '#6b7280', marginTop: 2 },

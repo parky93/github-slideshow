@@ -2,13 +2,11 @@ import React, { useEffect } from 'react'
 import { View } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
-import { initDatabase } from '@/lib/db/client'
 import { seedDatabase } from '@/lib/db/seed'
 
 export default function RootLayout() {
   useEffect(() => {
-    initDatabase()
-    seedDatabase()
+    seedDatabase().catch(console.error)
   }, [])
 
   return (

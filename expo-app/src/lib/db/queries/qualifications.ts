@@ -1,157 +1,96 @@
-import { db } from '../client'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getJSON, setJSON } from '../client'
+import type { StoredQual } from '../seed'
 import type { Qualification, QualificationWithMeta, Section, ChecklistItem, UserRating } from '../../types'
 
-interface QualRow {
-  id: number
-  slug: string
-  name: string
-  category: string
-  qual_type: string
-  pathway: string | null
-  summary: string | null
-  official_url: string | null
-  is_favourite: number
-  last_viewed_at: string | null
+async function loadQuals(): Promise<StoredQual[]> {
+  return (await getJSON<StoredQual[]>('mta:quals')) ?? []
 }
 
-function mapQual(row: QualRow): Qualification {
+interface Meta { isFavourite: boolean; lastViewedAt: string | null }
+
+async function getMeta(qualId: number): Promise<Meta> {
+  return (await getJSON<Meta>(`mta:meta:${qualId}`)) ?? { isFavourite: false, lastViewedAt: null }
+}
+
+interface StoredRating {
+  ratingValue: number | null
+  confidenceValue: number | null
+  notes: string
+  tags: string[]
+  needsCoaching: boolean
+  updatedAt: string
+}
+
+async function getRating(itemId: number): Promise<StoredRating | null> {
+  return getJSON<StoredRating>(`mta:rating:${itemId}`)
+}
+
+function toQual(q: StoredQual, meta: Meta): Qualification {
   return {
-    id: row.id,
-    slug: row.slug,
-    name: row.name,
-    category: row.category,
-    qualType: row.qual_type,
-    pathway: row.pathway,
-    summary: row.summary,
-    officialUrl: row.official_url,
-    isFavourite: row.is_favourite === 1,
-    lastViewedAt: row.last_viewed_at,
+    id: q.id, slug: q.slug, name: q.name, category: q.category,
+    qualType: q.qualType, pathway: q.pathway, summary: q.summary,
+    officialUrl: q.officialUrl, isFavourite: meta.isFavourite, lastViewedAt: meta.lastViewedAt,
   }
 }
 
-export function getAllQualifications(): QualificationWithMeta[] {
-  const rows = db.getAllSync<QualRow>('SELECT * FROM qualifications ORDER BY pathway, name')
-  return rows.map(row => {
-    const total = db.getFirstSync<{ count: number }>(
-      `SELECT COUNT(*) as count FROM checklist_items ci
-       JOIN sections s ON s.id = ci.section_id
-       WHERE s.qualification_id = ?`,
-      [row.id],
-    )?.count ?? 0
-
-    const rated = db.getFirstSync<{ count: number }>(
-      `SELECT COUNT(*) as count FROM user_ratings ur
-       JOIN checklist_items ci ON ci.id = ur.item_id
-       JOIN sections s ON s.id = ci.section_id
-       WHERE s.qualification_id = ? AND ur.rating_value IS NOT NULL`,
-      [row.id],
-    )?.count ?? 0
-
-    const scoreRow = db.getFirstSync<{ avg: number | null }>(
-      `SELECT AVG(
-         CASE WHEN ur.rating_value IS NULL THEN 0
-         ELSE (CAST(ur.rating_value AS REAL)/5) * (0.7 + 0.3 * COALESCE(CAST(ur.confidence_value AS REAL)/5, 0.6))
-         END
-       ) as avg
-       FROM checklist_items ci
-       JOIN sections s ON s.id = ci.section_id
-       LEFT JOIN user_ratings ur ON ur.item_id = ci.id
-       WHERE s.qualification_id = ?`,
-      [row.id],
-    )
-
+export async function getAllQualifications(): Promise<QualificationWithMeta[]> {
+  const quals = await loadQuals()
+  return Promise.all(quals.map(async q => {
+    const meta = await getMeta(q.id)
+    const allItems = q.sections.flatMap(s => s.items)
+    const ratings = await Promise.all(allItems.map(i => getRating(i.id)))
+    const ratedItems = ratings.filter(r => r?.ratingValue).length
+    const totalItems = allItems.length
+    const rawScore = ratings.reduce((sum, r, idx) => {
+      if (!r?.ratingValue) return sum
+      const rv = r.ratingValue / 5
+      const cv = r.confidenceValue ? r.confidenceValue / 5 : 0.6
+      return sum + rv * (0.7 + 0.3 * cv)
+    }, 0)
     return {
-      ...mapQual(row),
-      totalItems: total,
-      ratedItems: rated,
-      readinessScore: scoreRow?.avg ?? 0,
+      ...toQual(q, meta),
+      totalItems,
+      ratedItems,
+      readinessScore: totalItems > 0 ? rawScore / totalItems : 0,
     }
-  })
+  }))
 }
 
-export function getQualificationBySlug(slug: string): Qualification | null {
-  const row = db.getFirstSync<QualRow>('SELECT * FROM qualifications WHERE slug = ?', [slug])
-  return row ? mapQual(row) : null
+export async function getQualificationBySlug(slug: string): Promise<Qualification | null> {
+  const quals = await loadQuals()
+  const q = quals.find(q => q.slug === slug)
+  if (!q) return null
+  const meta = await getMeta(q.id)
+  return toQual(q, meta)
 }
 
-export function getSectionsWithItems(qualificationId: number): Section[] {
-  const sections = db.getAllSync<{
-    id: number; qualification_id: number; title: string; sort_order: number
-  }>('SELECT * FROM sections WHERE qualification_id = ? ORDER BY sort_order', [qualificationId])
+export async function getSectionsWithItems(qualificationId: number): Promise<Section[]> {
+  const quals = await loadQuals()
+  const q = quals.find(q => q.id === qualificationId)
+  if (!q) return []
 
-  return sections.map(s => {
-    const rows = db.getAllSync<{
-      id: number
-      section_id: number
-      prompt: string
-      detail: string | null
-      sort_order: number
-      is_coaching_item: number
-      r_id: number | null
-      rating_value: number | null
-      confidence_value: number | null
-      notes: string | null
-      tags: string | null
-      needs_coaching: number | null
-      updated_at: string | null
-    }>(
-      `SELECT ci.*,
-              ur.id          as r_id,
-              ur.rating_value,
-              ur.confidence_value,
-              ur.notes,
-              ur.tags,
-              ur.needs_coaching,
-              ur.updated_at
-       FROM checklist_items ci
-       LEFT JOIN user_ratings ur ON ur.item_id = ci.id
-       WHERE ci.section_id = ?
-       ORDER BY ci.sort_order`,
-      [s.id],
-    )
-
-    const items: ChecklistItem[] = rows.map(i => {
-      const rating: UserRating | null = i.r_id
-        ? {
-            id: i.r_id,
-            itemId: i.id,
-            ratingValue: i.rating_value as any,
-            confidenceValue: i.confidence_value,
-            notes: i.notes ?? '',
-            tags: JSON.parse(i.tags ?? '[]'),
-            needsCoaching: i.needs_coaching === 1,
-            updatedAt: i.updated_at ?? '',
-          }
+  return Promise.all(q.sections.map(async s => {
+    const items: ChecklistItem[] = await Promise.all(s.items.map(async i => {
+      const r = await getRating(i.id)
+      const rating: UserRating | null = r
+        ? { id: i.id, itemId: i.id, ratingValue: r.ratingValue as any,
+            confidenceValue: r.confidenceValue, notes: r.notes,
+            tags: r.tags, needsCoaching: r.needsCoaching, updatedAt: r.updatedAt }
         : null
-
-      return {
-        id: i.id,
-        sectionId: i.section_id,
-        prompt: i.prompt,
-        detail: i.detail,
-        sortOrder: i.sort_order,
-        isCoachingItem: i.is_coaching_item === 1,
-        rating,
-      }
-    })
-
-    return {
-      id: s.id,
-      qualificationId: s.qualification_id,
-      title: s.title,
-      sortOrder: s.sort_order,
-      items,
-    }
-  })
+      return { id: i.id, sectionId: s.id, prompt: i.prompt, detail: null,
+               sortOrder: i.sortOrder, isCoachingItem: false, rating }
+    }))
+    return { id: s.id, qualificationId: q.id, title: s.title, sortOrder: s.sortOrder, items }
+  }))
 }
 
-export function markQualViewed(id: number): void {
-  db.runSync("UPDATE qualifications SET last_viewed_at = datetime('now') WHERE id = ?", [id])
+export async function markQualViewed(id: number): Promise<void> {
+  const meta = await getMeta(id)
+  await setJSON(`mta:meta:${id}`, { ...meta, lastViewedAt: new Date().toISOString() })
 }
 
-export function toggleFavourite(id: number): void {
-  db.runSync(
-    'UPDATE qualifications SET is_favourite = CASE WHEN is_favourite = 1 THEN 0 ELSE 1 END WHERE id = ?',
-    [id],
-  )
+export async function toggleFavourite(id: number): Promise<void> {
+  const meta = await getMeta(id)
+  await setJSON(`mta:meta:${id}`, { ...meta, isFavourite: !meta.isFavourite })
 }

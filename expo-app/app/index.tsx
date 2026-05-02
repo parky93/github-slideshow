@@ -5,18 +5,15 @@ import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import type { QualificationWithMeta } from '@/lib/types'
 
-interface ListSection {
-  title: string
-  data: QualificationWithMeta[]
-}
+interface ListSection { title: string; data: QualificationWithMeta[] }
 
 export default function HomeScreen() {
   const router = useRouter()
   const [sections, setSections] = useState<ListSection[]>([])
   const [refreshing, setRefreshing] = useState(false)
 
-  const load = useCallback(() => {
-    const all = getAllQualifications()
+  const load = useCallback(async () => {
+    const all = await getAllQualifications()
     const walking = all.filter(q => q.category === 'walking')
     const climbing = all.filter(q => q.category !== 'walking')
     const built: ListSection[] = []
@@ -27,9 +24,9 @@ export default function HomeScreen() {
 
   useFocusEffect(useCallback(() => { load() }, [load]))
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true)
-    load()
+    await load()
     setRefreshing(false)
   }, [load])
 
@@ -43,10 +40,7 @@ export default function HomeScreen() {
         <Text style={styles.sectionHeader}>{section.title}</Text>
       )}
       renderItem={({ item }) => (
-        <QualCard
-          qual={item}
-          onPress={() => router.push(`/qualification/${item.slug}`)}
-        />
+        <QualCard qual={item} onPress={() => router.push(`/qualification/${item.slug}`)} />
       )}
       ListHeaderComponent={
         <View style={styles.hero}>
@@ -59,32 +53,13 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: {
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
-  hero: {
-    paddingTop: 20,
-    paddingBottom: 16,
-  },
-  heroTitle: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#111827',
-  },
-  heroSub: {
-    fontSize: 14,
-    color: '#6b7280',
-    marginTop: 2,
-  },
+  list: { paddingHorizontal: 16, paddingBottom: 40 },
+  hero: { paddingTop: 20, paddingBottom: 16 },
+  heroTitle: { fontSize: 28, fontWeight: '800', color: '#111827' },
+  heroSub: { fontSize: 14, color: '#6b7280', marginTop: 2 },
   sectionHeader: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#2d7d2d',
-    textTransform: 'uppercase',
-    letterSpacing: 0.8,
-    paddingTop: 20,
-    paddingBottom: 8,
-    backgroundColor: '#f9fafb',
+    fontSize: 13, fontWeight: '700', color: '#2d7d2d',
+    textTransform: 'uppercase', letterSpacing: 0.8,
+    paddingTop: 20, paddingBottom: 8, backgroundColor: '#f9fafb',
   },
 })
