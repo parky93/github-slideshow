@@ -23,18 +23,18 @@ export default function RootLayout() {
 
   return (
     <View style={{ flex: 1 }}>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#fff' },
-          headerTintColor: '#2d7d2d',
-          headerTitleStyle: { fontWeight: '700', color: '#111827' },
+          headerStyle: { backgroundColor: '#1a5c2a' },
+          headerTintColor: '#ffffff',
+          headerTitleStyle: { fontWeight: '700', color: '#ffffff', fontSize: 17 },
           headerShadowVisible: false,
-          contentStyle: { backgroundColor: '#f9fafb' },
+          contentStyle: { backgroundColor: '#f0f5f0' },
         }}
       >
-        <Stack.Screen name="index" options={{ title: 'Mountain Training' }} />
-        <Stack.Screen name="qualification/[slug]/index" options={{ title: '' }} />
+        <Stack.Screen name="index" options={{ title: 'MTA Ready', headerLargeTitle: false }} />
+        <Stack.Screen name="qualification/[slug]/index" options={{ title: 'Qualification' }} />
         <Stack.Screen name="qualification/[slug]/checklist" options={{ title: 'Checklist' }} />
         <Stack.Screen name="qualification/[slug]/history" options={{ title: 'Progress History' }} />
       </Stack>

@@ -174,7 +174,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f5f5f5' },
+  screen: { flex: 1, backgroundColor: '#f0f5f0' },
   list: { paddingHorizontal: 16, paddingBottom: 48 },
 
   /* Hero */
@@ -227,8 +227,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     left: 0,
-    height: 'calc(100% - 4px)' as any,
-    bottom: 2,
+    height: 36,
     backgroundColor: BRAND,
     borderRadius: 12,
   },
@@ -253,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 4,
     paddingBottom: 10,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f5f0',
   },
   sectionDot: {
     width: 8,

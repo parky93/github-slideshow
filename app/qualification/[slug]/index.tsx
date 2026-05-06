@@ -147,7 +147,7 @@ function StatChip({ label, value, valueColor }: { label: string; value: string; 
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f5f5f5' },
+  root: { flex: 1, backgroundColor: '#f0f5f0' },
   scroll: { padding: 16, paddingBottom: 110 },
 
   /* Header */

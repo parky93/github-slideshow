@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
 
   /* Section header */
   sectionHeader: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f0f5f0',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
