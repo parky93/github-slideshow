@@ -81,12 +81,12 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { paddingHorizontal: 16, paddingBottom: 48 },
+  list: { paddingHorizontal: 16, paddingBottom: 48, backgroundColor: '#0F1A0A' },
   listHeader: { paddingTop: 20, paddingBottom: 12 },
-  heading: { fontSize: 13, color: '#9ca3af', fontWeight: '600' },
+  heading: { fontSize: 13, color: '#536644', fontWeight: '600' },
 
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1A2E10',
     borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
@@ -99,10 +99,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardBody: { flex: 1, marginLeft: 16 },
-  date: { fontSize: 14, fontWeight: '700', color: '#111827' },
-  time: { fontSize: 12, color: '#6b7280', marginTop: 1 },
-  label: { fontSize: 12, color: '#6b7280', marginTop: 4 },
-  completion: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
+  date: { fontSize: 14, fontWeight: '700', color: '#ECF0E6' },
+  time: { fontSize: 12, color: '#8FA882', marginTop: 1 },
+  label: { fontSize: 12, color: '#8FA882', marginTop: 4 },
+  completion: { fontSize: 12, color: '#536644', marginTop: 4 },
 
   /* Delta indicator */
   deltaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 },
@@ -110,14 +110,14 @@ const styles = StyleSheet.create({
   delta: { fontSize: 13, fontWeight: '700' },
 
   /* Empty state */
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32 },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#0F1A0A' },
   emptyDot: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#1A2E10',
     marginBottom: 20,
   },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#374151', marginBottom: 8 },
-  emptyHint: { fontSize: 14, color: '#9ca3af', textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#ECF0E6', marginBottom: 8 },
+  emptyHint: { fontSize: 14, color: '#8FA882', textAlign: 'center', lineHeight: 20 },
 })

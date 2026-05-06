@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getJSON, setJSON } from '../client'
-import type { RatingValue, ProgressSnapshot } from '../../types'
+import type { RatingValue, ProgressSnapshot, TargetDate } from '../../types'
 
 interface StoredRating {
   ratingValue: RatingValue | null
@@ -53,4 +54,24 @@ export async function saveSnapshot(
 
 export async function getSnapshots(qualificationId: number): Promise<ProgressSnapshot[]> {
   return (await getJSON<ProgressSnapshot[]>(`mta:snapshots:${qualificationId}`)) ?? []
+}
+
+export async function setTargetDate(qualificationId: number, date: string | null): Promise<void> {
+  if (date === null) {
+    await AsyncStorage.removeItem(`mta:target:${qualificationId}`)
+  } else {
+    await setJSON<TargetDate>(`mta:target:${qualificationId}`, { qualificationId, date })
+  }
+}
+
+export async function getTargetDate(qualificationId: number): Promise<TargetDate | null> {
+  return getJSON<TargetDate>(`mta:target:${qualificationId}`)
+}
+
+export function daysUntil(isoDate: string): number {
+  const target = new Date(isoDate)
+  target.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }

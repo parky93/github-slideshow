@@ -10,7 +10,7 @@ import type { Section, ChecklistItem, RatingValue } from '@/lib/types'
 
 interface ListSection { title: string; data: ChecklistItem[]; sectionObj: Section }
 
-const BRAND = '#2d7d2d'
+const BRAND = '#4A8B28'
 
 export default function ChecklistScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -174,7 +174,7 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes }: 
             style={styles.notes}
             multiline
             placeholder="Add notes..."
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor="#536644"
             value={item.rating?.notes ?? ''}
             onChangeText={t => onNotes(t)}
           />
@@ -185,16 +185,17 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes }: 
 }
 
 const styles = StyleSheet.create({
-  list: { paddingBottom: 48 },
+  list: { paddingBottom: 48, backgroundColor: '#0F1A0A' },
 
   /* Progress bar */
   progressBarWrap: {
     margin: 16,
     marginBottom: 8,
+    backgroundColor: '#1A2E10',
   },
   progressTrack: {
     height: 48,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#243D17',
     borderRadius: 12,
     overflow: 'hidden',
   },
@@ -203,7 +204,7 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: BRAND,
+    backgroundColor: '#4A8B28',
     borderRadius: 12,
   },
   progressLabelRow: {
@@ -220,21 +221,21 @@ const styles = StyleSheet.create({
   progressLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#fff',
+    color: '#ECF0E6',
   },
   progressPct: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#fff',
+    color: '#ECF0E6',
   },
 
   /* Section header */
   sectionHeader: {
-    backgroundColor: '#f0f5f0',
+    backgroundColor: '#0A1306',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: '#2E4A1E',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: BRAND,
+    color: '#ECF0E6',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     flex: 1,
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   sectionCountBadge: {
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#1A2E10',
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -260,10 +261,10 @@ const styles = StyleSheet.create({
   sectionCountText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#6b7280',
+    color: '#8FA882',
   },
   sectionRatedBadge: {
-    backgroundColor: BRAND + '22',
+    backgroundColor: '#0F2E1A',
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -271,20 +272,20 @@ const styles = StyleSheet.create({
   sectionRatedText: {
     fontSize: 11,
     fontWeight: '600',
-    color: BRAND,
+    color: '#22C55E',
   },
 
   /* Item row */
   item: {
-    backgroundColor: '#fff',
+    backgroundColor: '#1A2E10',
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#2E4A1E',
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 14,
   },
   itemExpanded: {
-    backgroundColor: '#fafafa',
+    backgroundColor: '#243D17',
   },
   itemHeader: {
     flexDirection: 'row',
@@ -296,18 +297,18 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#2E4A1E',
     marginRight: 10,
     marginTop: 6,
     flexShrink: 0,
   },
   ratedDotActive: {
-    backgroundColor: BRAND,
+    backgroundColor: '#4A8B28',
   },
   prompt: {
     flex: 1,
     fontSize: 14,
-    color: '#111827',
+    color: '#ECF0E6',
     lineHeight: 20,
     marginRight: 10,
   },
@@ -328,7 +329,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 10,
     height: 2,
-    backgroundColor: '#9ca3af',
+    backgroundColor: '#536644',
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: -3 }],
   },
@@ -336,7 +337,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 10,
     height: 2,
-    backgroundColor: '#9ca3af',
+    backgroundColor: '#536644',
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateX: 3 }],
   },
@@ -347,13 +348,13 @@ const styles = StyleSheet.create({
   detail: {
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#2E4A1E',
     marginTop: 6,
   },
   detailLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#9ca3af',
+    color: '#536644',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
     marginBottom: 8,
@@ -363,23 +364,23 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#243D17',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  confPillActive: { backgroundColor: BRAND },
-  confLabel: { fontSize: 14, fontWeight: '600', color: '#374151' },
-  confLabelActive: { color: '#fff' },
-  confText: { fontSize: 12, color: '#6b7280', marginTop: 6 },
+  confPillActive: { backgroundColor: '#4A8B28' },
+  confLabel: { fontSize: 14, fontWeight: '600', color: '#8FA882' },
+  confLabelActive: { color: '#ECF0E6' },
+  confText: { fontSize: 12, color: '#536644', marginTop: 6 },
   notes: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: '#2E4A1E',
     borderRadius: 10,
     padding: 12,
     fontSize: 13,
-    color: '#111827',
+    color: '#ECF0E6',
     minHeight: 64,
     textAlignVertical: 'top',
-    backgroundColor: '#fff',
+    backgroundColor: '#0F1A0A',
   },
 })

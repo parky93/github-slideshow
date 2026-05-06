@@ -64,10 +64,10 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#374151',
+    color: '#8FA882',
   },
   labelActive: {
-    color: '#fff',
+    color: '#ECF0E6',
     fontWeight: '700',
   },
 })

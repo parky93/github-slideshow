@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getJSON, setJSON } from '../client'
 import type { StoredQual } from '../seed'
-import type { Qualification, QualificationWithMeta, Section, ChecklistItem, UserRating } from '../../types'
+import type { Qualification, QualificationWithMeta, Section, ChecklistItem, UserRating, CoachingNeedItem } from '../../types'
 
 async function loadQuals(): Promise<StoredQual[]> {
   return (await getJSON<StoredQual[]>('mta:quals')) ?? []
@@ -93,4 +93,29 @@ export async function markQualViewed(id: number): Promise<void> {
 export async function toggleFavourite(id: number): Promise<void> {
   const meta = await getMeta(id)
   await setJSON(`mta:meta:${id}`, { ...meta, isFavourite: !meta.isFavourite })
+}
+
+export async function getCoachingNeeds(): Promise<CoachingNeedItem[]> {
+  const quals = await loadQuals()
+  const results: CoachingNeedItem[] = []
+  for (const q of quals) {
+    for (const s of q.sections) {
+      for (const item of s.items) {
+        const r = await getRating(item.id)
+        if (r?.needsCoaching) {
+          results.push({
+            qualId: q.id,
+            qualName: q.name,
+            qualSlug: q.slug,
+            itemId: item.id,
+            prompt: item.prompt,
+            sectionTitle: s.title,
+            ratingValue: (r.ratingValue as any) ?? null,
+            notes: r.notes ?? '',
+          })
+        }
+      }
+    }
+  }
+  return results
 }

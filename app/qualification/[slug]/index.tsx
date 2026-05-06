@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#1A2E10',
     marginBottom: 16,
   },
   emptyText: { color: '#ECF0E6', fontSize: 16, fontWeight: '600', marginBottom: 6 },

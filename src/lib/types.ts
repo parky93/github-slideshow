@@ -111,3 +111,19 @@ export interface ProgressSnapshot {
   label: string | null
   createdAt: string
 }
+
+export interface TargetDate {
+  qualificationId: number
+  date: string  // ISO date string (date only, e.g. "2025-09-15")
+}
+
+export interface CoachingNeedItem {
+  qualId: number
+  qualName: string
+  qualSlug: string
+  itemId: number
+  prompt: string
+  sectionTitle: string
+  ratingValue: RatingValue | null
+  notes: string
+}
