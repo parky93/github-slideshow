@@ -15,8 +15,8 @@ export default function RootLayout() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9fafb' }}>
-        <ActivityIndicator size="large" color="#2d7d2d" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F1A0A' }}>
+        <ActivityIndicator size="large" color="#4A8B28" />
       </View>
     )
   }
@@ -26,11 +26,11 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#1a5c2a' },
-          headerTintColor: '#ffffff',
-          headerTitleStyle: { fontWeight: '700', color: '#ffffff', fontSize: 17 },
+          headerStyle: { backgroundColor: '#0A1306' },
+          headerTintColor: '#ECF0E6',
+          headerTitleStyle: { fontWeight: '700', color: '#ECF0E6', fontSize: 17 },
           headerShadowVisible: false,
-          contentStyle: { backgroundColor: '#f0f5f0' },
+          contentStyle: { backgroundColor: '#0F1A0A' },
         }}
       >
         <Stack.Screen name="index" options={{ title: 'MTA Ready', headerLargeTitle: false }} />

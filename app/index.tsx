@@ -17,7 +17,7 @@ import type { QualificationWithMeta } from '@/lib/types'
 type FilterTab = 'All' | 'Walking' | 'Climbing'
 const TABS: FilterTab[] = ['All', 'Walking', 'Climbing']
 
-const BRAND = '#2d7d2d'
+const BRAND = '#4A8B28'
 const TAB_W = 90
 
 interface ListSection { title: string; data: QualificationWithMeta[] }
@@ -174,7 +174,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f0f5f0' },
+  screen: { flex: 1, backgroundColor: '#0F1A0A' },
   list: { paddingHorizontal: 16, paddingBottom: 48 },
 
   /* Hero */
@@ -188,12 +188,12 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#111827',
+    color: '#ECF0E6',
     letterSpacing: -0.5,
   },
   heroSub: {
     fontSize: 14,
-    color: '#6b7280',
+    color: '#8FA882',
     marginTop: 4,
   },
   heroBadge: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   /* Filter tabs */
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#e5e9eb',
+    backgroundColor: '#1A2E10',
     borderRadius: 14,
     padding: 2,
     width: TAB_W * 3 + 4,
@@ -240,10 +240,10 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#6b7280',
+    color: '#8FA882',
   },
   tabLabelActive: {
-    color: '#fff',
+    color: '#ECF0E6',
   },
 
   /* Section headers */
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 4,
     paddingBottom: 10,
-    backgroundColor: '#f0f5f0',
+    backgroundColor: '#0F1A0A',
   },
   sectionDot: {
     width: 8,
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#374151',
+    color: '#8FA882',
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
@@ -273,5 +273,5 @@ const styles = StyleSheet.create({
 
   /* Empty */
   empty: { alignItems: 'center', paddingVertical: 48 },
-  emptyText: { fontSize: 14, color: '#9ca3af' },
+  emptyText: { fontSize: 14, color: '#536644' },
 })

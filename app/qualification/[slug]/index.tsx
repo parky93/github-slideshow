@@ -8,7 +8,7 @@ import { getQualificationBySlug, getSectionsWithItems, markQualViewed, toggleFav
 import { calculateReadinessScore } from '@/lib/scoring/score'
 import type { Qualification, ReadinessScore } from '@/lib/types'
 
-const BRAND = '#2d7d2d'
+const BRAND = '#4A8B28'
 
 export default function DashboardScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -147,14 +147,14 @@ function StatChip({ label, value, valueColor }: { label: string; value: string; 
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#f0f5f0' },
+  root: { flex: 1, backgroundColor: '#0F1A0A' },
   scroll: { padding: 16, paddingBottom: 110 },
 
   /* Header */
   header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
   headerText: { flex: 1 },
-  name: { fontSize: 22, fontWeight: '800', color: '#111827', letterSpacing: -0.3 },
-  pathway: { fontSize: 13, color: BRAND, marginTop: 4, fontWeight: '600' },
+  name: { fontSize: 22, fontWeight: '800', color: '#ECF0E6', letterSpacing: -0.3 },
+  pathway: { fontSize: 13, color: '#E8893A', marginTop: 4, fontWeight: '600' },
 
   /* Favourite button — geometric dot */
   favBtn: { paddingLeft: 12, paddingTop: 4 },
@@ -163,11 +163,11 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
     borderWidth: 2,
-    borderColor: '#ef4444',
+    borderColor: '#C4621A',
     backgroundColor: 'transparent',
   },
   favDotActive: {
-    backgroundColor: '#ef4444',
+    backgroundColor: '#C4621A',
   },
 
   /* Ring + stats */
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
   statsCol: { flex: 1, gap: 8 },
   statChip: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1A2E10',
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -191,16 +191,16 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 10,
-    color: '#9ca3af',
+    color: '#536644',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     marginBottom: 2,
   },
-  statValue: { fontSize: 15, fontWeight: '700', color: '#111827' },
+  statValue: { fontSize: 15, fontWeight: '700', color: '#ECF0E6' },
 
   /* Summary card */
   summaryCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1A2E10',
     borderRadius: 14,
     padding: 14,
     marginBottom: 16,
@@ -219,13 +219,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
     alignSelf: 'stretch',
   },
-  summaryText: { flex: 1, fontSize: 14, color: '#374151', lineHeight: 21 },
+  summaryText: { flex: 1, fontSize: 14, color: '#8FA882', lineHeight: 21 },
 
   /* Section breakdown heading */
   sectionHeading: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#374151',
+    color: '#536644',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 12,
@@ -241,8 +241,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#e5e7eb',
     marginBottom: 16,
   },
-  emptyText: { color: '#374151', fontSize: 16, fontWeight: '600', marginBottom: 6 },
-  emptyHint: { color: '#9ca3af', fontSize: 13, textAlign: 'center', lineHeight: 18 },
+  emptyText: { color: '#ECF0E6', fontSize: 16, fontWeight: '600', marginBottom: 6 },
+  emptyHint: { color: '#536644', fontSize: 13, textAlign: 'center', lineHeight: 18 },
 
   /* Sticky bottom bar */
   stickyBar: {
@@ -250,14 +250,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#0A1306',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 30 : 16,
     flexDirection: 'row',
     gap: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ececec',
+    borderTopColor: '#2E4A1E',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.06,
@@ -274,10 +274,12 @@ const styles = StyleSheet.create({
   primaryBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
   secondaryBtn: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#1A2E10',
     borderRadius: 13,
     paddingVertical: 15,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
   },
-  secondaryBtnLabel: { color: '#374151', fontWeight: '700', fontSize: 15 },
+  secondaryBtnLabel: { color: '#8FA882', fontWeight: '700', fontSize: 15 },
 })

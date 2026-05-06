@@ -9,19 +9,19 @@ export const RATING_LABELS: Record<RatingValue, string> = {
 }
 
 export const RATING_COLORS: Record<RatingValue, string> = {
-  1: '#fecaca',
-  2: '#fde68a',
-  3: '#bfdbfe',
-  4: '#bbf7d0',
-  5: '#6ee7b7',
+  1: '#3B1515',
+  2: '#3B2200',
+  3: '#152340',
+  4: '#0F2E1A',
+  5: '#0A2614',
 }
 
 export const RATING_ACTIVE_COLORS: Record<RatingValue, string> = {
-  1: '#ef4444',
-  2: '#f59e0b',
-  3: '#3b82f6',
-  4: '#10b981',
-  5: '#059669',
+  1: '#EF4444',
+  2: '#F59E0B',
+  3: '#3B82F6',
+  4: '#22C55E',
+  5: '#16A34A',
 }
 
 export const CONFIDENCE_LABELS: Record<number, string> = {

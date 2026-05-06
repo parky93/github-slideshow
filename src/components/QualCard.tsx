@@ -76,7 +76,7 @@ export function QualCard({ qual, onPress }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1A2E10',
     borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'stretch',
@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#111827',
+    color: '#ECF0E6',
     marginRight: 8,
     lineHeight: 21,
   },
@@ -132,28 +132,28 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 3,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: '#243D17',
     alignSelf: 'flex-start',
   },
   badgeTextMuted: {
     fontSize: 11,
     fontWeight: '500',
-    color: '#9ca3af',
+    color: '#536644',
   },
   meta: {
     fontSize: 12,
-    color: '#9ca3af',
+    color: '#8FA882',
     marginBottom: 10,
   },
   progressTrack: {
     height: 4,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#0F1A0A',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressTrackEmpty: {
     height: 4,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#0F1A0A',
     borderRadius: 2,
     marginTop: 8,
   },
@@ -172,14 +172,14 @@ const styles = StyleSheet.create({
   chevronLine: {
     width: 8,
     height: 2,
-    backgroundColor: '#c4c9cc',
+    backgroundColor: '#536644',
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateY: -2.5 }],
   },
   chevronLine2: {
     width: 8,
     height: 2,
-    backgroundColor: '#c4c9cc',
+    backgroundColor: '#536644',
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateY: 2.5 }],
   },
