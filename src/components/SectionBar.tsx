@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#111827',
+    color: '#ECF0E6',
     flex: 1,
     marginRight: 8,
   },
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   },
   track: {
     height: 8,
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#1A2E10',
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   sub: {
     fontSize: 11,
-    color: '#9ca3af',
+    color: '#536644',
     marginTop: 4,
     textAlign: 'right',
   },

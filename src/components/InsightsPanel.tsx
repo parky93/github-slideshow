@@ -72,7 +72,7 @@ function AccentRow({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#1A2E10',
     borderRadius: 14,
     padding: 16,
     marginBottom: 16,
@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#374151',
+    color: '#536644',
     marginBottom: 14,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: 11,
-    color: '#6b7280',
+    color: '#536644',
     textTransform: 'uppercase',
     letterSpacing: 0.4,
     marginBottom: 3,
@@ -138,13 +138,13 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: '#9ca3af',
+    backgroundColor: '#536644',
     marginRight: 8,
     flexShrink: 0,
   },
   bulletText: {
     fontSize: 13,
-    color: '#374151',
+    color: '#8FA882',
     flex: 1,
     lineHeight: 18,
   },
