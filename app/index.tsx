@@ -110,14 +110,21 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* Coaching needs shortcut */}
-      <Link href="/coaching-needs" asChild>
-        <Pressable style={styles.coachingBtn}>
-          <View style={styles.coachingDot} />
-          <Text style={styles.coachingLabel}>Coaching needs</Text>
-          <Text style={styles.coachingArrow}>›</Text>
-        </Pressable>
-      </Link>
+      {/* Shortcut buttons */}
+      <View style={styles.shortcutRow}>
+        <Link href="/coaching-needs" asChild>
+          <Pressable style={[styles.shortcutBtn, styles.shortcutBtnOrange]}>
+            <View style={[styles.shortcutDot, { backgroundColor: '#C4621A' }]} />
+            <Text style={[styles.shortcutLabel, { color: '#E8893A' }]}>Coaching needs</Text>
+          </Pressable>
+        </Link>
+        <Link href="/stats" asChild>
+          <Pressable style={[styles.shortcutBtn, styles.shortcutBtnGreen]}>
+            <View style={[styles.shortcutDot, { backgroundColor: '#4A8B28' }]} />
+            <Text style={[styles.shortcutLabel, { color: '#8FA882' }]}>Overview</Text>
+          </Pressable>
+        </Link>
+      </View>
 
       {/* Favourites section — only in All tab */}
       {activeTab === 'All' && favourites.length > 0 && (
@@ -281,22 +288,13 @@ const styles = StyleSheet.create({
   favSection: { marginBottom: 4 },
 
   /* Empty */
-  /* Coaching needs shortcut */
-  coachingBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1A2E10',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#C4621A44',
-    gap: 10,
-  },
-  coachingDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#C4621A' },
-  coachingLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#E8893A' },
-  coachingArrow: { fontSize: 18, color: '#536644' },
+  /* Shortcut buttons */
+  shortcutRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
+  shortcutBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A2E10', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, gap: 8, borderWidth: 1 },
+  shortcutBtnOrange: { borderColor: '#C4621A44' },
+  shortcutBtnGreen: { borderColor: '#4A8B2844' },
+  shortcutDot: { width: 8, height: 8, borderRadius: 4 },
+  shortcutLabel: { fontSize: 13, fontWeight: '600' },
 
   empty: { alignItems: 'center', paddingVertical: 48 },
   emptyText: { fontSize: 14, color: '#536644' },

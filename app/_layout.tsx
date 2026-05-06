@@ -35,6 +35,7 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" options={{ title: 'MTA Ready', headerLargeTitle: false }} />
         <Stack.Screen name="coaching-needs" options={{ title: 'Coaching Needs' }} />
+        <Stack.Screen name="stats" options={{ title: 'Overview' }} />
         <Stack.Screen name="qualification/[slug]/index" options={{ title: 'Qualification' }} />
         <Stack.Screen name="qualification/[slug]/checklist" options={{ title: 'Checklist' }} />
         <Stack.Screen name="qualification/[slug]/history" options={{ title: 'Progress History' }} />
