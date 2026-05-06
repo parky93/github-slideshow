@@ -26,7 +26,7 @@ export function ReadinessRing({ score, light, size = 120 }: Props) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#e5e7eb"
+          stroke="#1A2E10"
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 11,
-    color: '#6b7280',
+    color: '#8FA882',
     textAlign: 'center',
     marginTop: 2,
   },
