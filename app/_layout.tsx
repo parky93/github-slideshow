@@ -1,13 +1,25 @@
-import React, { useEffect } from 'react'
-import { View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, ActivityIndicator } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { seedDatabase } from '@/lib/db/seed'
 
 export default function RootLayout() {
+  const [ready, setReady] = useState(false)
+
   useEffect(() => {
-    seedDatabase().catch(console.error)
+    seedDatabase()
+      .catch(console.error)
+      .finally(() => setReady(true))
   }, [])
+
+  if (!ready) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f9fafb' }}>
+        <ActivityIndicator size="large" color="#2d7d2d" />
+      </View>
+    )
+  }
 
   return (
     <View style={{ flex: 1 }}>
