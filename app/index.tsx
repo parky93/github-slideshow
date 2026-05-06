@@ -9,7 +9,7 @@ import {
   Pressable,
   Animated,
 } from 'react-native'
-import { useRouter, useFocusEffect } from 'expo-router'
+import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import type { QualificationWithMeta } from '@/lib/types'
@@ -109,6 +109,15 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
+
+      {/* Coaching needs shortcut */}
+      <Link href="/coaching-needs" asChild>
+        <Pressable style={styles.coachingBtn}>
+          <View style={styles.coachingDot} />
+          <Text style={styles.coachingLabel}>Coaching needs</Text>
+          <Text style={styles.coachingArrow}>›</Text>
+        </Pressable>
+      </Link>
 
       {/* Favourites section — only in All tab */}
       {activeTab === 'All' && favourites.length > 0 && (
@@ -272,6 +281,23 @@ const styles = StyleSheet.create({
   favSection: { marginBottom: 4 },
 
   /* Empty */
+  /* Coaching needs shortcut */
+  coachingBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A2E10',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#C4621A44',
+    gap: 10,
+  },
+  coachingDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#C4621A' },
+  coachingLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: '#E8893A' },
+  coachingArrow: { fontSize: 18, color: '#536644' },
+
   empty: { alignItems: 'center', paddingVertical: 48 },
   emptyText: { fontSize: 14, color: '#536644' },
 })
