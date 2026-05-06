@@ -1,13 +1,14 @@
-import { PrismaClient } from '@prisma/client'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
+export async function getJSON<T>(key: string): Promise<T | null> {
+  const val = await AsyncStorage.getItem(key)
+  return val ? (JSON.parse(val) as T) : null
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-  })
+export async function setJSON(key: string, value: unknown): Promise<void> {
+  await AsyncStorage.setItem(key, JSON.stringify(value))
+}
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+export async function initDatabase(): Promise<void> {
+  // No-op — AsyncStorage needs no schema setup
+}
