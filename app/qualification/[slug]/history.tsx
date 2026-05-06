@@ -60,9 +60,13 @@ export default function HistoryScreen() {
           <View style={styles.card}>
             <ReadinessRing score={item.score} light={light} size={80} />
             <View style={styles.cardBody}>
+              {item.label ? (
+                <View style={styles.labelBadge}>
+                  <Text style={styles.labelText}>{item.label}</Text>
+                </View>
+              ) : null}
               <Text style={styles.date}>{date}</Text>
               <Text style={styles.time}>{time}</Text>
-              {item.label ? <Text style={styles.label}>{item.label}</Text> : null}
               <Text style={styles.completion}>{Math.round(item.completion * 100)}% rated</Text>
               {delta !== null && (
                 <View style={styles.deltaRow}>
@@ -101,7 +105,8 @@ const styles = StyleSheet.create({
   cardBody: { flex: 1, marginLeft: 16 },
   date: { fontSize: 14, fontWeight: '700', color: '#ECF0E6' },
   time: { fontSize: 12, color: '#8FA882', marginTop: 1 },
-  label: { fontSize: 12, color: '#8FA882', marginTop: 4 },
+  labelBadge: { backgroundColor: '#C4621A22', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 6, borderWidth: 1, borderColor: '#C4621A44' },
+  labelText: { fontSize: 12, fontWeight: '700', color: '#E8893A' },
   completion: { fontSize: 12, color: '#536644', marginTop: 4 },
 
   /* Delta indicator */

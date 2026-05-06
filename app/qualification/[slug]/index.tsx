@@ -1,12 +1,12 @@
 import React, { useCallback, useState } from 'react'
-import { View, Text, ScrollView, Pressable, StyleSheet, Platform, Modal, TextInput } from 'react-native'
+import { View, Text, ScrollView, Pressable, StyleSheet, Platform, Modal, TextInput, Share } from 'react-native'
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
 import { ReadinessRing } from '@/components/ReadinessRing'
 import { SectionBar } from '@/components/SectionBar'
 import { InsightsPanel } from '@/components/InsightsPanel'
 import { getQualificationBySlug, getSectionsWithItems, markQualViewed, toggleFavourite } from '@/lib/db/queries/qualifications'
-import { calculateReadinessScore } from '@/lib/scoring/score'
-import { getTargetDate, setTargetDate, daysUntil } from '@/lib/db/queries/ratings'
+import { calculateReadinessScore, getReadinessLabel } from '@/lib/scoring/score'
+import { getTargetDate, setTargetDate, daysUntil, saveSnapshot } from '@/lib/db/queries/ratings'
 import type { Qualification, ReadinessScore, TargetDate } from '@/lib/types'
 
 const BRAND = '#4A8B28'
@@ -20,6 +20,8 @@ export default function DashboardScreen() {
   const [target, setTarget] = useState<TargetDate | null>(null)
   const [showDateModal, setShowDateModal] = useState(false)
   const [dateInput, setDateInput] = useState('')
+  const [showCheckpointModal, setShowCheckpointModal] = useState(false)
+  const [checkpointLabel, setCheckpointLabel] = useState('')
 
   useFocusEffect(useCallback(() => {
     let active = true
@@ -74,6 +76,27 @@ export default function DashboardScreen() {
     await setTargetDate(qual.id, null)
     setTarget(null)
     setShowDateModal(false)
+  }
+
+  const shareReadiness = async () => {
+    if (!qual || !score) return
+    const lines: string[] = [
+      `${qual.name} — Readiness Summary`,
+      `Overall: ${Math.round(score.overall * 100)}% (${getReadinessLabel(score.overall)})`,
+      `Completion: ${Math.round(score.completion * 100)}% of items rated`,
+      '',
+      'Section Breakdown:',
+      ...score.sectionScores.map(s =>
+        `  ${s.title}: ${Math.round(s.score * 100)}% [${s.light.toUpperCase()}]`
+      ),
+    ]
+    if (target && days !== null) {
+      lines.push('')
+      lines.push(`Assessment target: ${new Date(target.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} (${days >= 0 ? `${days} days to go` : `${Math.abs(days)} days ago`})`)
+    }
+    lines.push('')
+    lines.push('Generated with MTA Ready')
+    await Share.share({ message: lines.join('\n') })
   }
 
   const hasScore = score && score.sectionScores.length > 0
@@ -142,6 +165,13 @@ export default function DashboardScreen() {
 
             <Text style={styles.sectionHeading}>Section Breakdown</Text>
             {score.sectionScores.map(s => <SectionBar key={s.sectionId} section={s} />)}
+
+            <Pressable
+              onPress={() => { setCheckpointLabel(''); setShowCheckpointModal(true) }}
+              style={({ pressed }) => [styles.checkpointBtn, pressed && { opacity: 0.75 }]}
+            >
+              <Text style={styles.checkpointBtnLabel}>Save checkpoint</Text>
+            </Pressable>
           </>
         ) : (
           <>
@@ -164,17 +194,54 @@ export default function DashboardScreen() {
       <View style={styles.stickyBar}>
         <Pressable
           onPress={() => router.push(`/qualification/${slug}/checklist`)}
-          style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [styles.primaryBtn, { flex: 2 }, pressed && { opacity: 0.85 }]}
         >
-          <Text style={styles.primaryBtnLabel}>Rate checklist</Text>
+          <Text style={styles.primaryBtnLabel}>Checklist</Text>
         </Pressable>
         <Pressable
           onPress={() => router.push(`/qualification/${slug}/history`)}
-          style={({ pressed }) => [styles.secondaryBtn, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [styles.secondaryBtn, { flex: 1 }, pressed && { opacity: 0.85 }]}
         >
           <Text style={styles.secondaryBtnLabel}>History</Text>
         </Pressable>
+        <Pressable
+          onPress={shareReadiness}
+          disabled={!hasScore}
+          style={({ pressed }) => [styles.secondaryBtn, styles.shareBtn, { flex: 1 }, pressed && { opacity: 0.85 }, !hasScore && { opacity: 0.4 }]}
+        >
+          <Text style={styles.shareBtnLabel}>Share</Text>
+        </Pressable>
       </View>
+
+      {/* Checkpoint modal */}
+      <Modal visible={showCheckpointModal} transparent animationType="fade" onRequestClose={() => setShowCheckpointModal(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowCheckpointModal(false)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <Text style={styles.modalTitle}>Save checkpoint</Text>
+            <Text style={styles.modalHint}>Give this snapshot an optional name</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={checkpointLabel}
+              onChangeText={setCheckpointLabel}
+              placeholder="e.g. Week 4 review"
+              placeholderTextColor="#536644"
+              autoFocus
+            />
+            <View style={styles.modalActions}>
+              <Pressable
+                onPress={async () => {
+                  if (!qual || !score) return
+                  await saveSnapshot(qual.id, score.overall, score.completion, checkpointLabel || undefined)
+                  setShowCheckpointModal(false)
+                }}
+                style={styles.saveBtn}
+              >
+                <Text style={styles.saveBtnLabel}>Save</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Target date modal */}
       <Modal visible={showDateModal} transparent animationType="fade" onRequestClose={() => setShowDateModal(false)}>
@@ -311,6 +378,11 @@ const styles = StyleSheet.create({
     alignItems: 'center', borderWidth: 1, borderColor: '#2E4A1E',
   },
   secondaryBtnLabel: { color: '#8FA882', fontWeight: '700', fontSize: 15 },
+  shareBtn: { borderColor: '#C4621A44' },
+  shareBtnLabel: { color: '#E8893A', fontWeight: '700', fontSize: 15 },
+
+  checkpointBtn: { marginTop: 24, borderRadius: 12, borderWidth: 1, borderColor: '#2E4A1E', paddingVertical: 13, alignItems: 'center', backgroundColor: '#1A2E10' },
+  checkpointBtnLabel: { color: '#8FA882', fontWeight: '600', fontSize: 14 },
 
   /* Date modal */
   modalOverlay: {
