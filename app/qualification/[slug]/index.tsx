@@ -48,7 +48,12 @@ export default function DashboardScreen() {
             <Text style={styles.name}>{qual.name}</Text>
             {qual.pathway && <Text style={styles.pathway}>{qual.pathway}</Text>}
           </View>
-          <Pressable onPress={onToggleFav} style={styles.favBtn} accessibilityRole="button" accessibilityLabel="Toggle favourite">
+          <Pressable
+            onPress={onToggleFav}
+            style={styles.favBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Toggle favourite"
+          >
             <View style={[styles.favDot, qual.isFavourite && styles.favDotActive]} />
           </Pressable>
         </View>
@@ -84,6 +89,7 @@ export default function DashboardScreen() {
             {/* Summary info card */}
             {qual.summary ? (
               <View style={styles.summaryCard}>
+                <View style={styles.summaryAccent} />
                 <Text style={styles.summaryText}>{qual.summary}</Text>
               </View>
             ) : null}
@@ -99,10 +105,12 @@ export default function DashboardScreen() {
           <>
             {qual.summary ? (
               <View style={styles.summaryCard}>
+                <View style={styles.summaryAccent} />
                 <Text style={styles.summaryText}>{qual.summary}</Text>
               </View>
             ) : null}
             <View style={styles.empty}>
+              <View style={styles.emptyDot} />
               <Text style={styles.emptyText}>No checklist items yet</Text>
               <Text style={styles.emptyHint}>Tap "Rate checklist" below to get started once items are added.</Text>
             </View>
@@ -163,20 +171,31 @@ const styles = StyleSheet.create({
   },
 
   /* Ring + stats */
-  ringRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 16 },
+  ringRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    gap: 16,
+  },
   statsCol: { flex: 1, gap: 8 },
   statChip: {
     backgroundColor: '#ffffff',
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
   },
-  statLabel: { fontSize: 10, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 2 },
+  statLabel: {
+    fontSize: 10,
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    marginBottom: 2,
+  },
   statValue: { fontSize: 15, fontWeight: '700', color: '#111827' },
 
   /* Summary card */
@@ -185,27 +204,43 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 14,
     marginBottom: 16,
+    flexDirection: 'row',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
+    overflow: 'hidden',
   },
-  summaryText: { fontSize: 14, color: '#374151', lineHeight: 21 },
+  summaryAccent: {
+    width: 4,
+    backgroundColor: BRAND,
+    borderRadius: 2,
+    marginRight: 12,
+    alignSelf: 'stretch',
+  },
+  summaryText: { flex: 1, fontSize: 14, color: '#374151', lineHeight: 21 },
 
   /* Section breakdown heading */
   sectionHeading: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#374151',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.8,
     marginBottom: 12,
     marginTop: 20,
   },
 
   /* Empty state */
   empty: { alignItems: 'center', paddingVertical: 48 },
+  emptyDot: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e5e7eb',
+    marginBottom: 16,
+  },
   emptyText: { color: '#374151', fontSize: 16, fontWeight: '600', marginBottom: 6 },
   emptyHint: { color: '#9ca3af', fontSize: 13, textAlign: 'center', lineHeight: 18 },
 
@@ -222,26 +257,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#ececec',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 10,
   },
   primaryBtn: {
     flex: 1,
     backgroundColor: BRAND,
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 13,
+    paddingVertical: 15,
     alignItems: 'center',
   },
   primaryBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
   secondaryBtn: {
     flex: 1,
     backgroundColor: '#f3f4f6',
-    borderRadius: 12,
-    paddingVertical: 14,
+    borderRadius: 13,
+    paddingVertical: 15,
     alignItems: 'center',
   },
   secondaryBtnLabel: { color: '#374151', fontWeight: '700', fontSize: 15 },

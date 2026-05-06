@@ -19,7 +19,7 @@ export function SectionBar({ section }: Props) {
         <Text style={[styles.score, { color }]}>{pct}%</Text>
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${pct}%`, backgroundColor: color }]} />
+        <View style={[styles.fill, { width: `${pct}%` as any, backgroundColor: color }]} />
       </View>
       <Text style={styles.sub}>{completion}% rated</Text>
     </View>
@@ -28,12 +28,13 @@ export function SectionBar({ section }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 12,
+    marginBottom: 14,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    alignItems: 'center',
+    marginBottom: 6,
   },
   title: {
     fontSize: 14,
@@ -43,22 +44,23 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   score: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
   },
   track: {
-    height: 6,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 3,
+    height: 8,
+    backgroundColor: '#ebebeb',
+    borderRadius: 4,
     overflow: 'hidden',
   },
   fill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 4,
   },
   sub: {
     fontSize: 11,
     color: '#9ca3af',
-    marginTop: 2,
+    marginTop: 4,
+    textAlign: 'right',
   },
 })

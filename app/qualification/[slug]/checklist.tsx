@@ -8,7 +8,9 @@ import { calculateReadinessScore } from '@/lib/scoring/score'
 import { CONFIDENCE_LABELS } from '@/lib/types'
 import type { Section, ChecklistItem, RatingValue } from '@/lib/types'
 
-interface ListSection { title: string; data: ChecklistItem[] }
+interface ListSection { title: string; data: ChecklistItem[]; sectionObj: Section }
+
+const BRAND = '#2d7d2d'
 
 export default function ChecklistScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -30,6 +32,7 @@ export default function ChecklistScreen() {
   const allItems = sections.flatMap(s => s.items)
   const ratedCount = allItems.filter(i => i.rating?.ratingValue).length
   const totalCount = allItems.length
+  const progressPct = totalCount ? (ratedCount / totalCount) * 100 : 0
 
   const rate = useCallback(async (item: ChecklistItem, value: RatingValue) => {
     setSections(prev => prev.map(s => ({
@@ -67,7 +70,11 @@ export default function ChecklistScreen() {
     notesTimeout.current = setTimeout(() => upsertRating(item.id, { notes: text }).catch(() => {}), 800)
   }, [])
 
-  const listSections: ListSection[] = sections.map(s => ({ title: s.title, data: s.items }))
+  const listSections: ListSection[] = sections.map(s => ({
+    title: s.title,
+    data: s.items,
+    sectionObj: s,
+  }))
 
   return (
     <SectionList
@@ -76,14 +83,35 @@ export default function ChecklistScreen() {
       contentContainerStyle={styles.list}
       stickySectionHeadersEnabled
       ListHeaderComponent={
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: totalCount ? `${(ratedCount / totalCount) * 100}%` : '0%' }]} />
-          <Text style={styles.progressLabel}>{ratedCount}/{totalCount} rated</Text>
+        <View style={styles.progressBarWrap}>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${progressPct}%` as any }]} />
+          </View>
+          <View style={styles.progressLabelRow}>
+            <Text style={styles.progressLabel}>{ratedCount}/{totalCount} items rated</Text>
+            <Text style={styles.progressPct}>{Math.round(progressPct)}%</Text>
+          </View>
         </View>
       }
-      renderSectionHeader={({ section }) => (
-        <Text style={styles.sectionHeader}>{section.title}</Text>
-      )}
+      renderSectionHeader={({ section }) => {
+        const sec = (section as ListSection).sectionObj
+        const secRated = sec.items.filter(i => i.rating?.ratingValue).length
+        return (
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <View style={styles.sectionMeta}>
+              <View style={styles.sectionCountBadge}>
+                <Text style={styles.sectionCountText}>{sec.items.length} items</Text>
+              </View>
+              {secRated > 0 && (
+                <View style={styles.sectionRatedBadge}>
+                  <Text style={styles.sectionRatedText}>{secRated} rated</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )
+      }}
       renderItem={({ item }) => (
         <ItemRow
           item={item}
@@ -103,33 +131,50 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes }: 
   onToggle: () => void; onRate: (v: RatingValue) => void
   onConfidence: (v: number) => void; onNotes: (t: string) => void
 }) {
+  const isRated = !!item.rating?.ratingValue
+
   return (
-    <View style={styles.item}>
-      <Pressable onPress={onToggle} style={styles.itemHeader}>
+    <View style={[styles.item, isExpanded && styles.itemExpanded]}>
+      <Pressable onPress={onToggle} style={styles.itemHeader} hitSlop={{ top: 4, bottom: 4 }}>
+        {/* Rated indicator dot */}
+        <View style={[styles.ratedDot, isRated && styles.ratedDotActive]} />
         <Text style={styles.prompt}>{item.prompt}</Text>
-        <Text style={styles.chevron}>{isExpanded ? '▲' : '▼'}</Text>
+        {/* Larger chevron */}
+        <View style={[styles.chevronIcon, isExpanded && styles.chevronIconUp]}>
+          <View style={styles.chevronA} />
+          <View style={styles.chevronB} />
+        </View>
       </Pressable>
+
       <View style={styles.ratingRow}>
         <RatingPills value={item.rating?.ratingValue ?? null} onChange={onRate} />
       </View>
+
       {isExpanded && (
         <View style={styles.detail}>
           <Text style={styles.detailLabel}>Confidence</Text>
           <View style={styles.confRow}>
             {[1, 2, 3, 4, 5].map(v => (
-              <Pressable key={v} onPress={() => onConfidence(v)}
-                style={[styles.confPill, item.rating?.confidenceValue === v && styles.confPillActive]}>
-                <Text style={[styles.confLabel, item.rating?.confidenceValue === v && styles.confLabelActive]}>{v}</Text>
+              <Pressable
+                key={v}
+                onPress={() => onConfidence(v)}
+                style={[styles.confPill, item.rating?.confidenceValue === v && styles.confPillActive]}
+              >
+                <Text style={[styles.confLabel, item.rating?.confidenceValue === v && styles.confLabelActive]}>
+                  {v}
+                </Text>
               </Pressable>
             ))}
           </View>
-          {item.rating?.confidenceValue && (
+          {item.rating?.confidenceValue ? (
             <Text style={styles.confText}>{CONFIDENCE_LABELS[item.rating.confidenceValue]}</Text>
-          )}
-          <Text style={[styles.detailLabel, { marginTop: 10 }]}>Notes</Text>
+          ) : null}
+          <Text style={[styles.detailLabel, { marginTop: 12 }]}>Notes</Text>
           <TextInput
-            style={styles.notes} multiline
-            placeholder="Add notes…" placeholderTextColor="#9ca3af"
+            style={styles.notes}
+            multiline
+            placeholder="Add notes..."
+            placeholderTextColor="#9ca3af"
             value={item.rating?.notes ?? ''}
             onChangeText={t => onNotes(t)}
           />
@@ -139,25 +184,202 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes }: 
   )
 }
 
-const BRAND = '#2d7d2d'
 const styles = StyleSheet.create({
-  list: { paddingBottom: 40 },
-  progressBar: { height: 36, backgroundColor: '#e5e7eb', margin: 16, borderRadius: 8, overflow: 'hidden', justifyContent: 'center' },
-  progressFill: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: BRAND, borderRadius: 8 },
-  progressLabel: { textAlign: 'center', fontSize: 13, fontWeight: '600', color: '#fff', zIndex: 1 },
-  sectionHeader: { fontSize: 13, fontWeight: '700', color: BRAND, textTransform: 'uppercase', letterSpacing: 0.6, backgroundColor: '#f9fafb', paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#e5e7eb' },
-  item: { backgroundColor: '#fff', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#f3f4f6', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 12 },
-  itemHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
-  prompt: { flex: 1, fontSize: 14, color: '#111827', lineHeight: 20, marginRight: 8 },
-  chevron: { fontSize: 12, color: '#9ca3af', marginTop: 4 },
+  list: { paddingBottom: 48 },
+
+  /* Progress bar */
+  progressBarWrap: {
+    margin: 16,
+    marginBottom: 8,
+  },
+  progressTrack: {
+    height: 48,
+    backgroundColor: '#e5e7eb',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: BRAND,
+    borderRadius: 12,
+  },
+  progressLabelRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+  },
+  progressLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  progressPct: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#fff',
+  },
+
+  /* Section header */
+  sectionHeader: {
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: BRAND,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    flex: 1,
+  },
+  sectionMeta: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  sectionCountBadge: {
+    backgroundColor: '#e5e7eb',
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  sectionCountText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#6b7280',
+  },
+  sectionRatedBadge: {
+    backgroundColor: BRAND + '22',
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  sectionRatedText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: BRAND,
+  },
+
+  /* Item row */
+  item: {
+    backgroundColor: '#fff',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#f0f0f0',
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 14,
+  },
+  itemExpanded: {
+    backgroundColor: '#fafafa',
+  },
+  itemHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  /* Rated indicator */
+  ratedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#e5e7eb',
+    marginRight: 10,
+    marginTop: 6,
+    flexShrink: 0,
+  },
+  ratedDotActive: {
+    backgroundColor: BRAND,
+  },
+  prompt: {
+    flex: 1,
+    fontSize: 14,
+    color: '#111827',
+    lineHeight: 20,
+    marginRight: 10,
+  },
+
+  /* Larger geometric chevron */
+  chevronIcon: {
+    width: 24,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginTop: 0,
+  },
+  chevronIconUp: {
+    transform: [{ rotate: '180deg' }],
+  },
+  chevronA: {
+    position: 'absolute',
+    width: 10,
+    height: 2,
+    backgroundColor: '#9ca3af',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateX: -3 }],
+  },
+  chevronB: {
+    position: 'absolute',
+    width: 10,
+    height: 2,
+    backgroundColor: '#9ca3af',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateX: 3 }],
+  },
+
   ratingRow: { marginBottom: 4 },
-  detail: { paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: '#f3f4f6', marginTop: 6 },
-  detailLabel: { fontSize: 11, fontWeight: '600', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 },
-  confRow: { flexDirection: 'row', gap: 6 },
-  confPill: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#f3f4f6', alignItems: 'center', justifyContent: 'center' },
+
+  /* Expanded detail */
+  detail: {
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#f0f0f0',
+    marginTop: 6,
+  },
+  detailLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 8,
+  },
+  confRow: { flexDirection: 'row', gap: 8 },
+  confPill: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   confPillActive: { backgroundColor: BRAND },
   confLabel: { fontSize: 14, fontWeight: '600', color: '#374151' },
   confLabelActive: { color: '#fff' },
-  confText: { fontSize: 12, color: '#6b7280', marginTop: 4 },
-  notes: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 8, padding: 10, fontSize: 13, color: '#111827', minHeight: 60, textAlignVertical: 'top' },
+  confText: { fontSize: 12, color: '#6b7280', marginTop: 6 },
+  notes: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 13,
+    color: '#111827',
+    minHeight: 64,
+    textAlignVertical: 'top',
+    backgroundColor: '#fff',
+  },
 })

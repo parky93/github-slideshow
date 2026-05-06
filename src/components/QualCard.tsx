@@ -29,7 +29,7 @@ export function QualCard({ qual, onPress }: Props) {
 
       {/* Main body */}
       <View style={styles.body}>
-        {/* Top row: name + badge */}
+        {/* Top row: name + readiness badge */}
         <View style={styles.topRow}>
           <Text style={styles.name} numberOfLines={2}>{qual.name}</Text>
           {hasChecklist ? (
@@ -38,24 +38,20 @@ export function QualCard({ qual, onPress }: Props) {
             </View>
           ) : (
             <View style={styles.badgeMuted}>
-              <Text style={styles.badgeTextMuted}>—</Text>
+              <Text style={styles.badgeTextMuted}>No checklist yet</Text>
             </View>
           )}
         </View>
 
         {/* Meta line */}
-        {hasChecklist ? (
+        {hasChecklist && (
           <Text style={styles.meta}>
             {qual.ratedItems}/{qual.totalItems} rated
           </Text>
-        ) : (
-          <View style={styles.noChecklistBadge}>
-            <Text style={styles.noChecklistText}>No checklist yet</Text>
-          </View>
         )}
 
-        {/* Progress bar — bottom of body */}
-        {hasChecklist && (
+        {/* Progress bar */}
+        {hasChecklist ? (
           <View style={styles.progressTrack}>
             <View
               style={[
@@ -64,11 +60,16 @@ export function QualCard({ qual, onPress }: Props) {
               ]}
             />
           </View>
+        ) : (
+          <View style={styles.progressTrackEmpty} />
         )}
       </View>
 
-      {/* Arrow */}
-      <Text style={styles.arrow}>›</Text>
+      {/* Chevron */}
+      <View style={styles.chevronWrap}>
+        <View style={styles.chevronLine} />
+        <View style={styles.chevronLine2} />
+      </View>
     </Pressable>
   )
 }
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderRadius: 14,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -88,8 +89,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   pressed: {
-    opacity: 0.9,
-    transform: [{ scale: 0.985 }],
+    opacity: 0.92,
+    transform: [{ scale: 0.984 }],
+    shadowOpacity: 0.14,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
   },
   indicator: {
     width: 6,
@@ -99,12 +103,12 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 14,
     paddingTop: 14,
-    paddingBottom: 12,
+    paddingBottom: 14,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 4,
+    marginBottom: 5,
   },
   name: {
     flex: 1,
@@ -117,7 +121,7 @@ const styles = StyleSheet.create({
   badge: {
     borderRadius: 20,
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     alignSelf: 'flex-start',
   },
   badgeText: {
@@ -127,13 +131,13 @@ const styles = StyleSheet.create({
   badgeMuted: {
     borderRadius: 20,
     paddingHorizontal: 8,
-    paddingVertical: 2,
+    paddingVertical: 3,
     backgroundColor: '#f3f4f6',
     alignSelf: 'flex-start',
   },
   badgeTextMuted: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '500',
     color: '#9ca3af',
   },
   meta: {
@@ -141,32 +145,42 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     marginBottom: 10,
   },
-  noChecklistBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#f3f4f6',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginBottom: 2,
-  },
-  noChecklistText: {
-    fontSize: 11,
-    color: '#9ca3af',
-    fontWeight: '500',
-  },
   progressTrack: {
-    height: 3,
-    backgroundColor: '#f3f4f6',
+    height: 4,
+    backgroundColor: '#f0f0f0',
     borderRadius: 2,
     overflow: 'hidden',
+  },
+  progressTrackEmpty: {
+    height: 4,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 2,
+    marginTop: 8,
   },
   progressFill: {
     height: '100%',
     borderRadius: 2,
   },
-  arrow: {
-    fontSize: 20,
-    color: '#9ca3af',
-    paddingRight: 14,
+  /* Geometric chevron — two lines forming a > */
+  chevronWrap: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingRight: 16,
+    paddingLeft: 4,
+    width: 28,
+  },
+  chevronLine: {
+    width: 8,
+    height: 2,
+    backgroundColor: '#c4c9cc',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateY: -2.5 }],
+  },
+  chevronLine2: {
+    width: 8,
+    height: 2,
+    backgroundColor: '#c4c9cc',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateY: 2.5 }],
   },
 })
