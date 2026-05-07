@@ -13,6 +13,7 @@ import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import { getJSON } from '@/lib/db/client'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { QualificationWithMeta } from '@/lib/types'
 
 type FilterTab = 'All' | 'Walking' | 'Climbing'
@@ -41,15 +42,19 @@ export default function HomeScreen() {
   }, [])
 
   const load = useCallback(async () => {
+    const onboarded = await AsyncStorage.getItem('mta:onboarded')
+    if (onboarded !== 'true') {
+      router.replace('/onboarding')
+      return
+    }
     const all = await getAllQualifications()
-    // Filter by active quals if set
     const activeIds = await getJSON<number[]>('mta:active-quals')
     const filtered = activeIds && activeIds.length > 0
       ? all.filter(q => activeIds.includes(q.id))
       : all
     setAllQuals(filtered)
     setSections(buildSections(filtered))
-  }, [buildSections])
+  }, [buildSections, router])
 
   useFocusEffect(useCallback(() => { load() }, [load]))
 
