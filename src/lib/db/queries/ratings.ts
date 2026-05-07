@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getJSON, setJSON } from '../client'
-import type { RatingValue, ProgressSnapshot, TargetDate } from '../../types'
+import type { RatingValue, ProgressSnapshot, TargetDate, TrainingLogEntry } from '../../types'
 
 interface StoredRating {
   ratingValue: RatingValue | null
@@ -66,6 +66,28 @@ export async function setTargetDate(qualificationId: number, date: string | null
 
 export async function getTargetDate(qualificationId: number): Promise<TargetDate | null> {
   return getJSON<TargetDate>(`mta:target:${qualificationId}`)
+}
+
+export async function getLogEntries(itemId: number): Promise<TrainingLogEntry[]> {
+  return (await getJSON<TrainingLogEntry[]>(`mta:log:${itemId}`)) ?? []
+}
+
+export async function addLogEntry(itemId: number, date: string, notes: string): Promise<TrainingLogEntry> {
+  const entry: TrainingLogEntry = {
+    id: String(Date.now()),
+    itemId,
+    date,
+    notes,
+    createdAt: new Date().toISOString(),
+  }
+  const existing = await getJSON<TrainingLogEntry[]>(`mta:log:${itemId}`) ?? []
+  await setJSON(`mta:log:${itemId}`, [entry, ...existing])
+  return entry
+}
+
+export async function deleteLogEntry(itemId: number, entryId: string): Promise<void> {
+  const existing = await getJSON<TrainingLogEntry[]>(`mta:log:${itemId}`) ?? []
+  await setJSON(`mta:log:${itemId}`, existing.filter(e => e.id !== entryId))
 }
 
 export function daysUntil(isoDate: string): number {

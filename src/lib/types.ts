@@ -127,3 +127,11 @@ export interface CoachingNeedItem {
   ratingValue: RatingValue | null
   notes: string
 }
+
+export interface TrainingLogEntry {
+  id: string
+  itemId: number
+  date: string       // ISO date e.g. "2025-09-15"
+  notes: string
+  createdAt: string  // ISO datetime
+}

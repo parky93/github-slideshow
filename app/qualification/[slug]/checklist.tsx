@@ -3,15 +3,44 @@ import { View, Text, SectionList, Pressable, TextInput, StyleSheet } from 'react
 import { useLocalSearchParams } from 'expo-router'
 import { RatingPills } from '@/components/RatingPills'
 import { getQualificationBySlug, getSectionsWithItems } from '@/lib/db/queries/qualifications'
-import { upsertRating, saveSnapshot } from '@/lib/db/queries/ratings'
+import { upsertRating, saveSnapshot, getLogEntries, addLogEntry, deleteLogEntry } from '@/lib/db/queries/ratings'
 import { calculateReadinessScore } from '@/lib/scoring/score'
 import { CONFIDENCE_LABELS } from '@/lib/types'
-import type { Section, ChecklistItem, RatingValue } from '@/lib/types'
+import type { Section, ChecklistItem, RatingValue, TrainingLogEntry } from '@/lib/types'
 
 interface ListSection { title: string; data: ChecklistItem[]; sectionObj: Section }
 
 const BRAND = '#4A8B28'
 const ORANGE = '#C4621A'
+
+function todayISO(): string {
+  const d = new Date()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${mm}-${dd}`
+}
+
+function todayDDMMYYYY(): string {
+  const d = new Date()
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  const dy = String(d.getDate()).padStart(2, '0')
+  return `${dy}/${mm}/${d.getFullYear()}`
+}
+
+function parseDDMMYYYY(s: string): string | null {
+  const parts = s.split('/')
+  if (parts.length !== 3) return null
+  const [dd, mm, yyyy] = parts
+  if (yyyy.length !== 4) return null
+  const iso = `${yyyy}-${mm}-${dd}`
+  const d = new Date(iso)
+  return isNaN(d.getTime()) ? null : iso
+}
+
+function formatLogDate(iso: string): string {
+  const [yyyy, mm, dd] = iso.split('-')
+  return `${dd}/${mm}/${yyyy}`
+}
 
 export default function ChecklistScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -91,7 +120,6 @@ export default function ChecklistScreen() {
       stickySectionHeadersEnabled
       ListHeaderComponent={
         <View style={styles.header}>
-          {/* Progress bar */}
           <View style={styles.progressTrack}>
             <View style={[styles.progressFill, { width: `${progressPct}%` as any }]} />
             <View style={styles.progressLabelRow}>
@@ -99,7 +127,6 @@ export default function ChecklistScreen() {
               <Text style={styles.progressPct}>{Math.round(progressPct)}%</Text>
             </View>
           </View>
-          {/* Unrated filter toggle */}
           <Pressable
             onPress={() => setUnratedOnly(v => !v)}
             style={[styles.filterBtn, unratedOnly && styles.filterBtnActive]}
@@ -154,6 +181,41 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
   const isRated = !!item.rating?.ratingValue
   const needsCoaching = !!item.rating?.needsCoaching
 
+  const [logs, setLogs] = useState<TrainingLogEntry[]>([])
+  const [logsLoaded, setLogsLoaded] = useState(false)
+  const [showAddLog, setShowAddLog] = useState(false)
+  const [logDate, setLogDate] = useState('')
+  const [logNotes, setLogNotes] = useState('')
+
+  useEffect(() => {
+    if (isExpanded && !logsLoaded) {
+      getLogEntries(item.id).then(entries => {
+        setLogs(entries)
+        setLogsLoaded(true)
+      })
+    }
+  }, [isExpanded, logsLoaded, item.id])
+
+  const handleAddLog = async () => {
+    const iso = parseDDMMYYYY(logDate) ?? todayISO()
+    const entry = await addLogEntry(item.id, iso, logNotes)
+    setLogs(prev => [entry, ...prev])
+    setLogDate('')
+    setLogNotes('')
+    setShowAddLog(false)
+  }
+
+  const handleDeleteLog = async (entryId: string) => {
+    await deleteLogEntry(item.id, entryId)
+    setLogs(prev => prev.filter(e => e.id !== entryId))
+  }
+
+  const openAddLog = () => {
+    setLogDate(todayDDMMYYYY())
+    setLogNotes('')
+    setShowAddLog(true)
+  }
+
   return (
     <View style={[styles.item, isExpanded && styles.itemExpanded, needsCoaching && styles.itemCoaching]}>
       <Pressable onPress={onToggle} style={styles.itemHeader} hitSlop={{ top: 4, bottom: 4 }}>
@@ -199,13 +261,75 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
             onChangeText={t => onNotes(t)}
           />
 
-          {/* Needs coaching toggle */}
           <Pressable onPress={onToggleCoaching} style={styles.coachingToggle}>
             <View style={[styles.coachingDot, needsCoaching && styles.coachingDotActive]} />
             <Text style={[styles.coachingLabel, needsCoaching && styles.coachingLabelActive]}>
               {needsCoaching ? 'Flagged for coaching' : 'Flag for coaching'}
             </Text>
           </Pressable>
+
+          {/* Training log */}
+          <View style={styles.logSection}>
+            <View style={styles.logHeaderRow}>
+              <Text style={styles.detailLabel}>Training log</Text>
+              {logs.length > 0 && (
+                <View style={styles.logCountBadge}>
+                  <Text style={styles.logCountText}>{logs.length}</Text>
+                </View>
+              )}
+            </View>
+
+            {logs.map(entry => (
+              <View key={entry.id} style={styles.logEntry}>
+                <View style={styles.logDateChip}>
+                  <Text style={styles.logDateText}>{formatLogDate(entry.date)}</Text>
+                </View>
+                <Text style={styles.logEntryNotes} numberOfLines={2}>{entry.notes || 'No notes'}</Text>
+                <Pressable onPress={() => handleDeleteLog(entry.id)} hitSlop={8} style={styles.logDeleteBtn}>
+                  <View style={styles.logDeleteX1} />
+                  <View style={styles.logDeleteX2} />
+                </Pressable>
+              </View>
+            ))}
+
+            {showAddLog ? (
+              <View style={styles.logForm}>
+                <TextInput
+                  style={styles.logDateInput}
+                  value={logDate}
+                  onChangeText={setLogDate}
+                  placeholder="DD/MM/YYYY"
+                  placeholderTextColor="#536644"
+                  keyboardType="numbers-and-punctuation"
+                  maxLength={10}
+                />
+                <TextInput
+                  style={styles.logNotesInput}
+                  value={logNotes}
+                  onChangeText={setLogNotes}
+                  placeholder="What did you practise?"
+                  placeholderTextColor="#536644"
+                  multiline
+                />
+                <View style={styles.logFormBtns}>
+                  <Pressable onPress={handleAddLog} style={styles.logSaveBtn}>
+                    <Text style={styles.logSaveBtnText}>Save</Text>
+                  </Pressable>
+                  <Pressable onPress={() => setShowAddLog(false)} style={styles.logCancelBtn}>
+                    <Text style={styles.logCancelBtnText}>Cancel</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <Pressable onPress={openAddLog} style={styles.logAddBtn}>
+                <View style={styles.logAddPlus}>
+                  <View style={styles.logPlusH} />
+                  <View style={styles.logPlusV} />
+                </View>
+                <Text style={styles.logAddBtnText}>Add training entry</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
       )}
     </View>
@@ -217,7 +341,6 @@ const styles = StyleSheet.create({
 
   header: { marginHorizontal: 16, marginTop: 16, marginBottom: 8, gap: 10 },
 
-  /* Progress bar */
   progressTrack: {
     height: 48,
     backgroundColor: '#243D17',
@@ -246,7 +369,6 @@ const styles = StyleSheet.create({
   progressLabel: { fontSize: 14, fontWeight: '600', color: '#ECF0E6' },
   progressPct: { fontSize: 14, fontWeight: '800', color: '#ECF0E6' },
 
-  /* Unrated filter */
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -273,7 +395,6 @@ const styles = StyleSheet.create({
   filterLabel: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
   filterLabelActive: { color: '#E8893A' },
 
-  /* Section header */
   sectionHeader: {
     backgroundColor: '#0A1306',
     paddingHorizontal: 16,
@@ -308,7 +429,6 @@ const styles = StyleSheet.create({
   },
   sectionRatedText: { fontSize: 11, fontWeight: '600', color: '#22C55E' },
 
-  /* Item row */
   item: {
     backgroundColor: '#1A2E10',
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -356,7 +476,6 @@ const styles = StyleSheet.create({
 
   ratingRow: { marginBottom: 4 },
 
-  /* Expanded detail */
   detail: {
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -397,7 +516,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F1A0A',
   },
 
-  /* Coaching toggle */
   coachingToggle: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -425,4 +543,149 @@ const styles = StyleSheet.create({
   },
   coachingLabel: { fontSize: 13, fontWeight: '600', color: '#536644' },
   coachingLabelActive: { color: '#E8893A' },
+
+  /* Training log */
+  logSection: {
+    marginTop: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#2E4A1E',
+    paddingTop: 14,
+  },
+  logHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  logCountBadge: {
+    backgroundColor: '#1A2E10',
+    borderRadius: 10,
+    paddingHorizontal: 7,
+    paddingVertical: 1,
+  },
+  logCountText: { fontSize: 11, fontWeight: '700', color: '#8FA882' },
+
+  logEntry: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginBottom: 8,
+    backgroundColor: '#1A2E10',
+    borderRadius: 10,
+    padding: 10,
+  },
+  logDateChip: {
+    backgroundColor: '#0F1A0A',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    flexShrink: 0,
+  },
+  logDateText: { fontSize: 11, fontWeight: '700', color: '#8FA882' },
+  logEntryNotes: { flex: 1, fontSize: 13, color: '#ECF0E6', lineHeight: 18 },
+  logDeleteBtn: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  logDeleteX1: {
+    position: 'absolute',
+    width: 12,
+    height: 1.5,
+    backgroundColor: '#536644',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }],
+  },
+  logDeleteX2: {
+    position: 'absolute',
+    width: 12,
+    height: 1.5,
+    backgroundColor: '#536644',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }],
+  },
+
+  logForm: {
+    backgroundColor: '#1A2E10',
+    borderRadius: 10,
+    padding: 12,
+    gap: 8,
+  },
+  logDateInput: {
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#ECF0E6',
+    backgroundColor: '#0F1A0A',
+  },
+  logNotesInput: {
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    color: '#ECF0E6',
+    minHeight: 56,
+    textAlignVertical: 'top',
+    backgroundColor: '#0F1A0A',
+  },
+  logFormBtns: { flexDirection: 'row', gap: 8 },
+  logSaveBtn: {
+    flex: 1,
+    backgroundColor: BRAND,
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+  },
+  logSaveBtnText: { fontSize: 13, fontWeight: '700', color: '#ECF0E6' },
+  logCancelBtn: {
+    flex: 1,
+    backgroundColor: '#0F1A0A',
+    borderRadius: 8,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+  },
+  logCancelBtnText: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
+
+  logAddBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    borderStyle: 'dashed',
+    alignSelf: 'flex-start',
+  },
+  logAddPlus: {
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logPlusH: {
+    position: 'absolute',
+    width: 12,
+    height: 1.5,
+    backgroundColor: '#4A8B28',
+    borderRadius: 1,
+  },
+  logPlusV: {
+    position: 'absolute',
+    width: 1.5,
+    height: 12,
+    backgroundColor: '#4A8B28',
+    borderRadius: 1,
+  },
+  logAddBtnText: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
 })
