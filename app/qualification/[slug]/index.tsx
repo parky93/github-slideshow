@@ -22,6 +22,7 @@ export default function DashboardScreen() {
   const [dateInput, setDateInput] = useState('')
   const [showCheckpointModal, setShowCheckpointModal] = useState(false)
   const [checkpointLabel, setCheckpointLabel] = useState('')
+  const [unratedCount, setUnratedCount] = useState(0)
 
   useFocusEffect(useCallback(() => {
     let active = true
@@ -37,6 +38,8 @@ export default function DashboardScreen() {
       if (!active) return
       setScore(calculateReadinessScore(sections))
       setTarget(td)
+      const count = sections.reduce((acc, s) => acc + s.items.filter(i => !i.rating?.ratingValue).length, 0)
+      setUnratedCount(count)
     }
     load()
     return () => { active = false }
@@ -198,6 +201,14 @@ export default function DashboardScreen() {
         >
           <Text style={styles.primaryBtnLabel}>Checklist</Text>
         </Pressable>
+        {unratedCount > 0 && (
+          <Pressable
+            onPress={() => router.push(`/qualification/${slug}/quickrate`)}
+            style={({ pressed }) => [styles.secondaryBtn, styles.quickRateBtn, { flex: 1 }, pressed && { opacity: 0.85 }]}
+          >
+            <Text style={styles.quickRateBtnLabel}>Quick Rate</Text>
+          </Pressable>
+        )}
         <Pressable
           onPress={() => router.push(`/qualification/${slug}/history`)}
           style={({ pressed }) => [styles.secondaryBtn, { flex: 1 }, pressed && { opacity: 0.85 }]}
@@ -380,6 +391,8 @@ const styles = StyleSheet.create({
   secondaryBtnLabel: { color: '#8FA882', fontWeight: '700', fontSize: 15 },
   shareBtn: { borderColor: '#C4621A44' },
   shareBtnLabel: { color: '#E8893A', fontWeight: '700', fontSize: 15 },
+  quickRateBtn: { borderColor: '#4A8B2866' },
+  quickRateBtnLabel: { color: '#4A8B28', fontWeight: '700', fontSize: 14 },
 
   checkpointBtn: { marginTop: 24, borderRadius: 12, borderWidth: 1, borderColor: '#2E4A1E', paddingVertical: 13, alignItems: 'center', backgroundColor: '#1A2E10' },
   checkpointBtnLabel: { color: '#8FA882', fontWeight: '600', fontSize: 14 },

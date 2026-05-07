@@ -12,6 +12,7 @@ import {
 import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
+import { getJSON } from '@/lib/db/client'
 import type { QualificationWithMeta } from '@/lib/types'
 
 type FilterTab = 'All' | 'Walking' | 'Climbing'
@@ -41,8 +42,13 @@ export default function HomeScreen() {
 
   const load = useCallback(async () => {
     const all = await getAllQualifications()
-    setAllQuals(all)
-    setSections(buildSections(all))
+    // Filter by active quals if set
+    const activeIds = await getJSON<number[]>('mta:active-quals')
+    const filtered = activeIds && activeIds.length > 0
+      ? all.filter(q => activeIds.includes(q.id))
+      : all
+    setAllQuals(filtered)
+    setSections(buildSections(filtered))
   }, [buildSections])
 
   useFocusEffect(useCallback(() => { load() }, [load]))
@@ -76,12 +82,41 @@ export default function HomeScreen() {
     <View style={styles.hero}>
       {/* App heading */}
       <View style={styles.heroRow}>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.heroTitle}>MTA Ready</Text>
           <Text style={styles.heroSub}>{allQuals.length} qualifications tracked</Text>
         </View>
-        <View style={styles.heroBadge}>
-          <Text style={styles.heroBadgeText}>{allQuals.length}</Text>
+        <View style={styles.heroActions}>
+          {/* Gear icon — navigate to settings */}
+          <Pressable
+            onPress={() => router.push('/settings')}
+            style={({ pressed }) => [styles.heroIconBtn, pressed && { opacity: 0.7 }]}
+            accessibilityLabel="Settings"
+          >
+            {/* Gear drawn with a circle + border dash effect */}
+            <View style={styles.gearOuter}>
+              <View style={styles.gearInner} />
+              <View style={[styles.gearTooth, { top: -3, left: 7 }]} />
+              <View style={[styles.gearTooth, { bottom: -3, left: 7 }]} />
+              <View style={[styles.gearTooth, { left: -3, top: 7, width: 6, height: 4 }]} />
+              <View style={[styles.gearTooth, { right: -3, top: 7, width: 6, height: 4 }]} />
+            </View>
+          </Pressable>
+          {/* Search icon */}
+          <Pressable
+            onPress={() => router.push('/search')}
+            style={({ pressed }) => [styles.heroIconBtn, pressed && { opacity: 0.7 }]}
+            accessibilityLabel="Search"
+          >
+            <View style={styles.searchIconContainer}>
+              <View style={styles.searchCircleHero} />
+              <View style={styles.searchHandleHero} />
+            </View>
+          </Pressable>
+          {/* Count badge */}
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>{allQuals.length}</Text>
+          </View>
         </View>
       </View>
 
@@ -212,6 +247,72 @@ const styles = StyleSheet.create({
     color: '#8FA882',
     marginTop: 4,
   },
+  heroActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 2,
+  },
+  heroIconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#1A2E10',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+  },
+  /* Gear icon */
+  gearOuter: {
+    width: 18,
+    height: 18,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gearInner: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    borderColor: '#8FA882',
+    backgroundColor: 'transparent',
+  },
+  gearTooth: {
+    position: 'absolute',
+    width: 4,
+    height: 6,
+    backgroundColor: '#8FA882',
+    borderRadius: 1,
+  },
+  /* Search icon in hero */
+  searchIconContainer: {
+    width: 18,
+    height: 18,
+    position: 'relative',
+  },
+  searchCircleHero: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#8FA882',
+    backgroundColor: 'transparent',
+  },
+  searchHandleHero: {
+    position: 'absolute',
+    bottom: 1,
+    right: 1,
+    width: 6,
+    height: 2,
+    backgroundColor: '#8FA882',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }],
+  },
   heroBadge: {
     backgroundColor: BRAND,
     borderRadius: 22,
@@ -220,7 +321,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
-    marginTop: 2,
   },
   heroBadgeText: {
     color: '#fff',
