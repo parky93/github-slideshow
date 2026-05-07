@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { View, ActivityIndicator } from 'react-native'
 import { Stack, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
@@ -9,6 +9,7 @@ export default function RootLayout() {
   const [ready, setReady] = useState(false)
   const [needsOnboarding, setNeedsOnboarding] = useState(false)
   const router = useRouter()
+  const hasRedirected = useRef(false)
 
   useEffect(() => {
     async function init() {
@@ -28,7 +29,8 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
-    if (ready && needsOnboarding) {
+    if (ready && needsOnboarding && !hasRedirected.current) {
+      hasRedirected.current = true
       router.replace('/onboarding')
     }
   }, [ready, needsOnboarding, router])
