@@ -6,6 +6,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "mta-ready",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "backgroundColor": "#0F1A0A"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.mta.ready"
