@@ -3,20 +3,41 @@ import { View, ActivityIndicator } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { seedDatabase } from '@/lib/db/seed'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import OnboardingScreen from './onboarding'
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false)
+  const [onboarded, setOnboarded] = useState(false)
 
   useEffect(() => {
-    seedDatabase()
-      .catch(console.error)
-      .finally(() => setReady(true))
+    async function init() {
+      try {
+        await seedDatabase()
+        const v = await AsyncStorage.getItem('mta:onboarded')
+        setOnboarded(v === 'true')
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setReady(true)
+      }
+    }
+    init()
   }, [])
 
   if (!ready) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F1A0A' }}>
         <ActivityIndicator size="large" color="#4A8B28" />
+      </View>
+    )
+  }
+
+  if (!onboarded) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#0F1A0A' }}>
+        <StatusBar style="light" />
+        <OnboardingScreen onComplete={() => setOnboarded(true)} />
       </View>
     )
   }

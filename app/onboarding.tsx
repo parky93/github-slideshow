@@ -20,7 +20,7 @@ interface QualOption {
   pathway: string | null
 }
 
-export default function OnboardingScreen() {
+export default function OnboardingScreen({ onComplete }: { onComplete?: () => void }) {
   const router = useRouter()
   const [quals, setQuals] = useState<QualOption[]>([])
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -64,7 +64,11 @@ export default function OnboardingScreen() {
     const activeIds = Array.from(selected)
     await setJSON('mta:active-quals', activeIds)
     await AsyncStorage.setItem('mta:onboarded', 'true')
-    router.replace('/')
+    if (onComplete) {
+      onComplete()
+    } else {
+      router.replace('/')
+    }
   }
 
   return (

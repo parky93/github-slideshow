@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react'
+import React, { useCallback, useState, useRef } from 'react'
 import {
   View,
   Text,
@@ -9,11 +9,10 @@ import {
   Pressable,
   Animated,
 } from 'react-native'
-import { useRouter, useFocusEffect, Link, Redirect } from 'expo-router'
+import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import { getJSON } from '@/lib/db/client'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { QualificationWithMeta } from '@/lib/types'
 
 type FilterTab = 'All' | 'Walking' | 'Climbing'
@@ -26,16 +25,11 @@ interface ListSection { title: string; data: QualificationWithMeta[] }
 
 export default function HomeScreen() {
   const router = useRouter()
-  const [onboardingReady, setOnboardingReady] = useState<boolean | null>(null)
   const [allQuals, setAllQuals] = useState<QualificationWithMeta[]>([])
   const [sections, setSections] = useState<ListSection[]>([])
   const [activeTab, setActiveTab] = useState<FilterTab>('All')
   const [refreshing, setRefreshing] = useState(false)
   const pillAnim = useRef(new Animated.Value(0)).current
-
-  useEffect(() => {
-    AsyncStorage.getItem('mta:onboarded').then(v => setOnboardingReady(v === 'true'))
-  }, [])
 
   const buildSections = useCallback((quals: QualificationWithMeta[]) => {
     const walking = quals.filter(q => q.category === 'walking')
@@ -56,9 +50,7 @@ export default function HomeScreen() {
     setSections(buildSections(filtered))
   }, [buildSections])
 
-  useFocusEffect(useCallback(() => {
-    if (onboardingReady) load()
-  }, [load, onboardingReady]))
+  useFocusEffect(useCallback(() => { load() }, [load]))
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -75,9 +67,6 @@ export default function HomeScreen() {
       friction: 10,
     }).start()
   }
-
-  if (onboardingReady === null) return null
-  if (!onboardingReady) return <Redirect href="/onboarding" />
 
   const filteredFlat = activeTab === 'Walking'
     ? allQuals.filter(q => q.category === 'walking')
