@@ -70,6 +70,7 @@ export default function OnboardingScreen() {
   return (
     <View style={styles.screen}>
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
@@ -185,6 +186,7 @@ function QualPill({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#0F1A0A' },
+  scrollView: { flex: 1 },
   scroll: { paddingHorizontal: 16, paddingTop: 32, paddingBottom: 24 },
 
   header: { marginBottom: 24 },
