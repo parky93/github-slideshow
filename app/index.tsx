@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   Pressable,
   Animated,
 } from 'react-native'
-import { useRouter, useFocusEffect, Link } from 'expo-router'
+import { useRouter, useFocusEffect, Link, Redirect } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import { getJSON } from '@/lib/db/client'
@@ -26,11 +26,16 @@ interface ListSection { title: string; data: QualificationWithMeta[] }
 
 export default function HomeScreen() {
   const router = useRouter()
+  const [onboardingReady, setOnboardingReady] = useState<boolean | null>(null)
   const [allQuals, setAllQuals] = useState<QualificationWithMeta[]>([])
   const [sections, setSections] = useState<ListSection[]>([])
   const [activeTab, setActiveTab] = useState<FilterTab>('All')
   const [refreshing, setRefreshing] = useState(false)
   const pillAnim = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    AsyncStorage.getItem('mta:onboarded').then(v => setOnboardingReady(v === 'true'))
+  }, [])
 
   const buildSections = useCallback((quals: QualificationWithMeta[]) => {
     const walking = quals.filter(q => q.category === 'walking')
@@ -42,11 +47,6 @@ export default function HomeScreen() {
   }, [])
 
   const load = useCallback(async () => {
-    const onboarded = await AsyncStorage.getItem('mta:onboarded')
-    if (onboarded !== 'true') {
-      router.replace('/onboarding')
-      return
-    }
     const all = await getAllQualifications()
     const activeIds = await getJSON<number[]>('mta:active-quals')
     const filtered = activeIds && activeIds.length > 0
@@ -54,9 +54,11 @@ export default function HomeScreen() {
       : all
     setAllQuals(filtered)
     setSections(buildSections(filtered))
-  }, [buildSections, router])
+  }, [buildSections])
 
-  useFocusEffect(useCallback(() => { load() }, [load]))
+  useFocusEffect(useCallback(() => {
+    if (onboardingReady) load()
+  }, [load, onboardingReady]))
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -73,6 +75,9 @@ export default function HomeScreen() {
       friction: 10,
     }).start()
   }
+
+  if (onboardingReady === null) return null
+  if (!onboardingReady) return <Redirect href="/onboarding" />
 
   const filteredFlat = activeTab === 'Walking'
     ? allQuals.filter(q => q.category === 'walking')
