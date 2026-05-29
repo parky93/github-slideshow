@@ -64,6 +64,13 @@ export default function RootLayout() {
         <Stack.Screen name="search" options={{ title: 'Search' }} />
         <Stack.Screen name="onboarding" options={{ title: 'Get Started', headerShown: false }} />
         <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+        <Stack.Screen name="paywall" options={{ title: 'Go Pro' }} />
+        <Stack.Screen name="dlog/activity-type" options={{ title: 'Log Activity' }} />
+        <Stack.Screen name="dlog/log-activity" options={{ title: 'Activity Details' }} />
+        <Stack.Screen name="dlog/location-search" options={{ title: 'Search Location' }} />
+        <Stack.Screen name="dlog/gpx-builder" options={{ title: 'GPX Builder' }} />
+        <Stack.Screen name="dlog/export" options={{ title: 'DLOG Export' }} />
+        <Stack.Screen name="dlog/logbook" options={{ title: 'My Logbook' }} />
       </Stack>
     </View>
   )

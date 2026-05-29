@@ -1,0 +1,445 @@
+import React, { useEffect, useState } from 'react'
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  ScrollView,
+  Alert,
+  SafeAreaView,
+  Linking,
+} from 'react-native'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { File, Paths } from 'expo-file-system'
+import * as Sharing from 'expo-sharing'
+import { getActivities, saveActivity } from '@/lib/dlog/storage'
+import { buildGpx } from '@/lib/dlog/gpx'
+import { DLOG_CHECKLISTS, type DLogActivity } from '@/lib/dlog/types'
+
+export default function ExportScreen() {
+  const { activityId } = useLocalSearchParams<{ activityId: string }>()
+  const router = useRouter()
+  const [activity, setActivity] = useState<DLogActivity | null>(null)
+  const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      const all = await getActivities()
+      const found = all.find(a => a.id === activityId)
+      if (found) {
+        setActivity(found)
+        setSaved(true) // already in storage if coming from log-activity
+      }
+    }
+    load()
+  }, [activityId])
+
+  const handleDownloadGpx = async () => {
+    if (!activity) return
+    const gpxContent = buildGpx(activity.activityLabel, activity.date, activity.waypoints)
+    const filename = `${activity.activityTypeId}-${activity.date}.gpx`
+    try {
+      const file = new File(Paths.cache, filename)
+      file.write(gpxContent)
+      const canShare = await Sharing.isAvailableAsync()
+      if (canShare) {
+        await Sharing.shareAsync(file.uri, {
+          mimeType: 'application/gpx+xml',
+          dialogTitle: 'Save GPX file',
+          UTI: 'public.data',
+        })
+      } else {
+        Alert.alert('Sharing not available', 'Cannot share files on this device.')
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Failed to create GPX file.')
+    }
+  }
+
+  const handleShareSummary = async () => {
+    if (!activity) return
+    const summary = buildSummary(activity)
+    try {
+      const file = new File(Paths.cache, `dlog-summary-${activity.id}.txt`)
+      file.write(summary)
+      const canShare = await Sharing.isAvailableAsync()
+      if (canShare) {
+        await Sharing.shareAsync(file.uri, {
+          mimeType: 'text/plain',
+          dialogTitle: 'Share DLOG Summary',
+        })
+      } else {
+        Alert.alert('Sharing not available', 'Cannot share on this device.')
+      }
+    } catch (e) {
+      Alert.alert('Error', 'Failed to share summary.')
+    }
+  }
+
+  const handleSaveToLogbook = async () => {
+    if (!activity || saved) return
+    await saveActivity(activity)
+    setSaved(true)
+    Alert.alert('Saved', 'Activity added to your logbook.')
+  }
+
+  if (!activity) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.loadingWrap}>
+          <Text style={styles.loadingText}>Loading activity...</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  const checklist = DLOG_CHECKLISTS[activity.activityTypeId] ?? []
+  const summary = buildSummary(activity)
+  const hasWaypoints = activity.waypoints.length > 0
+
+  return (
+    <SafeAreaView style={styles.safe}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+
+        {/* Header info */}
+        <View style={styles.headerCard}>
+          <Text style={styles.activityTitle}>{activity.activityLabel}</Text>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaChip}>{formatDate(activity.date)}</Text>
+            {activity.locationName ? (
+              <Text style={styles.metaChip}>{activity.locationName}</Text>
+            ) : null}
+            {activity.isQmd && (
+              <View style={styles.qmdBadge}>
+                <Text style={styles.qmdText}>QMD</Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* GPX section */}
+        {hasWaypoints && (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>GPX File</Text>
+            <Text style={styles.sectionHint}>
+              {activity.waypoints.length} waypoint{activity.waypoints.length !== 1 ? 's' : ''} recorded
+            </Text>
+            <Pressable
+              style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, pressed && { opacity: 0.7 }]}
+              onPress={handleDownloadGpx}
+            >
+              {/* Download icon */}
+              <View style={styles.downloadIcon}>
+                <View style={styles.dlArrow} />
+                <View style={styles.dlLine} />
+                <View style={styles.dlBase} />
+              </View>
+              <Text style={styles.actionBtnText}>Download GPX File</Text>
+            </Pressable>
+          </View>
+        )}
+
+        {/* DLOG Summary */}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>DLOG Summary</Text>
+          <View style={styles.summaryCard}>
+            <Text style={styles.summaryText}>{summary}</Text>
+          </View>
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnMuted, pressed && { opacity: 0.7 }]}
+            onPress={handleShareSummary}
+          >
+            <View style={styles.shareIcon}>
+              <View style={styles.shareArrow} />
+            </View>
+            <Text style={styles.actionBtnText}>Share Summary</Text>
+          </Pressable>
+        </View>
+
+        {/* DLOG Checklist */}
+        {checklist.length > 0 && (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>DLOG Checklist</Text>
+            {checklist.map((item, i) => (
+              <View key={i} style={styles.checkItem}>
+                <View style={styles.checkbox}>
+                  <View style={styles.checkShort} />
+                  <View style={styles.checkLong} />
+                </View>
+                <Text style={styles.checkText}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Open DLOG */}
+        <Pressable
+          style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, styles.fullWidthBtn, pressed && { opacity: 0.7 }]}
+          onPress={() => Linking.openURL('https://mt.tahdah.me')}
+        >
+          <Text style={styles.actionBtnText}>Open DLOG</Text>
+          <View style={styles.externalIcon}>
+            <View style={styles.extArrow} />
+          </View>
+        </Pressable>
+
+        {/* Save to logbook / View logbook */}
+        {!saved ? (
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnMuted, styles.fullWidthBtn, pressed && { opacity: 0.7 }]}
+            onPress={handleSaveToLogbook}
+          >
+            <Text style={styles.actionBtnText}>Save to Logbook</Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            style={({ pressed }) => [styles.actionBtn, styles.actionBtnMuted, styles.fullWidthBtn, pressed && { opacity: 0.7 }]}
+            onPress={() => router.push('/dlog/logbook')}
+          >
+            <Text style={styles.actionBtnText}>View Logbook</Text>
+          </Pressable>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
+
+function buildSummary(a: DLogActivity): string {
+  const lines = [
+    `Activity: ${a.activityLabel}`,
+    `Date: ${formatDate(a.date)}`,
+    `Location: ${a.locationName || 'Not specified'}`,
+  ]
+  if (a.durationHours != null) lines.push(`Duration: ${a.durationHours} hours`)
+  if (a.distanceKm != null) lines.push(`Distance: ${a.distanceKm} km`)
+  if (a.isQmd) lines.push('QMD: Yes')
+  if (a.isMultiPitch) lines.push('Multi-pitch: Yes')
+  if (a.notes) lines.push(`Notes: ${a.notes}`)
+  return lines.join('\n')
+}
+
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
+
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  scroll: { paddingHorizontal: 16, paddingBottom: 48, paddingTop: 16 },
+  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  loadingText: { color: '#8FA882', fontSize: 15 },
+
+  headerCard: {
+    backgroundColor: '#1A2E10',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    padding: 16,
+    marginBottom: 16,
+  },
+  activityTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#ECF0E6',
+    marginBottom: 10,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  metaChip: {
+    backgroundColor: '#2E4A1E',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    fontSize: 13,
+    color: '#8FA882',
+    fontWeight: '600',
+  },
+  qmdBadge: {
+    backgroundColor: '#4A8B28',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  qmdText: { fontSize: 13, fontWeight: '800', color: '#fff' },
+
+  sectionCard: {
+    backgroundColor: '#1A2E10',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    padding: 16,
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#8FA882',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  sectionHint: {
+    fontSize: 13,
+    color: '#536644',
+    marginBottom: 12,
+  },
+
+  summaryCard: {
+    backgroundColor: '#0F1A0A',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#2E4A1E',
+    padding: 14,
+    marginBottom: 12,
+  },
+  summaryText: {
+    fontSize: 13,
+    color: '#8FA882',
+    lineHeight: 22,
+    fontFamily: 'monospace',
+  },
+
+  actionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 20,
+    marginTop: 8,
+  },
+  actionBtnGreen: {
+    backgroundColor: '#4A8B28',
+  },
+  actionBtnMuted: {
+    backgroundColor: '#2E4A1E',
+  },
+  fullWidthBtn: {
+    marginBottom: 8,
+  },
+  actionBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#ECF0E6',
+  },
+
+  /* Download icon */
+  downloadIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  dlArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 7,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: '#fff',
+    marginTop: 2,
+  },
+  dlLine: {
+    position: 'absolute',
+    top: 1,
+    width: 2,
+    height: 8,
+    backgroundColor: '#fff',
+    borderRadius: 1,
+  },
+  dlBase: {
+    position: 'absolute',
+    bottom: 1,
+    width: 14,
+    height: 2,
+    backgroundColor: '#fff',
+    borderRadius: 1,
+  },
+
+  /* Share icon */
+  shareIcon: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shareArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#ECF0E6',
+  },
+
+  /* External link icon */
+  externalIcon: {
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  extArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderBottomWidth: 8,
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: '#ECF0E6',
+    transform: [{ rotate: '45deg' }],
+  },
+
+  /* Checklist */
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginBottom: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#4A8B28',
+    backgroundColor: '#0F1A0A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  checkShort: {
+    position: 'absolute',
+    width: 5,
+    height: 2,
+    backgroundColor: '#4A8B28',
+    borderRadius: 1,
+    transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
+  },
+  checkLong: {
+    position: 'absolute',
+    width: 9,
+    height: 2,
+    backgroundColor: '#4A8B28',
+    borderRadius: 1,
+    transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: -1 }],
+  },
+  checkText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#8FA882',
+    lineHeight: 20,
+  },
+})

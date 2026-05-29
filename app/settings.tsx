@@ -1,14 +1,25 @@
-import React from 'react'
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { View, Text, Pressable, StyleSheet, Switch } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getIsPro, setIsPro } from '@/lib/dlog/storage'
 
 export default function SettingsScreen() {
   const router = useRouter()
+  const [isPro, setIsProState] = useState(false)
+
+  useEffect(() => {
+    getIsPro().then(v => setIsProState(v))
+  }, [])
 
   const handleResetQuals = async () => {
     await AsyncStorage.multiRemove(['mta:onboarded', 'mta:active-quals'])
     router.replace('/onboarding')
+  }
+
+  const handleProToggle = async (v: boolean) => {
+    setIsProState(v)
+    await setIsPro(v)
   }
 
   return (
@@ -29,6 +40,24 @@ export default function SettingsScreen() {
             <View style={styles.chevronLine2} />
           </View>
         </Pressable>
+      </View>
+
+      {/* Developer tools */}
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>Developer Tools</Text>
+
+        <View style={styles.row}>
+          <View style={styles.rowContent}>
+            <Text style={styles.rowTitle}>Pro access</Text>
+            <Text style={styles.rowHint}>For testing only — enables DLOG Toolkit</Text>
+          </View>
+          <Switch
+            value={isPro}
+            onValueChange={handleProToggle}
+            trackColor={{ false: '#2E4A1E', true: '#4A8B28' }}
+            thumbColor="#ECF0E6"
+          />
+        </View>
       </View>
     </View>
   )

@@ -13,6 +13,7 @@ import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import { getJSON } from '@/lib/db/client'
+import { getIsPro } from '@/lib/dlog/storage'
 import type { QualificationWithMeta } from '@/lib/types'
 
 type FilterTab = 'All' | 'Walking' | 'Climbing'
@@ -66,6 +67,15 @@ export default function HomeScreen() {
       tension: 80,
       friction: 10,
     }).start()
+  }
+
+  const handleDlogPress = async () => {
+    const isPro = await getIsPro()
+    if (isPro) {
+      router.push('/dlog/activity-type')
+    } else {
+      router.push('/paywall')
+    }
   }
 
   const filteredFlat = activeTab === 'Walking'
@@ -158,6 +168,20 @@ export default function HomeScreen() {
             <Text style={[styles.shortcutLabel, { color: '#8FA882' }]}>Overview</Text>
           </Pressable>
         </Link>
+      </View>
+
+      {/* DLOG Toolkit button */}
+      <View style={styles.shortcutRow}>
+        <Pressable
+          style={({ pressed }) => [styles.shortcutBtn, styles.shortcutBtnBlue, styles.shortcutFull, pressed && { opacity: 0.7 }]}
+          onPress={handleDlogPress}
+        >
+          <View style={[styles.shortcutDot, { backgroundColor: '#3B82F6' }]} />
+          <Text style={[styles.shortcutLabel, { color: '#3B82F6' }]}>DLOG Toolkit</Text>
+          <View style={styles.proTag}>
+            <Text style={styles.proTagText}>PRO</Text>
+          </View>
+        </Pressable>
       </View>
 
       {/* Favourites section — only in All tab */}
@@ -386,14 +410,22 @@ const styles = StyleSheet.create({
   /* Favourites */
   favSection: { marginBottom: 4 },
 
-  /* Empty */
   /* Shortcut buttons */
-  shortcutRow: { flexDirection: 'row', gap: 10, marginBottom: 20 },
+  shortcutRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
   shortcutBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A2E10', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, gap: 8, borderWidth: 1 },
   shortcutBtnOrange: { borderColor: '#C4621A44' },
   shortcutBtnGreen: { borderColor: '#4A8B2844' },
+  shortcutBtnBlue: { borderColor: '#1B3A5C', backgroundColor: '#1A2E10' },
+  shortcutFull: { flex: 1 },
   shortcutDot: { width: 8, height: 8, borderRadius: 4 },
-  shortcutLabel: { fontSize: 13, fontWeight: '600' },
+  shortcutLabel: { fontSize: 13, fontWeight: '600', flex: 1 },
+  proTag: {
+    backgroundColor: '#3B82F6',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  proTagText: { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
 
   empty: { alignItems: 'center', paddingVertical: 48 },
   emptyText: { fontSize: 14, color: '#536644' },
