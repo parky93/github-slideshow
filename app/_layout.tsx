@@ -55,16 +55,14 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: C.bg },
         }}
       >
-        <Stack.Screen name="index" options={{ title: 'MTA Ready', headerLargeTitle: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="coaching-needs" options={{ title: 'Coaching Needs' }} />
-        <Stack.Screen name="stats" options={{ title: 'Overview' }} />
         <Stack.Screen name="qualification/[slug]/index" options={{ title: 'Qualification' }} />
         <Stack.Screen name="qualification/[slug]/checklist" options={{ title: 'Checklist' }} />
         <Stack.Screen name="qualification/[slug]/history" options={{ title: 'Progress History' }} />
         <Stack.Screen name="qualification/[slug]/quickrate" options={{ title: 'Quick Rate' }} />
         <Stack.Screen name="search" options={{ title: 'Search' }} />
         <Stack.Screen name="onboarding" options={{ title: 'Get Started', headerShown: false }} />
-        <Stack.Screen name="settings" options={{ title: 'Settings' }} />
         <Stack.Screen name="paywall" options={{ title: 'Go Pro' }} />
         <Stack.Screen name="dlog/activity-type" options={{ title: 'Log Activity' }} />
         <Stack.Screen name="dlog/log-activity" options={{ title: 'Activity Details' }} />

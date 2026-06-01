@@ -60,7 +60,7 @@ export async function setTargetDate(qualificationId: number, date: string | null
   if (date === null) {
     await AsyncStorage.removeItem(`mta:target:${qualificationId}`)
   } else {
-    await setJSON<TargetDate>(`mta:target:${qualificationId}`, { qualificationId, date })
+    await setJSON(`mta:target:${qualificationId}`, { qualificationId, date } as TargetDate)
   }
 }
 
