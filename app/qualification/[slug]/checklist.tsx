@@ -234,6 +234,12 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
         </View>
       </Pressable>
 
+      {item.detail ? (
+        <Text style={styles.skillDetail} numberOfLines={isExpanded ? undefined : 3}>
+          {item.detail}
+        </Text>
+      ) : null}
+
       <View style={styles.ratingRow}>
         <RatingPills value={item.rating?.ratingValue ?? null} onChange={onRate} />
       </View>
@@ -462,6 +468,14 @@ const styles = StyleSheet.create({
   ratedDotActive: { backgroundColor: BRAND },
 
   prompt: { flex: 1, fontSize: 14, color: C.text, lineHeight: 20, marginRight: 10 },
+
+  skillDetail: {
+    fontSize: 12,
+    color: C.textMuted,
+    lineHeight: 17,
+    paddingHorizontal: 18,
+    paddingBottom: 8,
+  },
 
   chevronIcon: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   chevronIconUp: { transform: [{ rotate: '180deg' }] },

@@ -78,7 +78,7 @@ export async function getSectionsWithItems(qualificationId: number): Promise<Sec
             confidenceValue: r.confidenceValue, notes: r.notes,
             tags: r.tags, needsCoaching: r.needsCoaching, updatedAt: r.updatedAt }
         : null
-      return { id: i.id, sectionId: s.id, prompt: i.prompt, detail: null,
+      return { id: i.id, sectionId: s.id, prompt: i.prompt, detail: i.detail ?? null,
                sortOrder: i.sortOrder, isCoachingItem: false, rating }
     }))
     return { id: s.id, qualificationId: q.id, title: s.title, sortOrder: s.sortOrder, items }

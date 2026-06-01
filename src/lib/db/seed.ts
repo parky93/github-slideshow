@@ -5,6 +5,7 @@ export interface StoredItem {
   id: number
   sectionId: number
   prompt: string
+  detail?: string
   sortOrder: number
   isCoachingItem: boolean
 }
@@ -33,10 +34,12 @@ let qid = 0
 let sid = 0
 let iid = 0
 
+type SeedItem = string | { prompt: string; detail?: string }
+
 function makeQual(
   slug: string, name: string, category: string, pathway: string,
   summary: string, officialUrl: string,
-  sections: Array<{ title: string; items: string[] }>,
+  sections: Array<{ title: string; items: SeedItem[] }>,
   qualType = 'qualification',
 ): StoredQual {
   const qualId = ++qid
@@ -46,8 +49,11 @@ function makeQual(
       const secId = ++sid
       return {
         id: secId, qualId, title: s.title, sortOrder: si,
-        items: s.items.map((prompt, ii) => ({
-          id: ++iid, sectionId: secId, prompt, sortOrder: ii, isCoachingItem: false,
+        items: s.items.map((item, ii) => ({
+          id: ++iid, sectionId: secId,
+          prompt: typeof item === 'string' ? item : item.prompt,
+          detail: typeof item === 'string' ? undefined : item.detail,
+          sortOrder: ii, isCoachingItem: false,
         })),
       }
     }),
@@ -56,7 +62,7 @@ function makeQual(
 
 export async function seedDatabase(): Promise<void> {
   const done = await AsyncStorage.getItem('mta:seeded')
-  if (done === '2') return
+  if (done === '3') return
 
   const quals: StoredQual[] = [
     makeQual('camping-leader', 'Camping Leader', 'walking', 'Walking',
@@ -725,54 +731,98 @@ export async function seedDatabase(): Promise<void> {
       'https://www.mountain-training.org/qualifications/climbing/climbing-wall-instructor',
       [
         {
-          title: 'Ropework and Belaying',
+          title: 'Equipment',
           items: [
-            'Set up and check top-rope systems safely at a climbing wall',
-            'Demonstrate and teach safe top-rope belaying with appropriate devices',
-            'Check participant harnesses, tie-ins and belay devices before climbing',
-            'Supervise multiple roped participants simultaneously',
-            'Manage participant safety during lowering and descent from routes',
-            'Identify and correct unsafe ropework or belay technique promptly',
+            { prompt: 'Select & fit climbing equipment for groups', detail: 'Harnesses: full body for children, sit harnesses for adults. Know sizing and correct fit. Helmets: when required (overhead hazard, auto-belay). Belay devices: tube devices vs assisted braking devices — when each is appropriate for groups.' },
+            { prompt: 'Evaluate & maintain personal equipment', detail: 'Check ropes (cuts, core damage, stiffness), harnesses (webbing fraying, buckle wear), karabiners (gate, nose, spine), belay devices (grooves). Know manufacturer retirement guidance. Understand UV, chemical and heat degradation.' },
+            { prompt: 'Evaluate wall in-situ equipment and identify hazards', detail: 'In-situ ropes: sheath damage, discolouration — when to flag to management. Auto-belays: snag points, helmet hang-up, not clipping in, releasing karabiner correctly. Fixed matting: gaps and coverage. Holds/volumes: loose holds, cracked volumes. Anchors/lower-offs: wear and correct rigging.' },
           ],
         },
         {
-          title: 'Instruction Technique',
+          title: 'Belaying',
           items: [
-            'Plan and deliver a structured top-rope climbing session for novices',
-            'Introduce climbing to complete beginners clearly and safely',
-            'Give effective movement demonstrations and coaching cues',
-            'Manage group transitions: briefing, climbing, lowering and rest periods',
-            'Adapt instruction to different ages, abilities and group sizes',
+            { prompt: 'Tie in & attach group members correctly', detail: 'Figure-of-eight rethread: main knot. Stopper knot: when and why. Double bowline: pros/cons vs figure-8. Buddy check: BARK — Buckle, Ask, Routes, Knot. Make it a habit before every climb.' },
+            { prompt: 'Use different belay systems appropriately', detail: 'Tube device: PBUS — Pull, Brake, Under, Slide. Understand dead hand principle. Assisted braking devices (Grigri): correct loading, avoiding panic grab, controlled lowering. Sandbags/ground anchors: when a light belayer needs extra security for a heavy climber.' },
+            { prompt: 'Set up bottom rope systems safely', detail: 'Single anchor: direct to wall bolt/chain. Equalised anchors: two-point equalization. Rope management: avoiding drag, correct rope threading through lower-off. Know when an in-situ top rope is acceptable vs building your own.' },
+            { prompt: 'Demonstrate competent belaying — holding falls & lowering', detail: 'Catch falls smoothly without rope feeding through. Control the lower — smooth, consistent speed. Keep dead hand on brake strand at all times. Practise lowers low down before letting clients climb high.' },
+            { prompt: 'Supervise others belaying', detail: 'Position yourself to see both climber and belayer simultaneously. Know when to intervene vs coach from a distance. Check: correct loading of device, dead hand position, slack, communication between pair.' },
           ],
         },
         {
-          title: 'Movement Coaching',
+          title: 'Personal Climbing Skills',
           items: [
-            'Teach basic footwork: smearing, edging and trusting feet on holds',
-            'Introduce hand positions: jugs, crimps and slopers for beginners',
-            'Develop beginner body position, balance and weight transfer',
-            'Give constructive feedback on movement to beginning climbers',
-            'Progress participants to more challenging routes at an appropriate pace',
+            { prompt: 'Lead F4 grade routes confidently', detail: 'Be comfortable leading French grade 4 routes in a safe, assured manner. Understand fall factors and how risk changes with height above last clip. Clip smoothly at hip height. Check belayer competence before climbing.' },
+            { prompt: 'Boulder confidently at personal ability level', detail: 'Complete boulder problems with good technique. Demonstrate safe descents (hang and drop, not jump). Demonstrate how to fall safely and spot others. Good movement quality models what you want to teach.' },
+            { prompt: 'Understand the safety chain & fall factors', detail: 'Safety chain: climber → knot → harness → belay device → belayer. Fall factor = fall distance ÷ rope in system. Low rope out near the ground = potentially high impact force for short falls. Be able to explain this simply to participants.' },
           ],
         },
         {
-          title: 'Session Planning',
+          title: 'Background Knowledge',
           items: [
-            'Write a structured climbing session plan with clear learning objectives',
-            'Select appropriate routes and activities for the group\'s ability level',
-            'Set up and check the climbing environment safely before the session',
-            'Manage group welfare throughout: rest, hydration and motivation',
-            'Evaluate the session and reflect on outcomes against objectives',
+            { prompt: 'Know the history, traditions & ethics of UK climbing', detail: 'Key milestones: development of bouldering, first indoor walls (1960s UK), competition climbing growth, Olympics 2020. Ethics: on-sight vs redpoint, no chipping holds. British trad traditions vs sport ethics.' },
+            { prompt: 'Know Mountain Training, mountaineering councils & NICAS', detail: 'Mountain Training: sets standards, approves providers, administers qualifications. CWI → CWDI → RCI pathway. BMC/Mountaineering Scotland: represent climbers, manage access. NICAS: National Indoor Climbing Award Scheme — levels 1–5 for young people.' },
+            { prompt: 'Explain grading systems used in UK & Ireland', detail: 'French sport grades: 4, 5a, 5b, 5c, 6a, 6a+, 6b… used at most walls. V-grades/Fontainebleau: VB, V0–V16 for bouldering. UK trad grades: Mod to E9 (context for participants asking about outdoor climbing).' },
+            { prompt: 'Know the development of climbing walls & competition climbing', detail: 'First commercial walls in UK (1960s–80s). Competition formats: Lead, Speed, Bouldering. IFSC World Cups, British Climbing Championships. Olympics 2020 (combined), 2024 (separate events).' },
           ],
         },
         {
-          title: 'Risk Management',
+          title: 'Instructor Responsibilities',
           items: [
-            'Conduct a dynamic risk assessment throughout the climbing session',
-            'Identify and manage risks from equipment, environment and participants',
-            'Know the emergency procedures at the climbing wall',
-            'Complete incident documentation accurately and promptly',
-            'Know the limits of CWI scope of practice and when to refer on',
+            { prompt: 'Know your general & specific responsibilities as instructor', detail: 'General: explain your role to group, parents/guardians, organising authority. Specific: choose appropriate objectives, complete preparations. Pre-activity checklist: parental consent, medical info, insurance, DBS check. Know your employer\'s own procedures.' },
+            { prompt: 'Understand legal responsibilities & duty of care', detail: 'Duty of care: take reasonable steps to prevent foreseeable harm. Higher duty in loco parentis with under-18s. Negligence: duty → breach → causation → damage. RIDDOR: reportable injuries. Safeguarding: recognise signs of abuse, know referral procedures.' },
+            { prompt: 'Recognise barriers to participation & medical conditions', detail: 'Physical disability, mental health, weight/fitness, age, cultural considerations. Common conditions: asthma (inhaler accessible), epilepsy (fall risks), diabetes (energy management), fear of heights (challenge by choice). Equality Act 2010: reasonable adjustments.' },
+            { prompt: 'Signpost participants to further involvement', detail: 'Know local walls, club nights, NICAS programmes, Mountain Training skills courses. Advise individuals on next steps: joining a club, getting on the lead wall, NICAS progression. Understand the Foundation Coach pathway.' },
+          ],
+        },
+        {
+          title: 'Leadership & Decision-Making',
+          items: [
+            { prompt: 'Monitor conditions & adapt plans accordingly', detail: 'Constantly scan: group energy, wall space, queue build-up, noise, temperature. If plan A isn\'t working, have plan B ready. Wall too busy → move to bouldering. Climber refuses → easier route or rest time. Document decision-making in DLOG reflections.' },
+            { prompt: 'Vision — be a positive role model', detail: 'Articulate clear values: respect for others, taking turns, safe behaviour. Lead by example — always wear harness correctly, never cut safety corners. Your energy sets the tone for the session.' },
+            { prompt: 'Support — create a positive learning environment', detail: 'Recognise individual differences in confidence, ability and learning style. Challenge by choice — nobody is forced onto a route that terrifies them. Frame mistakes as learning. Give specific, positive feedback rather than generic praise.' },
+            { prompt: 'Challenge — provide appropriate challenge for each person', detail: 'Agree goals at session start. Too easy = boredom, too hard = anxiety and loss of trust. Use benchmarks: "Can you get to the green holds?" Encourage problem-solving: "What do you think you should do next?"' },
+            { prompt: 'Articulate your leadership ethos', detail: 'Explain Mountain Training\'s Vision–Support–Challenge model. Describe your own developing ethos: what does good instruction look like? Be able to discuss this in debrief or written reflection.' },
+          ],
+        },
+        {
+          title: 'Knowledge & Demonstration of Techniques',
+          items: [
+            { prompt: 'Teach harness fitting, tying in & belaying progression', detail: 'Harness fitting: same systematic method every time, visible to group. Belay teaching progression: (1) explain device (2) demonstrate static (3) practise on slack rope (4) practise with climber low down (5) full climb. Don\'t skip steps.' },
+            { prompt: 'Use bouldering activities, games & simple problem setting', detail: 'Traverse games: "traffic lights" (stop/go on command), "colour climbing" (only use blue holds). Games: add-a-move, copy-cat, relay races. Session structure: safety brief → warm-up → skill focus → bouldering games → cool-down. Games must have a clear learning intent.' },
+            { prompt: 'Teach fundamental climbing movement skills', detail: 'Footwork: look at feet, use the tip of the shoe, trust your feet. Body position: hips in, straight arms when resting. Balance: centre of gravity over feet. Reading routes: scan before climbing. Keep teaching simple and active — novices learn by doing.' },
+            { prompt: 'Supervise the group across belaying, climbing & bouldering', detail: 'Position of most usefulness — see both climber and belayer. Key focal points: belay device loading, dead hand, slack. Bouldering: clear height boundary in brief, spotting with hands near hips. Most wall accidents happen bouldering — stay alert.' },
+          ],
+        },
+        {
+          title: 'Hazards & Emergency Procedures',
+          items: [
+            { prompt: 'Identify appropriate areas of the wall for group use', detail: 'Consider: overhang sections, low traverse walls vs high routes, busy sections. Speak to wall management before your session — they know the space. Choose a base area with clear sight-lines to all activity.' },
+            { prompt: 'Manage hazards to other wall users', detail: 'Ropes swinging into other climbers. Group members wandering into lead fall zones. Bags on matting creating trip hazards. Brief group explicitly: "Stay in our area, don\'t touch other climbers\' ropes, be aware of people around you."' },
+            { prompt: 'Apply appropriate warm-up & injury avoidance practices', detail: 'General warm-up: 5 mins light cardio. Specific: finger flexion/extension, wrist circles, shoulder rolls. Avoid static stretching cold. Common injuries: finger pulleys (A2), elbow (medial epicondylitis), shoulder. Teach: rest when pumped, don\'t climb through pain.' },
+            { prompt: 'Avoid & solve common roped climbing problems', detail: 'Avoid: brief thoroughly, practise lowers low down. Common problems: climber stuck/scared → talk down calmly, controlled lower; light belayer/heavy climber → sandbag or ground anchor; rope twisted around climber → slow controlled lower and untwist.' },
+            { prompt: 'Call for relevant assistance in an incident', detail: 'Know wall\'s first aid location and contacts. How to call 999: location (what3words), nature of incident, number of casualties. Preserve scene. Appoint someone to wait for emergency services. Know RIDDOR reportable incidents.' },
+          ],
+        },
+        {
+          title: 'Managing & Supervising Other Staff',
+          items: [
+            { prompt: 'Explain the role & scope of practice of an assistant', detail: 'An assistant supports delivery but does NOT make session management decisions. They can: fit equipment, back up belayers, support individuals. They CANNOT: independently supervise climbing or make safety decisions. You are wholly responsible at all times.' },
+            { prompt: 'Manage an assistant effectively during a session', detail: 'Pre-session brief: explain session plan, their role, boundaries of authority, communication signals. Keep assistant within sight at all times. Debrief afterwards. Example: "Your job today is to help fit harnesses. All belay checks come to me."' },
+          ],
+        },
+        {
+          title: 'Teaching & Learning Skills',
+          items: [
+            { prompt: 'Adapt teaching style to meet group needs', detail: 'Group factors: age, experience, confidence, energy levels. Direct style (tell → show → do) for safety-critical skills. Discovery/guided for movement development. Check for understanding through questions and observation. Never assume understanding.' },
+            { prompt: 'Use appropriate tasks to develop safe group activity', detail: 'Task progression: safe → challenging → independent. Start with something everyone can succeed at to build confidence. Have 2–3 backup activities ready. Position of most usefulness: where you can observe all activity simultaneously.' },
+            { prompt: 'Evaluate sessions & reflect on outcomes', detail: 'After each session: What worked? What didn\'t? What would you change? For DLOG: state aims/objectives → outcomes → what was successful/less successful → what you\'d do differently. At least 5 of your 15 pre-assessment sessions need this recorded in DLOG.' },
+          ],
+        },
+        {
+          title: 'Etiquette & Ethics',
+          items: [
+            { prompt: 'Operate flexibly to accommodate other wall users', detail: 'Don\'t monopolise routes or wall areas. Brief your group about respecting others: "Don\'t touch other people\'s ropes, give space to other climbers, wait your turn." Adapt your programme if the wall is busier than expected.' },
+            { prompt: 'Know site-specific requirements of different walls', detail: 'Every wall has its own operating procedures. Visit and speak to management before bringing a group. Key things: auto-belay procedures, minimum supervision ratios, areas off-limits to instructed groups, incident reporting, evacuation procedure.' },
           ],
         },
       ]),
@@ -1080,5 +1130,5 @@ export async function seedDatabase(): Promise<void> {
   ]
 
   await setJSON('mta:quals', quals)
-  await AsyncStorage.setItem('mta:seeded', '2')
+  await AsyncStorage.setItem('mta:seeded', '3')
 }
