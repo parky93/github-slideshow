@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ACTIVITY_TYPES, type Waypoint } from '@/lib/dlog/types'
 import { saveActivity } from '@/lib/dlog/storage'
 import { calcDistanceKm } from '@/lib/dlog/gpx'
+import { C } from '@/lib/theme'
 
 function getTodayISO() {
   const d = new Date()
@@ -161,7 +162,7 @@ export default function LogActivityScreen() {
               value={dateInput}
               onChangeText={setDateInput}
               placeholder="DD/MM/YYYY"
-              placeholderTextColor="#536644"
+              placeholderTextColor={C.textMuted}
               keyboardType="numbers-and-punctuation"
             />
           </View>
@@ -195,7 +196,7 @@ export default function LogActivityScreen() {
                 value={durationHours}
                 onChangeText={setDurationHours}
                 placeholder="e.g. 4.5"
-                placeholderTextColor="#536644"
+                placeholderTextColor={C.textMuted}
                 keyboardType="decimal-pad"
               />
             </View>
@@ -206,7 +207,7 @@ export default function LogActivityScreen() {
                 value={distanceKm}
                 onChangeText={setDistanceKm}
                 placeholder="optional"
-                placeholderTextColor="#536644"
+                placeholderTextColor={C.textMuted}
                 keyboardType="decimal-pad"
               />
             </View>
@@ -223,8 +224,8 @@ export default function LogActivityScreen() {
                 <Switch
                   value={isQmd}
                   onValueChange={setIsQmd}
-                  trackColor={{ false: '#2E4A1E', true: '#4A8B28' }}
-                  thumbColor="#ECF0E6"
+                  trackColor={{ false: C.border, true: C.green }}
+                  thumbColor={C.text}
                 />
               </View>
             </View>
@@ -241,8 +242,8 @@ export default function LogActivityScreen() {
                 <Switch
                   value={isMultiPitch}
                   onValueChange={setIsMultiPitch}
-                  trackColor={{ false: '#2E4A1E', true: '#4A8B28' }}
-                  thumbColor="#ECF0E6"
+                  trackColor={{ false: C.border, true: C.green }}
+                  thumbColor={C.text}
                 />
               </View>
             </View>
@@ -256,7 +257,7 @@ export default function LogActivityScreen() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Conditions, companions, highlights..."
-              placeholderTextColor="#536644"
+              placeholderTextColor={C.textMuted}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -305,11 +306,11 @@ export default function LogActivityScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   flex: { flex: 1 },
   scroll: { paddingHorizontal: 16, paddingBottom: 48, paddingTop: 12 },
   errorWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: '#8FA882', fontSize: 15 },
+  errorText: { color: C.textSec, fontSize: 15 },
 
   section: {
     marginBottom: 16,
@@ -322,20 +323,20 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#536644',
+    color: C.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 14,
     paddingVertical: 13,
     fontSize: 15,
-    color: '#ECF0E6',
+    color: C.text,
   },
   notesInput: {
     minHeight: 90,
@@ -343,10 +344,10 @@ const styles = StyleSheet.create({
   },
 
   readOnlyRow: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 14,
     paddingVertical: 14,
     flexDirection: 'row',
@@ -356,19 +357,19 @@ const styles = StyleSheet.create({
   readOnlyValue: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#ECF0E6',
+    color: C.text,
   },
   changeText: {
     fontSize: 13,
-    color: '#4A8B28',
+    color: C.green,
     fontWeight: '600',
   },
 
   locationRow: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 14,
     paddingVertical: 14,
     flexDirection: 'row',
@@ -379,28 +380,28 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pinDotSmall: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#4A8B28' },
-  locationText: { flex: 1, fontSize: 15, color: '#ECF0E6', fontWeight: '500' },
-  locationPlaceholder: { color: '#536644', fontWeight: '400' },
+  pinDotSmall: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.green },
+  locationText: { flex: 1, fontSize: 15, color: C.text, fontWeight: '500' },
+  locationPlaceholder: { color: C.textMuted, fontWeight: '400' },
   rowChevron: { width: 16, height: 16, position: 'relative', justifyContent: 'center', alignItems: 'center' },
   chevronLine1: {
-    position: 'absolute', width: 8, height: 2, backgroundColor: '#536644',
+    position: 'absolute', width: 8, height: 2, backgroundColor: C.textMuted,
     borderRadius: 1, transform: [{ rotate: '45deg' }, { translateY: -3 }],
   },
   chevronLine2: {
-    position: 'absolute', width: 8, height: 2, backgroundColor: '#536644',
+    position: 'absolute', width: 8, height: 2, backgroundColor: C.textMuted,
     borderRadius: 1, transform: [{ rotate: '-45deg' }, { translateY: 3 }],
   },
 
   toggleRow: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 14,
     paddingVertical: 12,
     flexDirection: 'row',
@@ -408,8 +409,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   toggleText: { flex: 1 },
-  toggleLabel: { fontSize: 15, fontWeight: '600', color: '#ECF0E6' },
-  toggleHint: { fontSize: 12, color: '#536644', marginTop: 2 },
+  toggleLabel: { fontSize: 15, fontWeight: '600', color: C.text },
+  toggleHint: { fontSize: 12, color: C.textMuted, marginTop: 2 },
 
   waypointsHeader: {
     flexDirection: 'row',
@@ -418,27 +419,27 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   addBtn: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#4A8B28',
+    borderColor: C.green,
     paddingHorizontal: 12,
     paddingVertical: 7,
   },
-  addBtnText: { fontSize: 13, fontWeight: '700', color: '#4A8B28' },
+  addBtnText: { fontSize: 13, fontWeight: '700', color: C.green },
   noWaypoints: {
     fontSize: 13,
-    color: '#536644',
+    color: C.textMuted,
     fontStyle: 'italic',
     paddingVertical: 8,
   },
   waypointRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 6,
@@ -448,16 +449,16 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     alignItems: 'center',
     justifyContent: 'center',
   },
   waypointNumText: { fontSize: 11, fontWeight: '800', color: '#fff' },
-  waypointName: { flex: 1, fontSize: 14, fontWeight: '600', color: '#ECF0E6' },
-  waypointCoords: { fontSize: 11, color: '#536644' },
+  waypointName: { flex: 1, fontSize: 14, fontWeight: '600', color: C.text },
+  waypointCoords: { fontSize: 11, color: C.textMuted },
 
   saveBtn: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',

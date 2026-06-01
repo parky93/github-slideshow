@@ -1,9 +1,9 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import Svg, { Circle } from 'react-native-svg'
-import { TRAFFIC_COLORS } from '../lib/types'
+import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg'
 import type { TrafficLight } from '../lib/types'
 import { getReadinessLabel } from '../lib/scoring/score'
+import { C, STATUS } from '../lib/theme'
 
 interface Props {
   score: number
@@ -11,22 +11,36 @@ interface Props {
   size?: number
 }
 
+const RING_GRADIENTS: Record<TrafficLight, [string, string]> = {
+  green: [C.greenBright, C.green],
+  amber: ['#FFD24A', C.amber],
+  red: ['#FF8A8A', C.red],
+}
+
 export function ReadinessRing({ score, light, size = 120 }: Props) {
-  const strokeWidth = 10
+  const strokeWidth = 12
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset = circumference * (1 - Math.min(1, Math.max(0, score)))
-  const color = TRAFFIC_COLORS[light]
+  const clamped = Math.min(1, Math.max(0, score))
+  const offset = circumference * (1 - clamped)
+  const [from, to] = RING_GRADIENTS[light]
   const pct = Math.round(score * 100)
+  const labelColor = STATUS[light]
 
   return (
     <View style={styles.container}>
       <Svg width={size} height={size}>
+        <Defs>
+          <LinearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <Stop offset="0" stopColor={from} />
+            <Stop offset="1" stopColor={to} />
+          </LinearGradient>
+        </Defs>
         <Circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="#1A2E10"
+          stroke={C.surfaceHi}
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -34,7 +48,7 @@ export function ReadinessRing({ score, light, size = 120 }: Props) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={color}
+          stroke="url(#ringGrad)"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -45,7 +59,7 @@ export function ReadinessRing({ score, light, size = 120 }: Props) {
         />
       </Svg>
       <View style={[styles.label, { width: size, height: size }]}>
-        <Text style={[styles.pct, { color }]}>{pct}%</Text>
+        <Text style={[styles.pct, { color: labelColor, fontSize: size * 0.3 }]}>{pct}</Text>
         <Text style={styles.hint} numberOfLines={2}>{getReadinessLabel(score)}</Text>
       </View>
     </View>
@@ -64,13 +78,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   pct: {
-    fontSize: 26,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: -1,
   },
   hint: {
-    fontSize: 11,
-    color: '#8FA882',
+    fontSize: 10,
+    color: C.textSec,
     textAlign: 'center',
     marginTop: 2,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
 })

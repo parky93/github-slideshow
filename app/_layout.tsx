@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import { seedDatabase } from '@/lib/db/seed'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import OnboardingScreen from './onboarding'
+import { C } from '@/lib/theme'
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false)
@@ -27,15 +28,15 @@ export default function RootLayout() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0F1A0A' }}>
-        <ActivityIndicator size="large" color="#4A8B28" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg }}>
+        <ActivityIndicator size="large" color={C.green} />
       </View>
     )
   }
 
   if (!onboarded) {
     return (
-      <View style={{ flex: 1, backgroundColor: '#0F1A0A' }}>
+      <View style={{ flex: 1, backgroundColor: C.bg }}>
         <StatusBar style="light" />
         <OnboardingScreen onComplete={() => setOnboarded(true)} />
       </View>
@@ -47,11 +48,11 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#0A1306' },
-          headerTintColor: '#ECF0E6',
-          headerTitleStyle: { fontWeight: '700', color: '#ECF0E6', fontSize: 17 },
+          headerStyle: { backgroundColor: C.bg },
+          headerTintColor: C.text,
+          headerTitleStyle: { fontWeight: '800', color: C.text, fontSize: 18 },
           headerShadowVisible: false,
-          contentStyle: { backgroundColor: '#0F1A0A' },
+          contentStyle: { backgroundColor: C.bg },
         }}
       >
         <Stack.Screen name="index" options={{ title: 'MTA Ready', headerLargeTitle: false }} />

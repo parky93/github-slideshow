@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet, Platform, Modal, TextInput, Share } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router'
 import { ReadinessRing } from '@/components/ReadinessRing'
 import { SectionBar } from '@/components/SectionBar'
@@ -7,10 +8,11 @@ import { InsightsPanel } from '@/components/InsightsPanel'
 import { getQualificationBySlug, getSectionsWithItems, markQualViewed, toggleFavourite } from '@/lib/db/queries/qualifications'
 import { calculateReadinessScore, getReadinessLabel } from '@/lib/scoring/score'
 import { getTargetDate, setTargetDate, daysUntil, saveSnapshot } from '@/lib/db/queries/ratings'
+import { C, RADIUS, GRAD } from '@/lib/theme'
 import type { Qualification, ReadinessScore, TargetDate } from '@/lib/types'
 
-const BRAND = '#4A8B28'
-const ORANGE = '#C4621A'
+const BRAND = C.green
+const ORANGE = C.orange
 
 export default function DashboardScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -144,15 +146,21 @@ export default function DashboardScreen() {
 
         {hasScore ? (
           <>
-            <View style={styles.ringRow}>
-              <ReadinessRing score={score.overall} light={score.light} size={140} />
+            <View style={styles.ringCard}>
+              <LinearGradient
+                colors={GRAD.greenGlow}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={StyleSheet.absoluteFill}
+              />
+              <ReadinessRing score={score.overall} light={score.light} size={132} />
               <View style={styles.statsCol}>
                 <StatChip label="Rated" value={`${Math.round(score.completion * 100)}%`} />
                 <StatChip label="Sections" value={String(score.sectionScores.length)} />
                 <StatChip
                   label="Status"
                   value={score.light.toUpperCase()}
-                  valueColor={score.light === 'green' ? '#22c55e' : score.light === 'amber' ? '#f59e0b' : '#ef4444'}
+                  valueColor={score.light === 'green' ? C.greenStatus : score.light === 'amber' ? C.amber : C.red}
                 />
               </View>
             </View>
@@ -197,9 +205,16 @@ export default function DashboardScreen() {
       <View style={styles.stickyBar}>
         <Pressable
           onPress={() => router.push(`/qualification/${slug}/checklist`)}
-          style={({ pressed }) => [styles.primaryBtn, { flex: 2 }, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [{ flex: 2 }, pressed && { opacity: 0.9 }]}
         >
-          <Text style={styles.primaryBtnLabel}>Checklist</Text>
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.primaryBtn}
+          >
+            <Text style={styles.primaryBtnLabel}>Checklist</Text>
+          </LinearGradient>
         </Pressable>
         {unratedCount > 0 && (
           <Pressable
@@ -235,7 +250,7 @@ export default function DashboardScreen() {
               value={checkpointLabel}
               onChangeText={setCheckpointLabel}
               placeholder="e.g. Week 4 review"
-              placeholderTextColor="#536644"
+              placeholderTextColor={C.textMuted}
               autoFocus
             />
             <View style={styles.modalActions}>
@@ -265,7 +280,7 @@ export default function DashboardScreen() {
               value={dateInput}
               onChangeText={setDateInput}
               placeholder="e.g. 15/09/2025"
-              placeholderTextColor="#536644"
+              placeholderTextColor={C.textMuted}
               keyboardType="numbers-and-punctuation"
               autoFocus
             />
@@ -296,129 +311,132 @@ function StatChip({ label, value, valueColor }: { label: string; value: string; 
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0F1A0A' },
-  scroll: { padding: 16, paddingBottom: 110 },
+  root: { flex: 1, backgroundColor: C.bg },
+  scroll: { padding: 20, paddingBottom: 120 },
 
-  header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 16 },
+  header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
   headerText: { flex: 1 },
-  name: { fontSize: 22, fontWeight: '800', color: '#ECF0E6', letterSpacing: -0.3 },
-  pathway: { fontSize: 13, color: '#E8893A', marginTop: 4, fontWeight: '600' },
+  name: { fontSize: 28, fontWeight: '800', color: C.text, letterSpacing: -0.6, lineHeight: 34 },
+  pathway: { fontSize: 13, color: C.orange, marginTop: 6, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
 
-  favBtn: { paddingLeft: 12, paddingTop: 4 },
+  favBtn: { paddingLeft: 12, paddingTop: 6 },
   favDot: {
-    width: 22, height: 22, borderRadius: 11,
+    width: 24, height: 24, borderRadius: 12,
     borderWidth: 2, borderColor: ORANGE, backgroundColor: 'transparent',
   },
   favDotActive: { backgroundColor: ORANGE },
 
   /* Target date card */
   targetCard: {
-    backgroundColor: '#1A2E10',
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 20,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
+    padding: 18,
+    marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
   targetLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
   targetDot: {
     width: 10, height: 10, borderRadius: 5,
-    backgroundColor: '#2E4A1E', borderWidth: 2, borderColor: '#536644',
+    backgroundColor: C.border, borderWidth: 2, borderColor: C.textMuted,
   },
   targetDotActive: { backgroundColor: ORANGE, borderColor: ORANGE },
-  targetLabel: { fontSize: 11, color: '#536644', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 },
-  targetValue: { fontSize: 14, fontWeight: '600', color: '#ECF0E6' },
-  targetPlaceholder: { fontSize: 14, color: '#536644' },
+  targetLabel: { fontSize: 11, color: C.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4, fontWeight: '700' },
+  targetValue: { fontSize: 15, fontWeight: '700', color: C.text },
+  targetPlaceholder: { fontSize: 15, color: C.textMuted },
   countdownBadge: {
     backgroundColor: ORANGE + '22',
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     alignItems: 'center',
+    minWidth: 60,
   },
-  countdownPast: { backgroundColor: '#1A2E10' },
-  countdownNum: { fontSize: 18, fontWeight: '800', color: '#E8893A' },
-  countdownUnit: { fontSize: 10, color: '#8FA882', fontWeight: '600' },
+  countdownPast: { backgroundColor: C.surfaceHi },
+  countdownNum: { fontSize: 22, fontWeight: '800', color: C.orange, letterSpacing: -0.5 },
+  countdownUnit: { fontSize: 10, color: C.textSec, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
 
   /* Ring + stats */
-  ringRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 20, gap: 16 },
-  statsCol: { flex: 1, gap: 8 },
-  statChip: {
-    backgroundColor: '#1A2E10', borderRadius: 12,
-    paddingHorizontal: 14, paddingVertical: 10,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 6, elevation: 2,
+  ringCard: {
+    flexDirection: 'row', alignItems: 'center', marginBottom: 24, gap: 16,
+    borderRadius: RADIUS.xl, padding: 20, overflow: 'hidden',
+    borderWidth: 1, borderColor: C.border,
+    shadowColor: C.green, shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18, shadowRadius: 20, elevation: 6,
   },
-  statLabel: { fontSize: 10, color: '#536644', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 2 },
-  statValue: { fontSize: 15, fontWeight: '700', color: '#ECF0E6' },
+  statsCol: { flex: 1, gap: 10 },
+  statChip: {
+    backgroundColor: C.bg, borderRadius: RADIUS.md,
+    paddingHorizontal: 14, paddingVertical: 12,
+    borderWidth: 1, borderColor: C.borderSubtle,
+  },
+  statLabel: { fontSize: 10, color: C.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4, fontWeight: '700' },
+  statValue: { fontSize: 18, fontWeight: '800', color: C.text, letterSpacing: -0.4 },
 
   summaryCard: {
-    backgroundColor: '#1A2E10', borderRadius: 14, padding: 14, marginBottom: 16,
-    flexDirection: 'row', shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08, shadowRadius: 6, elevation: 2, overflow: 'hidden',
+    backgroundColor: C.surface, borderRadius: RADIUS.lg, padding: 18, marginBottom: 16,
+    flexDirection: 'row', overflow: 'hidden', borderWidth: 1, borderColor: C.borderSubtle,
   },
-  summaryAccent: { width: 4, backgroundColor: BRAND, borderRadius: 2, marginRight: 12, alignSelf: 'stretch' },
-  summaryText: { flex: 1, fontSize: 14, color: '#8FA882', lineHeight: 21 },
+  summaryAccent: { width: 4, backgroundColor: BRAND, borderRadius: 2, marginRight: 14, alignSelf: 'stretch' },
+  summaryText: { flex: 1, fontSize: 14, color: C.textSec, lineHeight: 21 },
 
   sectionHeading: {
-    fontSize: 12, fontWeight: '700', color: '#536644',
-    textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 20,
+    fontSize: 12, fontWeight: '700', color: C.textMuted,
+    textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 14, marginTop: 24,
   },
 
   empty: { alignItems: 'center', paddingVertical: 48 },
-  emptyDot: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#1A2E10', marginBottom: 16 },
-  emptyText: { color: '#ECF0E6', fontSize: 16, fontWeight: '600', marginBottom: 6 },
-  emptyHint: { color: '#536644', fontSize: 13, textAlign: 'center', lineHeight: 18 },
+  emptyDot: { width: 44, height: 44, borderRadius: 22, backgroundColor: C.surface, marginBottom: 16 },
+  emptyText: { color: C.text, fontSize: 17, fontWeight: '700', marginBottom: 6 },
+  emptyHint: { color: C.textMuted, fontSize: 13, textAlign: 'center', lineHeight: 18 },
 
   stickyBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: '#0A1306', paddingHorizontal: 16, paddingTop: 12,
+    backgroundColor: C.bgElevated, paddingHorizontal: 20, paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 30 : 16,
     flexDirection: 'row', gap: 10,
-    borderTopWidth: 1, borderTopColor: '#2E4A1E',
-    shadowColor: '#000', shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.06, shadowRadius: 8, elevation: 10,
+    borderTopWidth: 1, borderTopColor: C.border,
   },
-  primaryBtn: { flex: 1, backgroundColor: BRAND, borderRadius: 13, paddingVertical: 15, alignItems: 'center' },
-  primaryBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  primaryBtn: { flex: 1, borderRadius: RADIUS.md, paddingVertical: 16, alignItems: 'center', justifyContent: 'center' },
+  primaryBtnLabel: { color: '#0A0F08', fontWeight: '800', fontSize: 15 },
   secondaryBtn: {
-    flex: 1, backgroundColor: '#1A2E10', borderRadius: 13, paddingVertical: 15,
-    alignItems: 'center', borderWidth: 1, borderColor: '#2E4A1E',
+    flex: 1, backgroundColor: C.surface, borderRadius: RADIUS.md, paddingVertical: 16,
+    alignItems: 'center', borderWidth: 1, borderColor: C.border,
   },
-  secondaryBtnLabel: { color: '#8FA882', fontWeight: '700', fontSize: 15 },
-  shareBtn: { borderColor: '#C4621A44' },
-  shareBtnLabel: { color: '#E8893A', fontWeight: '700', fontSize: 15 },
-  quickRateBtn: { borderColor: '#4A8B2866' },
-  quickRateBtnLabel: { color: '#4A8B28', fontWeight: '700', fontSize: 14 },
+  secondaryBtnLabel: { color: C.textSec, fontWeight: '700', fontSize: 15 },
+  shareBtn: { borderColor: C.orange + '44' },
+  shareBtnLabel: { color: C.orange, fontWeight: '700', fontSize: 15 },
+  quickRateBtn: { borderColor: C.green + '66' },
+  quickRateBtnLabel: { color: C.greenBright, fontWeight: '700', fontSize: 14 },
 
-  checkpointBtn: { marginTop: 24, borderRadius: 12, borderWidth: 1, borderColor: '#2E4A1E', paddingVertical: 13, alignItems: 'center', backgroundColor: '#1A2E10' },
-  checkpointBtnLabel: { color: '#8FA882', fontWeight: '600', fontSize: 14 },
+  checkpointBtn: { marginTop: 24, borderRadius: RADIUS.md, borderWidth: 1, borderColor: C.border, paddingVertical: 14, alignItems: 'center', backgroundColor: C.surface },
+  checkpointBtnLabel: { color: C.textSec, fontWeight: '700', fontSize: 14 },
 
   /* Date modal */
   modalOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.7)',
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.75)',
     justifyContent: 'center', alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: '#1A2E10', borderRadius: 18, padding: 24,
-    width: '85%', borderWidth: 1, borderColor: '#2E4A1E',
+    backgroundColor: C.surfaceHi, borderRadius: RADIUS.xl, padding: 24,
+    width: '85%', borderWidth: 1, borderColor: C.border,
   },
-  modalTitle: { fontSize: 17, fontWeight: '700', color: '#ECF0E6', marginBottom: 4 },
-  modalHint: { fontSize: 13, color: '#536644', marginBottom: 16 },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: C.text, marginBottom: 4 },
+  modalHint: { fontSize: 13, color: C.textMuted, marginBottom: 16 },
   modalInput: {
-    backgroundColor: '#0F1A0A', borderRadius: 10, borderWidth: 1, borderColor: '#2E4A1E',
-    padding: 14, fontSize: 18, color: '#ECF0E6', fontWeight: '600',
+    backgroundColor: C.bg, borderRadius: RADIUS.sm, borderWidth: 1, borderColor: C.border,
+    padding: 14, fontSize: 18, color: C.text, fontWeight: '700',
     letterSpacing: 1, textAlign: 'center',
   },
   modalActions: { flexDirection: 'row', gap: 10, marginTop: 16 },
   clearBtn: {
-    flex: 1, borderRadius: 10, paddingVertical: 13,
-    alignItems: 'center', backgroundColor: '#243D17',
+    flex: 1, borderRadius: RADIUS.sm, paddingVertical: 14,
+    alignItems: 'center', backgroundColor: C.surface, borderWidth: 1, borderColor: C.border,
   },
-  clearBtnLabel: { color: '#EF4444', fontWeight: '700', fontSize: 14 },
-  saveBtn: { flex: 2, borderRadius: 10, paddingVertical: 13, alignItems: 'center', backgroundColor: BRAND },
-  saveBtnLabel: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  clearBtnLabel: { color: C.red, fontWeight: '700', fontSize: 14 },
+  saveBtn: { flex: 2, borderRadius: RADIUS.sm, paddingVertical: 14, alignItems: 'center', backgroundColor: C.green },
+  saveBtnLabel: { color: '#0A0F08', fontWeight: '800', fontSize: 14 },
 })

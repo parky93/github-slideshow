@@ -1,7 +1,8 @@
 import React from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { RATING_LABELS, RATING_COLORS, RATING_ACTIVE_COLORS } from '../lib/types'
+import { RATING_LABELS, RATING_ACTIVE_COLORS } from '../lib/types'
 import type { RatingValue } from '../lib/types'
+import { C, RADIUS } from '../lib/theme'
 
 interface Props {
   value: RatingValue | null
@@ -16,13 +17,16 @@ export function RatingPills({ value, onChange, disabled }: Props) {
     <View style={styles.row}>
       {RATINGS.map(r => {
         const active = value === r
+        const activeColor = RATING_ACTIVE_COLORS[r]
         return (
           <Pressable
             key={r}
             onPress={() => !disabled && onChange(r)}
             style={({ pressed }) => [
               styles.pill,
-              { backgroundColor: active ? RATING_ACTIVE_COLORS[r] : RATING_COLORS[r] },
+              active
+                ? { backgroundColor: activeColor, borderColor: activeColor }
+                : { backgroundColor: C.surfaceHi, borderColor: C.border },
               active && styles.pillActive,
               pressed && styles.pillPressed,
             ]}
@@ -43,31 +47,32 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 7,
   },
   pill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: RADIUS.pill,
+    borderWidth: 1,
   },
   pillActive: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
     elevation: 2,
   },
   pillPressed: {
-    opacity: 0.8,
+    opacity: 0.85,
     transform: [{ scale: 0.95 }],
   },
   label: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#8FA882',
+    fontWeight: '600',
+    color: C.textSec,
   },
   labelActive: {
-    color: '#ECF0E6',
-    fontWeight: '700',
+    color: '#FFFFFF',
+    fontWeight: '800',
   },
 })

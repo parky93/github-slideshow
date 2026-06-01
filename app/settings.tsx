@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as Haptics from 'expo-haptics'
 import { getIsPro, setIsPro } from '@/lib/dlog/storage'
+import { C, RADIUS } from '@/lib/theme'
 
 export default function SettingsScreen() {
   const router = useRouter()
@@ -57,8 +58,8 @@ export default function SettingsScreen() {
           <Switch
             value={isPro}
             onValueChange={handleProToggle}
-            trackColor={{ false: '#2E4A1E', true: '#4A8B28' }}
-            thumbColor="#ECF0E6"
+            trackColor={{ false: C.border, true: C.green }}
+            thumbColor={C.text}
           />
         </View>
       </View>
@@ -67,20 +68,20 @@ export default function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0F1A0A', padding: 16 },
+  screen: { flex: 1, backgroundColor: C.bg, padding: 20 },
 
   section: {
     marginTop: 16,
-    backgroundColor: '#1A2E10',
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     overflow: 'hidden',
   },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#536644',
+    color: C.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     paddingHorizontal: 16,
@@ -94,18 +95,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderTopWidth: 1,
-    borderTopColor: '#2E4A1E',
+    borderTopColor: C.border,
     gap: 12,
   },
   rowContent: { flex: 1 },
   rowTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#ECF0E6',
+    color: C.text,
   },
   rowHint: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     marginTop: 3,
     lineHeight: 17,
   },
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateY: -3 }],
   },
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateY: 3 }],
   },

@@ -6,6 +6,7 @@ import { getQualificationBySlug } from '@/lib/db/queries/qualifications'
 import { getSnapshots } from '@/lib/db/queries/ratings'
 import { getTrafficLight } from '@/lib/scoring/score'
 import type { ProgressSnapshot } from '@/lib/types'
+import { C } from '@/lib/theme'
 
 export default function HistoryScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>()
@@ -53,7 +54,7 @@ export default function HistoryScreen() {
         const time = new Date(item.createdAt).toLocaleTimeString('en-GB', {
           hour: '2-digit', minute: '2-digit',
         })
-        const deltaColor = delta === null ? '#9ca3af' : delta > 0 ? '#22c55e' : delta < 0 ? '#ef4444' : '#9ca3af'
+        const deltaColor = delta === null ? C.textSec : delta > 0 ? C.greenStatus : delta < 0 ? C.red : C.textSec
         const deltaSymbol = delta === null ? null : delta > 0 ? '+' : delta < 0 ? '-' : null
 
         return (
@@ -85,12 +86,12 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  list: { paddingHorizontal: 16, paddingBottom: 48, backgroundColor: '#0F1A0A' },
+  list: { paddingHorizontal: 16, paddingBottom: 48, backgroundColor: C.bg },
   listHeader: { paddingTop: 20, paddingBottom: 12 },
-  heading: { fontSize: 13, color: '#536644', fontWeight: '600' },
+  heading: { fontSize: 13, color: C.textMuted, fontWeight: '600' },
 
   card: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
@@ -103,11 +104,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardBody: { flex: 1, marginLeft: 16 },
-  date: { fontSize: 14, fontWeight: '700', color: '#ECF0E6' },
-  time: { fontSize: 12, color: '#8FA882', marginTop: 1 },
-  labelBadge: { backgroundColor: '#C4621A22', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 6, borderWidth: 1, borderColor: '#C4621A44' },
-  labelText: { fontSize: 12, fontWeight: '700', color: '#E8893A' },
-  completion: { fontSize: 12, color: '#536644', marginTop: 4 },
+  date: { fontSize: 14, fontWeight: '700', color: C.text },
+  time: { fontSize: 12, color: C.textSec, marginTop: 1 },
+  labelBadge: { backgroundColor: C.orange + '22', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginBottom: 6, borderWidth: 1, borderColor: C.orange + '44' },
+  labelText: { fontSize: 12, fontWeight: '700', color: C.orange },
+  completion: { fontSize: 12, color: C.textMuted, marginTop: 4 },
 
   /* Delta indicator */
   deltaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8, gap: 6 },
@@ -115,14 +116,14 @@ const styles = StyleSheet.create({
   delta: { fontSize: 13, fontWeight: '700' },
 
   /* Empty state */
-  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#0F1A0A' },
+  empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: C.bg },
   emptyDot: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     marginBottom: 20,
   },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#ECF0E6', marginBottom: 8 },
-  emptyHint: { fontSize: 14, color: '#8FA882', textAlign: 'center', lineHeight: 20 },
+  emptyTitle: { fontSize: 18, fontWeight: '700', color: C.text, marginBottom: 8 },
+  emptyHint: { fontSize: 14, color: C.textSec, textAlign: 'center', lineHeight: 20 },
 })

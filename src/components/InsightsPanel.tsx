@@ -2,6 +2,7 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import type { ReadinessScore } from '../lib/types'
 import { generateInsights } from '../lib/scoring/insights'
+import { C, RADIUS } from '../lib/theme'
 
 interface Props {
   score: ReadinessScore
@@ -17,23 +18,23 @@ export function InsightsPanel({ score }: Props) {
 
       {insights.weakestSection && (
         <AccentRow
-          indicatorColor="#ef4444"
+          indicatorColor={C.red}
           label="Focus area"
           value={insights.weakestSection}
-          valueColor="#ef4444"
+          valueColor={C.red}
         />
       )}
       {insights.strongestSection && insights.strongestSection !== insights.weakestSection && (
         <AccentRow
-          indicatorColor="#22c55e"
+          indicatorColor={C.greenStatus}
           label="Strongest"
           value={insights.strongestSection}
-          valueColor="#22c55e"
+          valueColor={C.greenStatus}
         />
       )}
       {insights.topToImprove.length > 0 && (
         <View style={styles.row}>
-          <View style={[styles.indicator, { backgroundColor: '#f59e0b' }]} />
+          <View style={[styles.indicator, { backgroundColor: C.amber }]} />
           <View style={styles.rowBody}>
             <Text style={styles.rowLabel}>Top to improve</Text>
             {insights.topToImprove.map(t => (
@@ -72,34 +73,27 @@ function AccentRow({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#1A2E10',
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
+    padding: 18,
     marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: C.border,
   },
   heading: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
-    color: '#536644',
-    marginBottom: 14,
+    color: C.textMuted,
+    marginBottom: 16,
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
   },
-
-  /* Accented rows (focus / strongest) */
   accentRow: {
     borderLeftWidth: 3,
-    borderLeftColor: '#e5e7eb',
-    paddingLeft: 12,
-    marginBottom: 12,
+    borderLeftColor: C.border,
+    paddingLeft: 14,
+    marginBottom: 14,
   },
-
-  /* Plain row (top to improve) */
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -109,8 +103,8 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginRight: 10,
-    marginTop: 3,
+    marginRight: 12,
+    marginTop: 4,
     flexShrink: 0,
   },
   rowBody: {
@@ -118,33 +112,32 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     fontSize: 11,
-    color: '#536644',
+    color: C.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 0.4,
-    marginBottom: 3,
+    letterSpacing: 1.2,
+    marginBottom: 4,
+    fontWeight: '700',
   },
   rowValue: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
   },
-
-  /* Bullet list */
   bulletRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 5,
   },
   bulletDot: {
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     marginRight: 8,
     flexShrink: 0,
   },
   bulletText: {
     fontSize: 13,
-    color: '#8FA882',
+    color: C.textSec,
     flex: 1,
     lineHeight: 18,
   },

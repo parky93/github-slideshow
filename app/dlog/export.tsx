@@ -15,6 +15,7 @@ import * as Sharing from 'expo-sharing'
 import { getActivities, saveActivity } from '@/lib/dlog/storage'
 import { buildGpx } from '@/lib/dlog/gpx'
 import { DLOG_CHECKLISTS, type DLogActivity } from '@/lib/dlog/types'
+import { C } from '@/lib/theme'
 
 export default function ExportScreen() {
   const { activityId } = useLocalSearchParams<{ activityId: string }>()
@@ -224,23 +225,23 @@ function formatDate(iso: string): string {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   scroll: { paddingHorizontal: 16, paddingBottom: 48, paddingTop: 16 },
   loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { color: '#8FA882', fontSize: 15 },
+  loadingText: { color: C.textSec, fontSize: 15 },
 
   headerCard: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     padding: 16,
     marginBottom: 16,
   },
   activityTitle: {
     fontSize: 20,
     fontWeight: '800',
-    color: '#ECF0E6',
+    color: C.text,
     marginBottom: 10,
   },
   metaRow: {
@@ -249,16 +250,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   metaChip: {
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
     fontSize: 13,
-    color: '#8FA882',
+    color: C.textSec,
     fontWeight: '600',
   },
   qmdBadge: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -266,38 +267,38 @@ const styles = StyleSheet.create({
   qmdText: { fontSize: 13, fontWeight: '800', color: '#fff' },
 
   sectionCard: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     padding: 16,
     marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textSec,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 8,
   },
   sectionHint: {
     fontSize: 13,
-    color: '#536644',
+    color: C.textMuted,
     marginBottom: 12,
   },
 
   summaryCard: {
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     padding: 14,
     marginBottom: 12,
   },
   summaryText: {
     fontSize: 13,
-    color: '#8FA882',
+    color: C.textSec,
     lineHeight: 22,
     fontFamily: 'monospace',
   },
@@ -313,10 +314,10 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   actionBtnGreen: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
   },
   actionBtnMuted: {
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
   },
   fullWidthBtn: {
     marginBottom: 8,
@@ -324,7 +325,7 @@ const styles = StyleSheet.create({
   actionBtnText: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
   },
 
   /* Download icon */
@@ -378,7 +379,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 8,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#ECF0E6',
+    borderBottomColor: C.text,
   },
 
   /* External link icon */
@@ -396,7 +397,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 8,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderBottomColor: '#ECF0E6',
+    borderBottomColor: C.text,
     transform: [{ rotate: '45deg' }],
   },
 
@@ -412,8 +413,8 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#4A8B28',
-    backgroundColor: '#0F1A0A',
+    borderColor: C.green,
+    backgroundColor: C.bg,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -424,7 +425,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 5,
     height: 2,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
   },
@@ -432,14 +433,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 9,
     height: 2,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: -1 }],
   },
   checkText: {
     flex: 1,
     fontSize: 14,
-    color: '#8FA882',
+    color: C.textSec,
     lineHeight: 20,
   },
 })

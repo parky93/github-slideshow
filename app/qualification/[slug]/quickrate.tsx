@@ -5,6 +5,7 @@ import { RatingPills } from '@/components/RatingPills'
 import { getQualificationBySlug, getSectionsWithItems } from '@/lib/db/queries/qualifications'
 import { upsertRating } from '@/lib/db/queries/ratings'
 import type { ChecklistItem, Section, RatingValue } from '@/lib/types'
+import { C } from '@/lib/theme'
 
 interface QueueItem {
   item: ChecklistItem
@@ -95,7 +96,7 @@ export default function QuickRateScreen() {
   if (!current) {
     return (
       <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
-        <Text style={{ color: '#8FA882', fontSize: 14 }}>Loading…</Text>
+        <Text style={{ color: C.textSec, fontSize: 14 }}>Loading…</Text>
       </View>
     )
   }
@@ -145,7 +146,7 @@ export default function QuickRateScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0F1A0A', padding: 20 },
+  screen: { flex: 1, backgroundColor: C.bg, padding: 20 },
 
   progressRow: {
     marginBottom: 24,
@@ -153,29 +154,29 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 4,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 2,
   },
   progressLabel: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
 
   card: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 18,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     flex: 1,
     justifyContent: 'center',
     marginBottom: 24,
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#4A8B28',
+    color: C.green,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 16,
@@ -191,23 +192,23 @@ const styles = StyleSheet.create({
   promptText: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
     lineHeight: 32,
     letterSpacing: -0.3,
   },
 
   ratingWrap: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 16,
     padding: 18,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     marginBottom: 16,
     gap: 12,
   },
   ratingLabel: {
     fontSize: 13,
-    color: '#8FA882',
+    color: C.textSec,
     fontWeight: '600',
   },
 
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
   },
   skipLabel: {
     fontSize: 14,
-    color: '#536644',
+    color: C.textMuted,
     fontWeight: '600',
   },
 
@@ -234,9 +235,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#0A2614',
+    backgroundColor: C.surfaceHi,
     borderWidth: 3,
-    borderColor: '#4A8B28',
+    borderColor: C.green,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -246,7 +247,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 14,
     height: 3,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 2,
     bottom: 28,
     left: 16,
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 28,
     height: 3,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 2,
     bottom: 30,
     right: 12,
@@ -265,18 +266,18 @@ const styles = StyleSheet.create({
   completionTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#ECF0E6',
+    color: C.text,
     letterSpacing: -0.3,
   },
   completionSub: {
     fontSize: 14,
-    color: '#8FA882',
+    color: C.textSec,
     textAlign: 'center',
     lineHeight: 20,
   },
   doneBtn: {
     marginTop: 16,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 48,

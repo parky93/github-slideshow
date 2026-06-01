@@ -4,6 +4,7 @@ import { useRouter, useFocusEffect } from 'expo-router'
 import { getCoachingNeeds } from '@/lib/db/queries/qualifications'
 import { RATING_LABELS, RATING_ACTIVE_COLORS } from '@/lib/types'
 import type { CoachingNeedItem, RatingValue } from '@/lib/types'
+import { C } from '@/lib/theme'
 
 interface Group { title: string; slug: string; data: CoachingNeedItem[] }
 
@@ -68,7 +69,7 @@ export default function CoachingNeedsScreen() {
 }
 
 function NeedRow({ item }: { item: CoachingNeedItem }) {
-  const ratingColor = item.ratingValue ? RATING_ACTIVE_COLORS[item.ratingValue as RatingValue] : '#536644'
+  const ratingColor = item.ratingValue ? RATING_ACTIVE_COLORS[item.ratingValue as RatingValue] : C.textMuted
   const ratingLabel = item.ratingValue ? RATING_LABELS[item.ratingValue as RatingValue] : 'Unrated'
 
   return (
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: 16, paddingBottom: 48 },
   heading: {
     fontSize: 13,
-    color: '#536644',
+    color: C.textMuted,
     fontWeight: '600',
     paddingTop: 20,
     paddingBottom: 12,
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0A1306',
+    backgroundColor: C.bgElevated,
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginHorizontal: -16,
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textSec,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     flex: 1,
@@ -117,11 +118,11 @@ const styles = StyleSheet.create({
   sectionCount: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#C4621A',
+    color: C.orange,
   },
 
   card: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 14,
     marginBottom: 8,
@@ -134,7 +135,7 @@ const styles = StyleSheet.create({
   },
   section: {
     fontSize: 11,
-    color: '#536644',
+    color: C.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     flex: 1,
@@ -150,12 +151,12 @@ const styles = StyleSheet.create({
   },
   prompt: {
     fontSize: 14,
-    color: '#ECF0E6',
+    color: C.text,
     lineHeight: 20,
   },
   notes: {
     fontSize: 12,
-    color: '#8FA882',
+    color: C.textSec,
     marginTop: 6,
     lineHeight: 17,
     fontStyle: 'italic',
@@ -166,25 +167,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 32,
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
   },
   emptyDot: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     marginBottom: 20,
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyHint: {
     fontSize: 14,
-    color: '#8FA882',
+    color: C.textSec,
     textAlign: 'center',
     lineHeight: 20,
   },

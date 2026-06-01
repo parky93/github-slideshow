@@ -7,8 +7,10 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import * as Haptics from 'expo-haptics'
+import { C, RADIUS, GRAD } from '@/lib/theme'
 import { getJSON, setJSON } from '@/lib/db/client'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { StoredQual } from '@/lib/db/seed'
@@ -106,7 +108,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
         {walking.length > 0 && (
           <View style={styles.group}>
             <View style={styles.groupLabelRow}>
-              <View style={[styles.groupDot, { backgroundColor: '#4A8B28' }]} />
+              <View style={[styles.groupDot, { backgroundColor: C.greenBright }]} />
               <Text style={styles.groupLabel}>Walking</Text>
             </View>
             {walking.map(q => (
@@ -124,7 +126,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
         {climbing.length > 0 && (
           <View style={styles.group}>
             <View style={styles.groupLabelRow}>
-              <View style={[styles.groupDot, { backgroundColor: '#C4621A' }]} />
+              <View style={[styles.groupDot, { backgroundColor: C.orange }]} />
               <Text style={styles.groupLabel}>Climbing & Coaching</Text>
             </View>
             {climbing.map(q => (
@@ -145,11 +147,18 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
       <View style={styles.footer}>
         <Pressable
           onPress={handleGetStarted}
-          style={({ pressed }) => [styles.getStartedBtn, pressed && { opacity: 0.85 }]}
+          style={({ pressed }) => [styles.getStartedShadow, pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] }]}
         >
-          <Text style={styles.getStartedLabel}>
-            {selected.size === 0 ? 'Get started (show all)' : `Get started with ${selected.size} qual${selected.size !== 1 ? 's' : ''}`}
-          </Text>
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.getStartedBtn}
+          >
+            <Text style={styles.getStartedLabel}>
+              {selected.size === 0 ? 'Get started (show all)' : `Get started with ${selected.size} qual${selected.size !== 1 ? 's' : ''}`}
+            </Text>
+          </LinearGradient>
         </Pressable>
       </View>
     </View>
@@ -192,22 +201,22 @@ function QualPill({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0F1A0A' },
+  screen: { flex: 1, backgroundColor: C.bg },
   scrollView: { flex: 1 },
-  scroll: { paddingHorizontal: 16, paddingTop: 32, paddingBottom: 24 },
+  scroll: { paddingHorizontal: 20, paddingTop: 32, paddingBottom: 24 },
 
   header: { marginBottom: 24 },
   title: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: '800',
-    color: '#ECF0E6',
-    letterSpacing: -0.4,
-    lineHeight: 34,
-    marginBottom: 8,
+    color: C.text,
+    letterSpacing: -0.8,
+    lineHeight: 38,
+    marginBottom: 10,
   },
   subtitle: {
     fontSize: 14,
-    color: '#8FA882',
+    color: C.textSec,
     lineHeight: 20,
   },
 
@@ -217,20 +226,20 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   selectAllBtn: {
-    backgroundColor: '#1A2E10',
-    borderRadius: 10,
-    paddingHorizontal: 14,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 16,
     paddingVertical: 9,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
   selectAllLabel: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#8FA882',
+    fontWeight: '700',
+    color: C.textSec,
   },
 
-  group: { marginBottom: 20 },
+  group: { marginBottom: 24 },
   groupLabelRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -245,85 +254,93 @@ const styles = StyleSheet.create({
   groupLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textSec,
     textTransform: 'uppercase',
-    letterSpacing: 0.9,
+    letterSpacing: 1.2,
   },
 
   qualCard: {
-    backgroundColor: '#1A2E10',
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#2E4A1E',
-    marginBottom: 8,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1.5,
+    borderColor: C.border,
+    marginBottom: 10,
     overflow: 'hidden',
   },
   qualCardSelected: {
-    borderColor: '#4A8B28',
-    backgroundColor: '#1A2E10',
+    borderColor: C.greenBright,
+    backgroundColor: C.surfaceHi,
   },
   qualCardInner: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 18,
     gap: 12,
   },
   qualCardText: { flex: 1 },
   qualName: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#8FA882',
+    color: C.textSec,
     lineHeight: 20,
   },
   qualNameSelected: {
-    color: '#ECF0E6',
+    color: C.text,
+    fontWeight: '700',
   },
   qualPathway: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     marginTop: 3,
   },
 
   checkboxOuter: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#536644',
+    borderColor: C.textMuted,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   checkboxOuterSelected: {
-    borderColor: '#4A8B28',
-    backgroundColor: '#4A8B28',
+    borderColor: C.greenBright,
+    backgroundColor: C.greenBright,
   },
   checkboxInner: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#fff',
+    backgroundColor: '#0A0F08',
   },
 
   bottomPad: { height: 16 },
 
   footer: {
-    backgroundColor: '#0A1306',
-    paddingHorizontal: 16,
+    backgroundColor: C.bgElevated,
+    paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: Platform.OS === 'ios' ? 30 : 16,
     borderTopWidth: 1,
-    borderTopColor: '#2E4A1E',
+    borderTopColor: C.border,
+  },
+  getStartedShadow: {
+    borderRadius: RADIUS.lg,
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 6,
   },
   getStartedBtn: {
-    backgroundColor: '#4A8B28',
-    borderRadius: 14,
-    paddingVertical: 16,
+    borderRadius: RADIUS.lg,
+    paddingVertical: 17,
     alignItems: 'center',
   },
   getStartedLabel: {
-    color: '#fff',
+    color: '#0A0F08',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 })

@@ -12,6 +12,7 @@ import {
 import { useRouter, useFocusEffect } from 'expo-router'
 import { getActivities, deleteActivity } from '@/lib/dlog/storage'
 import type { DLogActivity } from '@/lib/dlog/types'
+import { C } from '@/lib/theme'
 
 function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-')
@@ -104,7 +105,7 @@ export default function LogbookScreen() {
         renderItem={renderItem}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4A8B28" />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.green} />
         }
         ListHeaderComponent={
           <View style={styles.header}>
@@ -140,7 +141,7 @@ export default function LogbookScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   list: { paddingHorizontal: 16, paddingBottom: 48 },
 
   header: {
@@ -153,11 +154,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#ECF0E6',
+    color: C.text,
     letterSpacing: -0.3,
   },
   logBtn: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 9,
@@ -165,10 +166,10 @@ const styles = StyleSheet.create({
   logBtnText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 
   row: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     padding: 14,
     marginBottom: 10,
     flexDirection: 'row',
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   dateChip: {
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 5,
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   dateChipText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textSec,
   },
   rowInfo: { flex: 1 },
   rowTitleRow: {
@@ -203,10 +204,10 @@ const styles = StyleSheet.create({
   rowTitle: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
   },
   qmdBadge: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
@@ -221,13 +222,13 @@ const styles = StyleSheet.create({
   },
   rowLocation: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     flex: 1,
     flexShrink: 1,
   },
   rowDuration: {
     fontSize: 12,
-    color: '#8FA882',
+    color: C.textSec,
     fontWeight: '600',
     flexShrink: 0,
   },
@@ -244,7 +245,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 14,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 14,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }],
   },
@@ -266,34 +267,34 @@ const styles = StyleSheet.create({
   emptyIcon: {
     width: 48,
     height: 48,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
     marginBottom: 20,
     padding: 10,
   },
-  emptyLine1: { width: 28, height: 2, backgroundColor: '#2E4A1E', borderRadius: 1 },
-  emptyLine2: { width: 22, height: 2, backgroundColor: '#2E4A1E', borderRadius: 1 },
-  emptyLine3: { width: 25, height: 2, backgroundColor: '#2E4A1E', borderRadius: 1 },
+  emptyLine1: { width: 28, height: 2, backgroundColor: C.border, borderRadius: 1 },
+  emptyLine2: { width: 22, height: 2, backgroundColor: C.border, borderRadius: 1 },
+  emptyLine3: { width: 25, height: 2, backgroundColor: C.border, borderRadius: 1 },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
     marginBottom: 8,
   },
   emptyHint: {
     fontSize: 14,
-    color: '#536644',
+    color: C.textMuted,
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: 24,
   },
   emptyBtn: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 14,
     paddingHorizontal: 24,
     paddingVertical: 13,

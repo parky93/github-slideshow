@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import { ACTIVITY_TYPES, type ActivityCategory } from '@/lib/dlog/types'
+import { C } from '@/lib/theme'
 
 interface CategorySection {
   title: string
@@ -18,10 +19,10 @@ interface CategorySection {
 }
 
 const CATEGORY_META: Record<ActivityCategory, { title: string; dotColor: string }> = {
-  'walking': { title: 'Walking', dotColor: '#4A8B28' },
-  'climbing-outdoor': { title: 'Outdoor Climbing', dotColor: '#C4621A' },
-  'climbing-indoor': { title: 'Indoor Climbing', dotColor: '#3B82F6' },
-  'other': { title: 'Other', dotColor: '#8FA882' },
+  'walking': { title: 'Walking', dotColor: C.green },
+  'climbing-outdoor': { title: 'Outdoor Climbing', dotColor: C.orange },
+  'climbing-indoor': { title: 'Indoor Climbing', dotColor: C.blue },
+  'other': { title: 'Other', dotColor: C.textSec },
 }
 
 const CATEGORY_ORDER: ActivityCategory[] = ['walking', 'climbing-outdoor', 'climbing-indoor', 'other']
@@ -71,7 +72,7 @@ export default function ActivityTypeScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   list: { paddingHorizontal: 16, paddingBottom: 48, paddingTop: 8 },
 
   sectionHeader: {
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
     paddingBottom: 10,
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
   },
   sectionDot: {
     width: 8,
@@ -90,16 +91,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textSec,
     textTransform: 'uppercase',
     letterSpacing: 0.9,
   },
 
   card: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 16,
     paddingVertical: 16,
     marginBottom: 8,
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#ECF0E6',
+    color: C.text,
   },
   cardChevron: {
     width: 16,
@@ -123,7 +124,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateY: -3 }],
   },
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateY: 3 }],
   },

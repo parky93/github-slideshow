@@ -1,14 +1,15 @@
 import { Stack } from 'expo-router'
+import { C } from '@/lib/theme'
 
 export default function DlogLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: '#0A1306' },
-        headerTintColor: '#ECF0E6',
-        headerTitleStyle: { fontWeight: '700', color: '#ECF0E6', fontSize: 17 },
+        headerStyle: { backgroundColor: C.bg },
+        headerTintColor: C.text,
+        headerTitleStyle: { fontWeight: '800', color: C.text, fontSize: 18 },
         headerShadowVisible: false,
-        contentStyle: { backgroundColor: '#0F1A0A' },
+        contentStyle: { backgroundColor: C.bg },
       }}
     >
       <Stack.Screen name="activity-type" options={{ title: 'Log Activity' }} />

@@ -1,16 +1,23 @@
 import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import { TRAFFIC_COLORS } from '../lib/types'
+import { LinearGradient } from 'expo-linear-gradient'
 import type { SectionScore } from '../lib/types'
+import { C, RADIUS, STATUS } from '../lib/theme'
 
 interface Props {
   section: SectionScore
 }
 
 export function SectionBar({ section }: Props) {
-  const color = TRAFFIC_COLORS[section.light]
+  const color = STATUS[section.light]
   const pct = Math.round(section.score * 100)
   const completion = Math.round(section.completion * 100)
+
+  const fillColors: [string, string] = section.light === 'green'
+    ? [C.greenBright, C.green]
+    : section.light === 'amber'
+      ? ['#FFD24A', C.amber]
+      : [C.red, '#D63B3B']
 
   return (
     <View style={styles.container}>
@@ -19,7 +26,12 @@ export function SectionBar({ section }: Props) {
         <Text style={[styles.score, { color }]}>{pct}%</Text>
       </View>
       <View style={styles.track}>
-        <View style={[styles.fill, { width: `${pct}%` as any, backgroundColor: color }]} />
+        <LinearGradient
+          colors={fillColors}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={[styles.fill, { width: `${Math.max(pct, 2)}%` as any }]}
+        />
       </View>
       <Text style={styles.sub}>{completion}% rated</Text>
     </View>
@@ -28,28 +40,34 @@ export function SectionBar({ section }: Props) {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 14,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: C.borderSubtle,
+    padding: 14,
+    marginBottom: 10,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   title: {
     fontSize: 14,
-    fontWeight: '500',
-    color: '#ECF0E6',
+    fontWeight: '700',
+    color: C.text,
     flex: 1,
     marginRight: 8,
   },
   score: {
-    fontSize: 13,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: -0.3,
   },
   track: {
     height: 8,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.bg,
     borderRadius: 4,
     overflow: 'hidden',
   },
@@ -59,8 +77,9 @@ const styles = StyleSheet.create({
   },
   sub: {
     fontSize: 11,
-    color: '#536644',
-    marginTop: 4,
+    color: C.textMuted,
+    marginTop: 6,
     textAlign: 'right',
+    fontWeight: '600',
   },
 })

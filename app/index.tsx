@@ -9,18 +9,19 @@ import {
   Pressable,
   Animated,
 } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter, useFocusEffect, Link } from 'expo-router'
 import { QualCard } from '@/components/QualCard'
 import { getAllQualifications } from '@/lib/db/queries/qualifications'
 import { getJSON } from '@/lib/db/client'
 import { getIsPro } from '@/lib/dlog/storage'
+import { C, RADIUS, GRAD } from '@/lib/theme'
 import type { QualificationWithMeta } from '@/lib/types'
 
 type FilterTab = 'All' | 'Walking' | 'Climbing'
 const TABS: FilterTab[] = ['All', 'Walking', 'Climbing']
 
-const BRAND = '#4A8B28'
-const TAB_W = 90
+const TAB_W = 104
 
 interface ListSection { title: string; data: QualificationWithMeta[] }
 
@@ -87,31 +88,25 @@ export default function HomeScreen() {
   const navigateTo = (item: QualificationWithMeta) =>
     router.push(`/qualification/${item.slug}`)
 
+  // Overall readiness across tracked quals (those with a checklist)
+  const tracked = allQuals.filter(q => q.totalItems > 0)
+  const overall = tracked.length
+    ? tracked.reduce((s, q) => s + q.readinessScore, 0) / tracked.length
+    : 0
+  const overallPct = Math.round(overall * 100)
+  const totalItems = allQuals.reduce((s, q) => s + q.totalItems, 0)
+  const totalRated = allQuals.reduce((s, q) => s + q.ratedItems, 0)
+  const greenCount = tracked.filter(q => q.readinessScore >= 0.65).length
+
   const Hero = (
     <View style={styles.hero}>
-      {/* App heading */}
+      {/* Greeting header */}
       <View style={styles.heroRow}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.heroTitle}>MTA Ready</Text>
-          <Text style={styles.heroSub}>{allQuals.length} qualifications tracked</Text>
+          <Text style={styles.heroEyebrow}>MTA Ready</Text>
+          <Text style={styles.heroTitle}>Your Readiness</Text>
         </View>
         <View style={styles.heroActions}>
-          {/* Gear icon — navigate to settings */}
-          <Pressable
-            onPress={() => router.push('/settings')}
-            style={({ pressed }) => [styles.heroIconBtn, pressed && { opacity: 0.7 }]}
-            accessibilityLabel="Settings"
-          >
-            {/* Gear drawn with a circle + border dash effect */}
-            <View style={styles.gearOuter}>
-              <View style={styles.gearInner} />
-              <View style={[styles.gearTooth, { top: -3, left: 7 }]} />
-              <View style={[styles.gearTooth, { bottom: -3, left: 7 }]} />
-              <View style={[styles.gearTooth, { left: -3, top: 7, width: 6, height: 4 }]} />
-              <View style={[styles.gearTooth, { right: -3, top: 7, width: 6, height: 4 }]} />
-            </View>
-          </Pressable>
-          {/* Search icon */}
           <Pressable
             onPress={() => router.push('/search')}
             style={({ pressed }) => [styles.heroIconBtn, pressed && { opacity: 0.7 }]}
@@ -122,14 +117,60 @@ export default function HomeScreen() {
               <View style={styles.searchHandleHero} />
             </View>
           </Pressable>
-          {/* Count badge */}
-          <View style={styles.heroBadge}>
-            <Text style={styles.heroBadgeText}>{allQuals.length}</Text>
-          </View>
+          <Pressable
+            onPress={() => router.push('/settings')}
+            style={({ pressed }) => [styles.heroIconBtn, pressed && { opacity: 0.7 }]}
+            accessibilityLabel="Settings"
+          >
+            <View style={styles.gearOuter}>
+              <View style={styles.gearInner} />
+              <View style={[styles.gearTooth, { top: -3, left: 7 }]} />
+              <View style={[styles.gearTooth, { bottom: -3, left: 7 }]} />
+              <View style={[styles.gearTooth, { left: -3, top: 7, width: 6, height: 4 }]} />
+              <View style={[styles.gearTooth, { right: -3, top: 7, width: 6, height: 4 }]} />
+            </View>
+          </Pressable>
         </View>
       </View>
 
-      {/* Filter tab pills */}
+      {/* Hero readiness card */}
+      <View style={styles.readinessCard}>
+        <LinearGradient
+          colors={GRAD.greenGlow}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.readinessTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.readinessLabel}>Overall readiness</Text>
+            <View style={styles.readinessNumRow}>
+              <Text style={styles.readinessNum}>{overallPct}</Text>
+              <Text style={styles.readinessPct}>%</Text>
+            </View>
+            <Text style={styles.readinessSub}>
+              {tracked.length} of {allQuals.length} qualifications tracked
+            </Text>
+          </View>
+        </View>
+        <View style={styles.bigTrack}>
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.bigFill, { width: `${Math.max(overallPct, 2)}%` as any }]}
+          />
+        </View>
+        <View style={styles.miniStatRow}>
+          <MiniStat value={`${totalRated}/${totalItems}`} label="Items rated" />
+          <View style={styles.miniDivider} />
+          <MiniStat value={String(greenCount)} label="Ready" valueColor={C.greenStatus} />
+          <View style={styles.miniDivider} />
+          <MiniStat value={String(allQuals.length)} label="Tracked" />
+        </View>
+      </View>
+
+      {/* Segmented filter pills */}
       <View style={styles.tabBar}>
         <Animated.View
           style={[
@@ -139,7 +180,7 @@ export default function HomeScreen() {
               transform: [{
                 translateX: pillAnim.interpolate({
                   inputRange: [0, 1, 2],
-                  outputRange: [2, TAB_W + 2, TAB_W * 2 + 2],
+                  outputRange: [3, TAB_W + 3, TAB_W * 2 + 3],
                 }),
               }],
             },
@@ -154,43 +195,57 @@ export default function HomeScreen() {
         ))}
       </View>
 
-      {/* Shortcut buttons */}
+      {/* Shortcut cards */}
       <View style={styles.shortcutRow}>
         <Link href="/coaching-needs" asChild>
-          <Pressable style={[styles.shortcutBtn, styles.shortcutBtnOrange]}>
-            <View style={[styles.shortcutDot, { backgroundColor: '#C4621A' }]} />
-            <Text style={[styles.shortcutLabel, { color: '#E8893A' }]}>Coaching needs</Text>
+          <Pressable style={({ pressed }) => [styles.shortcutCard, pressed && { opacity: 0.85 }]}>
+            <View style={[styles.shortcutIcon, { backgroundColor: C.orange + '26' }]}>
+              <View style={[styles.iconDot, { backgroundColor: C.orange }]} />
+            </View>
+            <Text style={styles.shortcutLabel}>Coaching</Text>
+            <Text style={styles.shortcutSub}>Needs review</Text>
           </Pressable>
         </Link>
         <Link href="/stats" asChild>
-          <Pressable style={[styles.shortcutBtn, styles.shortcutBtnGreen]}>
-            <View style={[styles.shortcutDot, { backgroundColor: '#4A8B28' }]} />
-            <Text style={[styles.shortcutLabel, { color: '#8FA882' }]}>Overview</Text>
+          <Pressable style={({ pressed }) => [styles.shortcutCard, pressed && { opacity: 0.85 }]}>
+            <View style={[styles.shortcutIcon, { backgroundColor: C.green + '26' }]}>
+              <View style={[styles.iconDot, { backgroundColor: C.greenBright }]} />
+            </View>
+            <Text style={styles.shortcutLabel}>Overview</Text>
+            <Text style={styles.shortcutSub}>Your stats</Text>
           </Pressable>
         </Link>
       </View>
 
-      {/* DLOG Toolkit button */}
-      <View style={styles.shortcutRow}>
-        <Pressable
-          style={({ pressed }) => [styles.shortcutBtn, styles.shortcutBtnBlue, styles.shortcutFull, pressed && { opacity: 0.7 }]}
-          onPress={handleDlogPress}
-        >
-          <View style={[styles.shortcutDot, { backgroundColor: '#3B82F6' }]} />
-          <Text style={[styles.shortcutLabel, { color: '#3B82F6' }]}>DLOG Toolkit</Text>
-          <View style={styles.proTag}>
-            <Text style={styles.proTagText}>PRO</Text>
-          </View>
-        </Pressable>
-      </View>
+      {/* DLOG Toolkit — prominent gradient card */}
+      <Pressable
+        style={({ pressed }) => [styles.dlogCard, pressed && { transform: [{ scale: 0.98 }] }]}
+        onPress={handleDlogPress}
+      >
+        <LinearGradient
+          colors={GRAD.cta}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <View style={styles.dlogIcon}>
+          <View style={styles.dlogIconBar} />
+          <View style={[styles.dlogIconBar, { height: 14 }]} />
+          <View style={[styles.dlogIconBar, { height: 9 }]} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.dlogTitle}>DLOG Toolkit</Text>
+          <Text style={styles.dlogSub}>Log activities, build GPX, export DLOG</Text>
+        </View>
+        <View style={styles.proTag}>
+          <Text style={styles.proTagText}>PRO</Text>
+        </View>
+      </Pressable>
 
       {/* Favourites section — only in All tab */}
       {activeTab === 'All' && favourites.length > 0 && (
         <View style={styles.favSection}>
-          <View style={styles.sectionLabelRow}>
-            <View style={[styles.sectionDot, { backgroundColor: '#f59e0b' }]} />
-            <Text style={styles.sectionLabel}>Favourites</Text>
-          </View>
+          <Text style={styles.sectionLabel}>Favourites</Text>
           {favourites.map(item => (
             <QualCard key={item.slug} qual={item} onPress={() => navigateTo(item)} />
           ))}
@@ -200,7 +255,7 @@ export default function HomeScreen() {
   )
 
   const refreshControl = (
-    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={BRAND} />
+    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={C.greenBright} />
   )
 
   if (activeTab !== 'All') {
@@ -234,7 +289,6 @@ export default function HomeScreen() {
         refreshControl={refreshControl}
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionLabelRow}>
-            <View style={[styles.sectionDot, { backgroundColor: BRAND }]} />
             <Text style={styles.sectionLabel}>{section.title}</Text>
           </View>
         )}
@@ -247,46 +301,56 @@ export default function HomeScreen() {
   )
 }
 
+function MiniStat({ value, label, valueColor }: { value: string; label: string; valueColor?: string }) {
+  return (
+    <View style={styles.miniStat}>
+      <Text style={[styles.miniStatValue, valueColor ? { color: valueColor } : undefined]}>{value}</Text>
+      <Text style={styles.miniStatLabel}>{label}</Text>
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0F1A0A' },
-  list: { paddingHorizontal: 16, paddingBottom: 48 },
+  screen: { flex: 1, backgroundColor: C.bg },
+  list: { paddingHorizontal: 20, paddingBottom: 48 },
 
   /* Hero */
-  hero: { paddingTop: 28, paddingBottom: 4 },
+  hero: { paddingTop: 24, paddingBottom: 4 },
   heroRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 20,
   },
-  heroTitle: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#ECF0E6',
-    letterSpacing: -0.5,
+  heroEyebrow: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: C.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.4,
+    marginBottom: 4,
   },
-  heroSub: {
-    fontSize: 14,
-    color: '#8FA882',
-    marginTop: 4,
+  heroTitle: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: C.text,
+    letterSpacing: -0.8,
   },
   heroActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 2,
+    gap: 10,
   },
   heroIconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: '#1A2E10',
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: C.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
-  /* Gear icon */
   gearOuter: {
     width: 18,
     height: 18,
@@ -299,17 +363,16 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: '#8FA882',
+    borderColor: C.textSec,
     backgroundColor: 'transparent',
   },
   gearTooth: {
     position: 'absolute',
     width: 4,
     height: 6,
-    backgroundColor: '#8FA882',
+    backgroundColor: C.textSec,
     borderRadius: 1,
   },
-  /* Search icon in hero */
   searchIconContainer: {
     width: 18,
     height: 18,
@@ -323,7 +386,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#8FA882',
+    borderColor: C.textSec,
     backgroundColor: 'transparent',
   },
   searchHandleHero: {
@@ -332,101 +395,219 @@ const styles = StyleSheet.create({
     right: 1,
     width: 6,
     height: 2,
-    backgroundColor: '#8FA882',
+    backgroundColor: C.textSec,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
-  heroBadge: {
-    backgroundColor: BRAND,
-    borderRadius: 22,
-    minWidth: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 10,
+
+  /* Hero readiness card */
+  readinessCard: {
+    borderRadius: RADIUS.xl,
+    padding: 22,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: C.border,
+    overflow: 'hidden',
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 6,
   },
-  heroBadgeText: {
-    color: '#fff',
+  readinessTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  readinessLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: C.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 6,
+  },
+  readinessNumRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  readinessNum: {
+    fontSize: 56,
+    fontWeight: '800',
+    color: C.text,
+    letterSpacing: -2,
+    lineHeight: 58,
+  },
+  readinessPct: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: C.greenBright,
+    marginTop: 6,
+    marginLeft: 2,
+  },
+  readinessSub: {
+    fontSize: 13,
+    color: C.textSec,
+    marginTop: 4,
+    fontWeight: '600',
+  },
+  bigTrack: {
+    height: 10,
+    backgroundColor: C.bg,
+    borderRadius: 5,
+    overflow: 'hidden',
+    marginTop: 18,
+    marginBottom: 18,
+  },
+  bigFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+  miniStatRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  miniStat: { flex: 1 },
+  miniStatValue: {
     fontSize: 18,
     fontWeight: '800',
+    color: C.text,
+    letterSpacing: -0.4,
+  },
+  miniStatLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: C.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginTop: 3,
+  },
+  miniDivider: {
+    width: 1,
+    height: 28,
+    backgroundColor: C.border,
+    marginHorizontal: 12,
   },
 
   /* Filter tabs */
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#1A2E10',
-    borderRadius: 14,
-    padding: 2,
-    width: TAB_W * 3 + 4,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    padding: 3,
+    width: TAB_W * 3 + 6,
     position: 'relative',
     marginBottom: 24,
     alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderColor: C.borderSubtle,
   },
   tabPill: {
     position: 'absolute',
-    top: 2,
+    top: 3,
     left: 0,
-    height: 36,
-    backgroundColor: BRAND,
-    borderRadius: 12,
+    height: 38,
+    backgroundColor: C.surfaceHi,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: C.border,
   },
   tab: {
     width: TAB_W,
-    paddingVertical: 9,
+    paddingVertical: 10,
     alignItems: 'center',
     zIndex: 1,
   },
   tabLabel: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#8FA882',
+    fontWeight: '700',
+    color: C.textMuted,
   },
   tabLabelActive: {
-    color: '#ECF0E6',
+    color: C.greenBright,
   },
 
   /* Section headers */
   sectionLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 4,
-    paddingBottom: 10,
-    backgroundColor: '#0F1A0A',
-  },
-  sectionDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
+    paddingTop: 6,
+    paddingBottom: 12,
+    backgroundColor: C.bg,
   },
   sectionLabel: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#8FA882',
+    color: C.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 0.9,
+    letterSpacing: 1.2,
+    marginBottom: 12,
   },
 
-  /* Favourites */
   favSection: { marginBottom: 4 },
 
-  /* Shortcut buttons */
-  shortcutRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
-  shortcutBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: '#1A2E10', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, gap: 8, borderWidth: 1 },
-  shortcutBtnOrange: { borderColor: '#C4621A44' },
-  shortcutBtnGreen: { borderColor: '#4A8B2844' },
-  shortcutBtnBlue: { borderColor: '#1B3A5C', backgroundColor: '#1A2E10' },
-  shortcutFull: { flex: 1 },
-  shortcutDot: { width: 8, height: 8, borderRadius: 4 },
-  shortcutLabel: { fontSize: 13, fontWeight: '600', flex: 1 },
-  proTag: {
-    backgroundColor: '#3B82F6',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+  /* Shortcut cards */
+  shortcutRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+  shortcutCard: {
+    flex: 1,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: C.border,
   },
-  proTagText: { fontSize: 9, fontWeight: '800', color: '#fff', letterSpacing: 0.5 },
+  shortcutIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  iconDot: { width: 12, height: 12, borderRadius: 6 },
+  shortcutLabel: { fontSize: 15, fontWeight: '700', color: C.text },
+  shortcutSub: { fontSize: 12, color: C.textSec, marginTop: 2, fontWeight: '600' },
+
+  /* DLOG card */
+  dlogCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: 18,
+    paddingVertical: 18,
+    marginBottom: 24,
+    gap: 14,
+    overflow: 'hidden',
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  dlogIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+    paddingBottom: 11,
+    gap: 3,
+  },
+  dlogIconBar: {
+    width: 4,
+    height: 18,
+    borderRadius: 2,
+    backgroundColor: '#0A0F08',
+  },
+  dlogTitle: { fontSize: 17, fontWeight: '800', color: '#0A0F08', letterSpacing: -0.3 },
+  dlogSub: { fontSize: 12, color: '#10210A', marginTop: 2, fontWeight: '600' },
+  proTag: {
+    backgroundColor: 'rgba(10,15,8,0.85)',
+    borderRadius: 7,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  proTagText: { fontSize: 10, fontWeight: '800', color: C.greenBright, letterSpacing: 1 },
 
   empty: { alignItems: 'center', paddingVertical: 48 },
-  emptyText: { fontSize: 14, color: '#536644' },
+  emptyText: { fontSize: 14, color: C.textMuted },
 })

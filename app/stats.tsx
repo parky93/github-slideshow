@@ -7,31 +7,26 @@ import {
   Pressable,
 } from 'react-native'
 import { useRouter, useFocusEffect } from 'expo-router'
+import { LinearGradient } from 'expo-linear-gradient'
 import { getAllQualifications, getCoachingNeeds } from '@/lib/db/queries/qualifications'
 import { getTargetDate, daysUntil } from '@/lib/db/queries/ratings'
+import { C, RADIUS, GRAD, trafficColor } from '@/lib/theme'
 import type { QualificationWithMeta } from '@/lib/types'
 
-const BG = '#0F1A0A'
-const SURFACE = '#1A2E10'
-const SURFACE_2 = '#243D17'
-const BORDER = '#2E4A1E'
-const PRIMARY = '#4A8B28'
-const ORANGE = '#C4621A'
-const ORANGE_LT = '#E8893A'
-const HEADER_BG = '#0A1306'
-const TEXT_PRI = '#ECF0E6'
-const TEXT_SEC = '#8FA882'
-const TEXT_MUT = '#536644'
+const BG = C.bg
+const SURFACE = C.surface
+const SURFACE_2 = C.surfaceHi
+const BORDER = C.border
+const PRIMARY = C.green
+const ORANGE = C.orange
+const ORANGE_LT = C.orange
+const TEXT_PRI = C.text
+const TEXT_SEC = C.textSec
+const TEXT_MUT = C.textMuted
 
-const RED = '#EF4444'
-const AMBER = '#F59E0B'
-const GREEN = '#22C55E'
-
-function trafficColor(score: number): string {
-  if (score >= 0.65) return GREEN
-  if (score >= 0.35) return AMBER
-  return RED
-}
+const RED = C.red
+const AMBER = C.amber
+const GREEN = C.greenStatus
 
 interface TargetEntry {
   qual: QualificationWithMeta
@@ -100,19 +95,27 @@ export default function StatsScreen() {
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     >
-      {/* Top stat cards */}
+      {/* Hero avg readiness tile */}
+      <View style={styles.heroTile}>
+        <LinearGradient
+          colors={GRAD.greenGlow}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <Text style={styles.heroLabel}>Average readiness</Text>
+        <View style={styles.heroNumRow}>
+          <Text style={styles.heroNum}>{activeQuals.length > 0 ? Math.round(avgReadiness * 100) : 0}</Text>
+          <Text style={styles.heroPct}>%</Text>
+        </View>
+        <Text style={styles.heroSub}>across {activeQuals.length} active qualification{activeQuals.length !== 1 ? 's' : ''}</Text>
+      </View>
+
+      {/* Stat tiles */}
       <View style={styles.cardRow}>
         <View style={styles.statCard}>
-          <Text style={styles.statValue}>
-            {totalRated}/{totalItems}
-          </Text>
+          <Text style={styles.statValue}>{totalRated}/{totalItems}</Text>
           <Text style={styles.statLabel}>Items rated</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statValue}>
-            {activeQuals.length > 0 ? Math.round(avgReadiness * 100) : 0}%
-          </Text>
-          <Text style={styles.statLabel}>Avg readiness</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={[styles.statValue, coachingCount > 0 && { color: ORANGE_LT }]}>
@@ -153,7 +156,7 @@ export default function StatsScreen() {
                   <View
                     style={[
                       styles.barFill,
-                      { width: `${pct}%` as any, backgroundColor: dot },
+                      { width: `${Math.max(pct, 2)}%` as any, backgroundColor: dot },
                     ]}
                   />
                 </View>
@@ -225,34 +228,59 @@ export default function StatsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: BG },
-  container: { paddingHorizontal: 16, paddingTop: 24, paddingBottom: 48 },
+  container: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 48 },
 
-  /* Top stat cards */
-  cardRow: { flexDirection: 'row', gap: 10, marginBottom: 28 },
+  /* Hero tile */
+  heroTile: {
+    borderRadius: RADIUS.xl,
+    padding: 22,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
+    overflow: 'hidden',
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 6,
+  },
+  heroLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: TEXT_MUT,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 6,
+  },
+  heroNumRow: { flexDirection: 'row', alignItems: 'flex-start' },
+  heroNum: { fontSize: 52, fontWeight: '800', color: TEXT_PRI, letterSpacing: -2, lineHeight: 54 },
+  heroPct: { fontSize: 24, fontWeight: '800', color: C.greenBright, marginTop: 6, marginLeft: 2 },
+  heroSub: { fontSize: 13, color: TEXT_SEC, marginTop: 4, fontWeight: '600' },
+
+  /* Stat tiles */
+  cardRow: { flexDirection: 'row', gap: 12, marginBottom: 28 },
   statCard: {
     flex: 1,
     backgroundColor: SURFACE,
-    borderRadius: 14,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: BORDER,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    alignItems: 'center',
+    paddingVertical: 18,
+    paddingHorizontal: 16,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: '800',
     color: TEXT_PRI,
-    letterSpacing: -0.5,
+    letterSpacing: -0.8,
   },
   statLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '700',
     color: TEXT_MUT,
     textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: 4,
-    textAlign: 'center',
+    letterSpacing: 1,
+    marginTop: 6,
   },
 
   /* Section */
@@ -286,11 +314,11 @@ const styles = StyleSheet.create({
   /* Active qual rows */
   qualRow: {
     backgroundColor: SURFACE,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: BORDER,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginBottom: 8,
   },
   qualRowTop: {
@@ -328,11 +356,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: SURFACE,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: BORDER,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginBottom: 8,
     gap: 12,
   },

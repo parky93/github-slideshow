@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'expo-router'
 import { getJSON } from '@/lib/db/client'
 import type { StoredQual } from '@/lib/db/seed'
+import { C } from '@/lib/theme'
 
 interface FlatItem {
   qualName: string
@@ -106,7 +107,7 @@ export default function SearchScreen() {
           value={query}
           onChangeText={setQuery}
           placeholder="Search checklist items..."
-          placeholderTextColor="#536644"
+          placeholderTextColor={C.textMuted}
           returnKeyType="search"
           autoCorrect={false}
           autoCapitalize="none"
@@ -144,19 +145,19 @@ export default function SearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0F1A0A' },
+  screen: { flex: 1, backgroundColor: C.bg },
 
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     marginHorizontal: 16,
     marginTop: 12,
     marginBottom: 8,
     borderRadius: 14,
     paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     gap: 10,
   },
   searchIconWrap: {
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     height: 14,
     borderRadius: 7,
     borderWidth: 2,
-    borderColor: '#8FA882',
+    borderColor: C.textSec,
     backgroundColor: 'transparent',
   },
   searchHandle: {
@@ -182,13 +183,13 @@ const styles = StyleSheet.create({
     right: 1,
     width: 6,
     height: 2,
-    backgroundColor: '#8FA882',
+    backgroundColor: C.textSec,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
   input: {
     flex: 1,
-    color: '#ECF0E6',
+    color: C.text,
     fontSize: 16,
     paddingVertical: Platform.OS === 'ios' ? 14 : 12,
   },
@@ -196,12 +197,12 @@ const styles = StyleSheet.create({
   list: { paddingHorizontal: 16, paddingBottom: 32 },
 
   resultRow: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     padding: 14,
     marginVertical: 3,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
   resultMeta: {
     flexDirection: 'row',
@@ -211,13 +212,13 @@ const styles = StyleSheet.create({
   resultQual: {
     fontSize: 11,
     fontWeight: '700',
-    color: '#4A8B28',
+    color: C.green,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   resultSection: {
     fontSize: 11,
-    color: '#8FA882',
+    color: C.textSec,
     fontWeight: '500',
   },
   resultMain: {
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
   resultPrompt: {
     flex: 1,
     fontSize: 15,
-    color: '#ECF0E6',
+    color: C.text,
     fontWeight: '500',
     lineHeight: 21,
   },
@@ -239,8 +240,8 @@ const styles = StyleSheet.create({
     marginTop: 5,
     flexShrink: 0,
   },
-  ratingDotGreen: { backgroundColor: '#4A8B28' },
-  ratingDotDim: { backgroundColor: '#2E4A1E', borderWidth: 1, borderColor: '#536644' },
+  ratingDotGreen: { backgroundColor: C.green },
+  ratingDotDim: { backgroundColor: C.border, borderWidth: 1, borderColor: C.textMuted },
 
   separator: { height: 0 },
 
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: 16,
     borderWidth: 3,
-    borderColor: '#536644',
+    borderColor: C.textMuted,
     top: 0,
     left: 0,
   },
@@ -272,16 +273,16 @@ const styles = StyleSheet.create({
     height: 3,
     bottom: 6,
     right: 4,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
   },
   emptyTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
   },
   emptyHint: {
     fontSize: 14,
-    color: '#536644',
+    color: C.textMuted,
     textAlign: 'center',
     paddingHorizontal: 32,
   },

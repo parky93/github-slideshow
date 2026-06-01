@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { C } from '@/lib/theme'
 
 interface NominatimResult {
   place_id: number
@@ -126,7 +127,7 @@ export default function LocationSearchScreen() {
           <TextInput
             style={styles.input}
             placeholder="Search for a location..."
-            placeholderTextColor="#536644"
+            placeholderTextColor={C.textMuted}
             value={query}
             onChangeText={setQuery}
             autoFocus
@@ -151,7 +152,7 @@ export default function LocationSearchScreen() {
 
         {loading && (
           <View style={styles.loadingWrap}>
-            <ActivityIndicator size="small" color="#4A8B28" />
+            <ActivityIndicator size="small" color={C.green} />
           </View>
         )}
 
@@ -175,16 +176,16 @@ export default function LocationSearchScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   flex: { flex: 1 },
 
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     marginHorizontal: 16,
     marginTop: 12,
     marginBottom: 4,
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
     height: 12,
     borderRadius: 6,
     borderWidth: 2,
-    borderColor: '#8FA882',
+    borderColor: C.textSec,
   },
   searchHandle: {
     position: 'absolute',
@@ -212,14 +213,14 @@ const styles = StyleSheet.create({
     right: 1,
     width: 6,
     height: 2,
-    backgroundColor: '#8FA882',
+    backgroundColor: C.textSec,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
   input: {
     flex: 1,
     fontSize: 15,
-    color: '#ECF0E6',
+    color: C.text,
     paddingVertical: 14,
   },
 
@@ -230,23 +231,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#2E4A1E',
+    borderBottomColor: C.border,
   },
   manualIcon: {
     width: 28,
     height: 28,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  manualLine1: { width: 14, height: 2, backgroundColor: '#8FA882', borderRadius: 1, marginBottom: 3 },
-  manualLine2: { width: 10, height: 2, backgroundColor: '#8FA882', borderRadius: 1 },
+  manualLine1: { width: 14, height: 2, backgroundColor: C.textSec, borderRadius: 1, marginBottom: 3 },
+  manualLine2: { width: 10, height: 2, backgroundColor: C.textSec, borderRadius: 1 },
   manualText: {
     fontSize: 14,
-    color: '#8FA882',
+    color: C.textSec,
     fontStyle: 'italic',
     flex: 1,
   },
@@ -260,16 +261,16 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#1A2E10',
+    borderBottomColor: C.surface,
     gap: 12,
   },
   pinIcon: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
@@ -278,19 +279,19 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
   },
   resultText: { flex: 1 },
   resultName: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
     marginBottom: 3,
   },
   resultDisplay: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
   },
   emptyWrap: { paddingVertical: 32, alignItems: 'center' },
-  emptyText: { fontSize: 14, color: '#536644' },
+  emptyText: { fontSize: 14, color: C.textMuted },
 })

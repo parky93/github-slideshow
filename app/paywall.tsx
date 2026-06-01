@@ -8,7 +8,9 @@ import {
   Alert,
   SafeAreaView,
 } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
+import { C, RADIUS, GRAD } from '@/lib/theme'
 
 const FEATURES = [
   { label: 'Activity logger', desc: 'walking, climbing, indoor sessions' },
@@ -25,12 +27,20 @@ export default function PaywallScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Lock icon */}
         <View style={styles.lockWrap}>
-          <View style={styles.lockBody}>
-            <View style={styles.lockHole} />
-          </View>
           <View style={styles.lockShackle} />
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.lockBody}
+          >
+            <View style={styles.lockHole} />
+          </LinearGradient>
         </View>
 
+        <View style={styles.proPill}>
+          <Text style={styles.proPillText}>PRO</Text>
+        </View>
         <Text style={styles.title}>Unlock the DLOG Toolkit</Text>
         <Text style={styles.subtitle}>
           Keep a digital logbook, build GPX files, and export DLOG-ready activity summaries.
@@ -41,10 +51,15 @@ export default function PaywallScreen() {
           {FEATURES.map((f, i) => (
             <View key={i} style={styles.featureRow}>
               {/* Checkmark drawn with Views */}
-              <View style={styles.checkWrap}>
+              <LinearGradient
+                colors={GRAD.cta}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.checkWrap}
+              >
                 <View style={styles.checkShort} />
                 <View style={styles.checkLong} />
-              </View>
+              </LinearGradient>
               <View style={styles.featureText}>
                 <Text style={styles.featureLabel}>{f.label}</Text>
                 <Text style={styles.featureDesc}>{f.desc}</Text>
@@ -55,27 +70,42 @@ export default function PaywallScreen() {
 
         {/* Pricing */}
         <View style={styles.pricingRow}>
-          <View style={[styles.priceCard, styles.priceCardActive]}>
+          <View style={styles.priceCard}>
             <Text style={styles.pricePeriod}>Monthly</Text>
             <Text style={styles.priceAmount}>£2.99</Text>
             <Text style={styles.priceUnit}>per month</Text>
           </View>
-          <View style={styles.priceCard}>
-            <View style={styles.saveBadge}>
-              <Text style={styles.saveBadgeText}>Save 44%</Text>
+          {/* Highlighted annual card with gradient border */}
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.priceCardHighlight}
+          >
+            <View style={styles.priceCardInner}>
+              <View style={styles.saveBadge}>
+                <Text style={styles.saveBadgeText}>SAVE 44%</Text>
+              </View>
+              <Text style={styles.pricePeriod}>Annual</Text>
+              <Text style={styles.priceAmount}>£19.99</Text>
+              <Text style={styles.priceUnit}>per year</Text>
             </View>
-            <Text style={styles.pricePeriod}>Annual</Text>
-            <Text style={styles.priceAmount}>£19.99</Text>
-            <Text style={styles.priceUnit}>per year</Text>
-          </View>
+          </LinearGradient>
         </View>
 
         {/* CTA */}
         <Pressable
-          style={({ pressed }) => [styles.ctaBtn, pressed && { opacity: 0.7 }]}
+          style={({ pressed }) => [styles.ctaShadow, pressed && { opacity: 0.9, transform: [{ scale: 0.99 }] }]}
           onPress={() => Alert.alert('Coming Soon', 'Stripe payment coming soon!')}
         >
-          <Text style={styles.ctaText}>Upgrade to Pro</Text>
+          <LinearGradient
+            colors={GRAD.cta}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.ctaBtn}
+          >
+            <Text style={styles.ctaText}>Upgrade to Pro</Text>
+          </LinearGradient>
         </Pressable>
 
         <Text style={styles.freeNote}>Free plan includes full self-assessment tool</Text>
@@ -85,7 +115,7 @@ export default function PaywallScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   scroll: {
     paddingHorizontal: 24,
     paddingTop: 32,
@@ -96,43 +126,57 @@ const styles = StyleSheet.create({
   /* Lock icon */
   lockWrap: {
     alignItems: 'center',
-    marginBottom: 28,
+    marginBottom: 20,
   },
   lockShackle: {
     width: 28,
     height: 16,
     borderWidth: 4,
-    borderColor: '#4A8B28',
+    borderColor: C.green,
     borderBottomWidth: 0,
-    borderRadius: 14,
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
     marginBottom: -2,
   },
   lockBody: {
-    width: 44,
-    height: 34,
-    backgroundColor: '#4A8B28',
-    borderRadius: 8,
+    width: 48,
+    height: 38,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 6,
   },
   lockHole: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
   },
 
+  proPill: {
+    backgroundColor: C.green + '26',
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    marginBottom: 16,
+  },
+  proPillText: { fontSize: 11, fontWeight: '800', color: C.greenBright, letterSpacing: 1.4 },
+
   title: {
-    fontSize: 26,
+    fontSize: 30,
     fontWeight: '800',
-    color: '#ECF0E6',
+    color: C.text,
     textAlign: 'center',
-    letterSpacing: -0.3,
+    letterSpacing: -0.6,
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 15,
-    color: '#8FA882',
+    color: C.textSec,
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 32,
@@ -142,30 +186,27 @@ const styles = StyleSheet.create({
   featureList: {
     alignSelf: 'stretch',
     marginBottom: 32,
-    gap: 14,
+    gap: 16,
   },
   featureRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    gap: 12,
+    gap: 14,
   },
   checkWrap: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#1A2E10',
-    borderWidth: 1,
-    borderColor: '#4A8B28',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    marginTop: 2,
+    marginTop: 1,
   },
   checkShort: {
     position: 'absolute',
     width: 5,
     height: 2,
-    backgroundColor: '#4A8B28',
+    backgroundColor: '#0A0F08',
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: -2 }, { translateY: 1 }],
   },
@@ -173,7 +214,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 9,
     height: 2,
-    backgroundColor: '#4A8B28',
+    backgroundColor: '#0A0F08',
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateX: 2 }, { translateY: -1 }],
   },
@@ -181,11 +222,11 @@ const styles = StyleSheet.create({
   featureLabel: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
   },
   featureDesc: {
     fontSize: 13,
-    color: '#8FA882',
+    color: C.textSec,
     marginTop: 2,
   },
 
@@ -195,69 +236,97 @@ const styles = StyleSheet.create({
     gap: 12,
     alignSelf: 'stretch',
     marginBottom: 28,
+    alignItems: 'stretch',
   },
   priceCard: {
     flex: 1,
-    backgroundColor: '#1A2E10',
-    borderRadius: 16,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.lg,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
+    padding: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  priceCardHighlight: {
+    flex: 1,
+    borderRadius: RADIUS.lg,
+    padding: 2,
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 5,
+  },
+  priceCardInner: {
+    flex: 1,
+    backgroundColor: C.surfaceHi,
+    borderRadius: RADIUS.lg - 2,
     padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     position: 'relative',
-  },
-  priceCardActive: {
-    borderColor: '#4A8B28',
   },
   saveBadge: {
     position: 'absolute',
-    top: -10,
-    backgroundColor: '#4A8B28',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    top: -12,
+    backgroundColor: C.greenBright,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
   },
   saveBadgeText: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#fff',
+    fontWeight: '800',
+    color: '#0A0F08',
+    letterSpacing: 0.8,
   },
   pricePeriod: {
     fontSize: 13,
-    fontWeight: '600',
-    color: '#8FA882',
+    fontWeight: '700',
+    color: C.textSec,
     marginBottom: 6,
     marginTop: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   priceAmount: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '800',
-    color: '#ECF0E6',
+    color: C.text,
+    letterSpacing: -0.8,
   },
   priceUnit: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     marginTop: 2,
   },
 
   /* CTA */
-  ctaBtn: {
-    backgroundColor: '#4A8B28',
-    borderRadius: 16,
-    paddingVertical: 16,
+  ctaShadow: {
     alignSelf: 'stretch',
-    alignItems: 'center',
     marginBottom: 16,
+    borderRadius: RADIUS.lg,
+    shadowColor: C.green,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  ctaBtn: {
+    borderRadius: RADIUS.lg,
+    paddingVertical: 17,
+    alignItems: 'center',
   },
   ctaText: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#fff',
+    color: '#0A0F08',
     letterSpacing: 0.2,
   },
   freeNote: {
     fontSize: 12,
-    color: '#536644',
+    color: C.textMuted,
     textAlign: 'center',
   },
 })

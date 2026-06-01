@@ -1,17 +1,19 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react'
 import { View, Text, SectionList, Pressable, TextInput, StyleSheet } from 'react-native'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useLocalSearchParams } from 'expo-router'
 import { RatingPills } from '@/components/RatingPills'
 import { getQualificationBySlug, getSectionsWithItems } from '@/lib/db/queries/qualifications'
 import { upsertRating, saveSnapshot, getLogEntries, addLogEntry, deleteLogEntry } from '@/lib/db/queries/ratings'
 import { calculateReadinessScore } from '@/lib/scoring/score'
 import { CONFIDENCE_LABELS } from '@/lib/types'
+import { C, RADIUS, GRAD } from '@/lib/theme'
 import type { Section, ChecklistItem, RatingValue, TrainingLogEntry } from '@/lib/types'
 
 interface ListSection { title: string; data: ChecklistItem[]; sectionObj: Section }
 
-const BRAND = '#4A8B28'
-const ORANGE = '#C4621A'
+const BRAND = C.green
+const ORANGE = C.orange
 
 function todayISO(): string {
   const d = new Date()
@@ -121,7 +123,12 @@ export default function ChecklistScreen() {
       ListHeaderComponent={
         <View style={styles.header}>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${progressPct}%` as any }]} />
+            <LinearGradient
+              colors={GRAD.cta}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.progressFill, { width: `${progressPct}%` as any }]}
+            />
             <View style={styles.progressLabelRow}>
               <Text style={styles.progressLabel}>{ratedCount}/{totalCount} rated</Text>
               <Text style={styles.progressPct}>{Math.round(progressPct)}%</Text>
@@ -256,7 +263,7 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
             style={styles.notes}
             multiline
             placeholder="Add notes..."
-            placeholderTextColor="#536644"
+            placeholderTextColor={C.textMuted}
             value={item.rating?.notes ?? ''}
             onChangeText={t => onNotes(t)}
           />
@@ -299,7 +306,7 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
                   value={logDate}
                   onChangeText={setLogDate}
                   placeholder="DD/MM/YYYY"
-                  placeholderTextColor="#536644"
+                  placeholderTextColor={C.textMuted}
                   keyboardType="numbers-and-punctuation"
                   maxLength={10}
                 />
@@ -308,7 +315,7 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
                   value={logNotes}
                   onChangeText={setLogNotes}
                   placeholder="What did you practise?"
-                  placeholderTextColor="#536644"
+                  placeholderTextColor={C.textMuted}
                   multiline
                 />
                 <View style={styles.logFormBtns}>
@@ -337,23 +344,24 @@ function ItemRow({ item, isExpanded, onToggle, onRate, onConfidence, onNotes, on
 }
 
 const styles = StyleSheet.create({
-  list: { paddingBottom: 48, backgroundColor: '#0F1A0A' },
+  list: { paddingBottom: 48, backgroundColor: C.bg },
 
-  header: { marginHorizontal: 16, marginTop: 16, marginBottom: 8, gap: 10 },
+  header: { marginHorizontal: 20, marginTop: 16, marginBottom: 8, gap: 12 },
 
   progressTrack: {
-    height: 48,
-    backgroundColor: '#243D17',
-    borderRadius: 12,
+    height: 54,
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: C.border,
   },
   progressFill: {
     position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: BRAND,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
   },
   progressLabelRow: {
     position: 'absolute',
@@ -366,41 +374,41 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
   },
-  progressLabel: { fontSize: 14, fontWeight: '600', color: '#ECF0E6' },
-  progressPct: { fontSize: 14, fontWeight: '800', color: '#ECF0E6' },
+  progressLabel: { fontSize: 14, fontWeight: '600', color: C.text },
+  progressPct: { fontSize: 14, fontWeight: '800', color: C.text },
 
   filterBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 8,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
   filterBtnActive: {
-    backgroundColor: '#C4621A22',
-    borderColor: '#C4621A',
+    backgroundColor: C.orange + '22',
+    borderColor: C.orange,
   },
   filterDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
   },
-  filterDotActive: { backgroundColor: '#C4621A' },
-  filterLabel: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
-  filterLabelActive: { color: '#E8893A' },
+  filterDotActive: { backgroundColor: C.orange },
+  filterLabel: { fontSize: 13, fontWeight: '600', color: C.textSec },
+  filterLabelActive: { color: C.orange },
 
   sectionHeader: {
-    backgroundColor: '#0A1306',
+    backgroundColor: C.bgElevated,
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#2E4A1E',
+    borderBottomColor: C.border,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
@@ -408,36 +416,36 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#ECF0E6',
+    color: C.text,
     textTransform: 'uppercase',
     letterSpacing: 0.6,
     flex: 1,
   },
   sectionMeta: { flexDirection: 'row', gap: 6 },
   sectionCountBadge: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  sectionCountText: { fontSize: 11, fontWeight: '600', color: '#8FA882' },
+  sectionCountText: { fontSize: 11, fontWeight: '600', color: C.textSec },
   sectionRatedBadge: {
-    backgroundColor: '#0F2E1A',
+    backgroundColor: C.surfaceHi,
     borderRadius: 20,
     paddingHorizontal: 8,
     paddingVertical: 2,
   },
-  sectionRatedText: { fontSize: 11, fontWeight: '600', color: '#22C55E' },
+  sectionRatedText: { fontSize: 11, fontWeight: '600', color: C.greenStatus },
 
   item: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#2E4A1E',
+    borderBottomColor: C.border,
     paddingHorizontal: 16,
     paddingTop: 14,
     paddingBottom: 14,
   },
-  itemExpanded: { backgroundColor: '#243D17' },
+  itemExpanded: { backgroundColor: C.surfaceHi },
   itemCoaching: { borderLeftWidth: 3, borderLeftColor: ORANGE },
 
   itemHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 10 },
@@ -446,14 +454,14 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
     marginRight: 10,
     marginTop: 6,
     flexShrink: 0,
   },
   ratedDotActive: { backgroundColor: BRAND },
 
-  prompt: { flex: 1, fontSize: 14, color: '#ECF0E6', lineHeight: 20, marginRight: 10 },
+  prompt: { flex: 1, fontSize: 14, color: C.text, lineHeight: 20, marginRight: 10 },
 
   chevronIcon: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   chevronIconUp: { transform: [{ rotate: '180deg' }] },
@@ -461,7 +469,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 10,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }, { translateX: -3 }],
   },
@@ -469,7 +477,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 10,
     height: 2,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }, { translateX: 3 }],
   },
@@ -479,13 +487,13 @@ const styles = StyleSheet.create({
   detail: {
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#2E4A1E',
+    borderTopColor: C.border,
     marginTop: 6,
   },
   detailLabel: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#536644',
+    color: C.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
     marginBottom: 8,
@@ -495,25 +503,25 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#243D17',
+    backgroundColor: C.surfaceHi,
     alignItems: 'center',
     justifyContent: 'center',
   },
   confPillActive: { backgroundColor: BRAND },
-  confLabel: { fontSize: 14, fontWeight: '600', color: '#8FA882' },
-  confLabelActive: { color: '#ECF0E6' },
-  confText: { fontSize: 12, color: '#536644', marginTop: 6 },
+  confLabel: { fontSize: 14, fontWeight: '600', color: C.textSec },
+  confLabelActive: { color: C.text },
+  confText: { fontSize: 12, color: C.textMuted, marginTop: 6 },
 
   notes: {
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     borderRadius: 10,
     padding: 12,
     fontSize: 13,
-    color: '#ECF0E6',
+    color: C.text,
     minHeight: 64,
     textAlignVertical: 'top',
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
   },
 
   coachingToggle: {
@@ -524,31 +532,31 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     alignSelf: 'flex-start',
   },
   coachingDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#2E4A1E',
+    backgroundColor: C.border,
     borderWidth: 2,
-    borderColor: '#536644',
+    borderColor: C.textMuted,
   },
   coachingDotActive: {
     backgroundColor: ORANGE,
     borderColor: ORANGE,
   },
-  coachingLabel: { fontSize: 13, fontWeight: '600', color: '#536644' },
-  coachingLabelActive: { color: '#E8893A' },
+  coachingLabel: { fontSize: 13, fontWeight: '600', color: C.textMuted },
+  coachingLabelActive: { color: C.orange },
 
   /* Training log */
   logSection: {
     marginTop: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#2E4A1E',
+    borderTopColor: C.border,
     paddingTop: 14,
   },
   logHeaderRow: {
@@ -558,31 +566,31 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   logCountBadge: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     paddingHorizontal: 7,
     paddingVertical: 1,
   },
-  logCountText: { fontSize: 11, fontWeight: '700', color: '#8FA882' },
+  logCountText: { fontSize: 11, fontWeight: '700', color: C.textSec },
 
   logEntry: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 10,
     marginBottom: 8,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     padding: 10,
   },
   logDateChip: {
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 4,
     flexShrink: 0,
   },
-  logDateText: { fontSize: 11, fontWeight: '700', color: '#8FA882' },
-  logEntryNotes: { flex: 1, fontSize: 13, color: '#ECF0E6', lineHeight: 18 },
+  logDateText: { fontSize: 11, fontWeight: '700', color: C.textSec },
+  logEntryNotes: { flex: 1, fontSize: 13, color: C.text, lineHeight: 18 },
   logDeleteBtn: {
     width: 20,
     height: 20,
@@ -594,7 +602,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 12,
     height: 1.5,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
@@ -602,38 +610,38 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 12,
     height: 1.5,
-    backgroundColor: '#536644',
+    backgroundColor: C.textMuted,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }],
   },
 
   logForm: {
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     padding: 12,
     gap: 8,
   },
   logDateInput: {
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 13,
-    color: '#ECF0E6',
-    backgroundColor: '#0F1A0A',
+    color: C.text,
+    backgroundColor: C.bg,
   },
   logNotesInput: {
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontSize: 13,
-    color: '#ECF0E6',
+    color: C.text,
     minHeight: 56,
     textAlignVertical: 'top',
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
   },
   logFormBtns: { flexDirection: 'row', gap: 8 },
   logSaveBtn: {
@@ -643,17 +651,17 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: 'center',
   },
-  logSaveBtnText: { fontSize: 13, fontWeight: '700', color: '#ECF0E6' },
+  logSaveBtnText: { fontSize: 13, fontWeight: '700', color: C.text },
   logCancelBtn: {
     flex: 1,
-    backgroundColor: '#0F1A0A',
+    backgroundColor: C.bg,
     borderRadius: 8,
     paddingVertical: 10,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
   },
-  logCancelBtnText: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
+  logCancelBtnText: { fontSize: 13, fontWeight: '600', color: C.textSec },
 
   logAddBtn: {
     flexDirection: 'row',
@@ -663,7 +671,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     borderStyle: 'dashed',
     alignSelf: 'flex-start',
   },
@@ -677,15 +685,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 12,
     height: 1.5,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 1,
   },
   logPlusV: {
     position: 'absolute',
     width: 1.5,
     height: 12,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 1,
   },
-  logAddBtnText: { fontSize: 13, fontWeight: '600', color: '#8FA882' },
+  logAddBtnText: { fontSize: 13, fontWeight: '600', color: C.textSec },
 })

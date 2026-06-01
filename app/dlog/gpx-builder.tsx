@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { type Waypoint } from '@/lib/dlog/types'
 import { calcDistanceKm } from '@/lib/dlog/gpx'
+import { C } from '@/lib/theme'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
 const MAP_HEIGHT = Math.round(SCREEN_HEIGHT * 0.55)
@@ -40,7 +41,7 @@ const MAP_HTML = `<!DOCTYPE html>
   
   var waypoints = [];
   var markers = [];
-  var polyline = L.polyline([], {color: '#4A8B28', weight: 3}).addTo(map);
+  var polyline = L.polyline([], {color: C.green, weight: 3}).addTo(map);
   
   function updatePolyline() {
     polyline.setLatLngs(waypoints.map(function(w) { return [w.lat, w.lng]; }));
@@ -201,36 +202,36 @@ export default function GpxBuilderScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#0F1A0A' },
+  safe: { flex: 1, backgroundColor: C.bg },
   mapContainer: { width: '100%' },
   map: { flex: 1 },
-  panel: { flex: 1, backgroundColor: '#0F1A0A' },
+  panel: { flex: 1, backgroundColor: C.bg },
   panelContent: { padding: 16, paddingBottom: 48 },
 
   distRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 12,
   },
   distIcon: { width: 24, height: 24, alignItems: 'center', justifyContent: 'center' },
-  distLine: { width: 16, height: 2, backgroundColor: '#4A8B28', borderRadius: 1 },
-  distText: { flex: 1, fontSize: 15, fontWeight: '700', color: '#ECF0E6' },
-  waypointCount: { fontSize: 13, color: '#8FA882', fontWeight: '600' },
+  distLine: { width: 16, height: 2, backgroundColor: C.green, borderRadius: 1 },
+  distText: { flex: 1, fontSize: 15, fontWeight: '700', color: C.text },
+  waypointCount: { fontSize: 13, color: C.textSec, fontWeight: '600' },
 
   wpRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A2E10',
+    backgroundColor: C.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#2E4A1E',
+    borderColor: C.border,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 6,
@@ -240,21 +241,21 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     alignItems: 'center',
     justifyContent: 'center',
   },
   wpNumText: { fontSize: 11, fontWeight: '800', color: '#fff' },
   wpNameWrap: { flex: 1 },
-  wpName: { fontSize: 14, fontWeight: '600', color: '#ECF0E6' },
-  wpCoords: { fontSize: 11, color: '#536644', marginTop: 2 },
+  wpName: { fontSize: 14, fontWeight: '600', color: C.text },
+  wpCoords: { fontSize: 11, color: C.textMuted, marginTop: 2 },
   wpEditInput: {
     flex: 1,
     fontSize: 14,
     fontWeight: '600',
-    color: '#ECF0E6',
+    color: C.text,
     borderBottomWidth: 1,
-    borderBottomColor: '#4A8B28',
+    borderBottomColor: C.green,
     paddingVertical: 2,
   },
   wpDelete: {
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 14,
     height: 2,
-    backgroundColor: '#EF4444',
+    backgroundColor: C.red,
     borderRadius: 1,
     transform: [{ rotate: '45deg' }],
   },
@@ -276,15 +277,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 14,
     height: 2,
-    backgroundColor: '#EF4444',
+    backgroundColor: C.red,
     borderRadius: 1,
     transform: [{ rotate: '-45deg' }],
   },
 
-  emptyHint: { fontSize: 13, color: '#536644', fontStyle: 'italic', textAlign: 'center', paddingVertical: 12 },
+  emptyHint: { fontSize: 13, color: C.textMuted, fontStyle: 'italic', textAlign: 'center', paddingVertical: 12 },
 
   doneBtn: {
-    backgroundColor: '#4A8B28',
+    backgroundColor: C.green,
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
