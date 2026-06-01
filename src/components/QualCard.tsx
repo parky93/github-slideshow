@@ -1,5 +1,7 @@
 import React from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import * as Haptics from 'expo-haptics'
 import { TRAFFIC_COLORS } from '../lib/types'
 import type { QualificationWithMeta } from '../lib/types'
 import { getTrafficLight } from '../lib/scoring/score'
@@ -15,62 +17,52 @@ export function QualCard({ qual, onPress }: Props) {
   const color = light ? TRAFFIC_COLORS[light] : '#d1d5db'
   const hasChecklist = qual.totalItems > 0
 
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        pressed && styles.pressed,
-      ]}
-      accessibilityRole="button"
-    >
-      {/* Left color indicator — 6px wide */}
-      <View style={[styles.indicator, { backgroundColor: color }]} />
+  const scale = useSharedValue(1)
+  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }))
 
-      {/* Main body */}
-      <View style={styles.body}>
-        {/* Top row: name + readiness badge */}
-        <View style={styles.topRow}>
-          <Text style={styles.name} numberOfLines={2}>{qual.name}</Text>
+  return (
+    <Animated.View style={[styles.card, animStyle]}>
+      <Pressable
+        onPressIn={() => {
+          scale.value = withSpring(0.97, { damping: 20, stiffness: 300 })
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        }}
+        onPressOut={() => { scale.value = withSpring(1, { damping: 15, stiffness: 200 }) }}
+        onPress={onPress}
+        style={styles.pressable}
+        accessibilityRole="button"
+      >
+        <View style={[styles.indicator, { backgroundColor: color }]} />
+        <View style={styles.body}>
+          <View style={styles.topRow}>
+            <Text style={styles.name} numberOfLines={2}>{qual.name}</Text>
+            {hasChecklist ? (
+              <View style={[styles.badge, { backgroundColor: color + '22' }]}>
+                <Text style={[styles.badgeText, { color }]}>{pct}%</Text>
+              </View>
+            ) : (
+              <View style={styles.badgeMuted}>
+                <Text style={styles.badgeTextMuted}>No checklist yet</Text>
+              </View>
+            )}
+          </View>
+          {hasChecklist && (
+            <Text style={styles.meta}>{qual.ratedItems}/{qual.totalItems} rated</Text>
+          )}
           {hasChecklist ? (
-            <View style={[styles.badge, { backgroundColor: color + '22' }]}>
-              <Text style={[styles.badgeText, { color }]}>{pct}%</Text>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${pct}%` as any, backgroundColor: color }]} />
             </View>
           ) : (
-            <View style={styles.badgeMuted}>
-              <Text style={styles.badgeTextMuted}>No checklist yet</Text>
-            </View>
+            <View style={styles.progressTrackEmpty} />
           )}
         </View>
-
-        {/* Meta line */}
-        {hasChecklist && (
-          <Text style={styles.meta}>
-            {qual.ratedItems}/{qual.totalItems} rated
-          </Text>
-        )}
-
-        {/* Progress bar */}
-        {hasChecklist ? (
-          <View style={styles.progressTrack}>
-            <View
-              style={[
-                styles.progressFill,
-                { width: `${pct}%` as any, backgroundColor: color },
-              ]}
-            />
-          </View>
-        ) : (
-          <View style={styles.progressTrackEmpty} />
-        )}
-      </View>
-
-      {/* Chevron */}
-      <View style={styles.chevronWrap}>
-        <View style={styles.chevronLine} />
-        <View style={styles.chevronLine2} />
-      </View>
-    </Pressable>
+        <View style={styles.chevronWrap}>
+          <View style={styles.chevronLine} />
+          <View style={styles.chevronLine2} />
+        </View>
+      </Pressable>
+    </Animated.View>
   )
 }
 
@@ -78,22 +70,17 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#1A2E10',
     borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'stretch',
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 3,
     overflow: 'hidden',
   },
-  pressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.984 }],
-    shadowOpacity: 0.14,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 5,
+  pressable: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
   },
   indicator: {
     width: 6,
@@ -161,7 +148,6 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 2,
   },
-  /* Geometric chevron — two lines forming a > */
   chevronWrap: {
     justifyContent: 'center',
     alignItems: 'center',

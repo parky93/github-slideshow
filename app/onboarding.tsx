@@ -8,6 +8,7 @@ import {
   Platform,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import * as Haptics from 'expo-haptics'
 import { getJSON, setJSON } from '@/lib/db/client'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import type { StoredQual } from '@/lib/db/seed'
@@ -49,6 +50,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
   const climbing = quals.filter(q => q.category !== 'walking')
 
   const toggleQual = (id: number) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setSelected(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
@@ -61,6 +63,7 @@ export default function OnboardingScreen({ onComplete }: { onComplete?: () => vo
   const deselectAll = () => setSelected(new Set())
 
   const handleGetStarted = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
     const activeIds = Array.from(selected)
     await setJSON('mta:active-quals', activeIds)
     await AsyncStorage.setItem('mta:onboarded', 'true')

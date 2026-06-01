@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { View, Text, Pressable, StyleSheet, Switch } from 'react-native'
 import { useRouter } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Haptics from 'expo-haptics'
 import { getIsPro, setIsPro } from '@/lib/dlog/storage'
 
 export default function SettingsScreen() {
@@ -13,11 +14,13 @@ export default function SettingsScreen() {
   }, [])
 
   const handleResetQuals = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
     await AsyncStorage.multiRemove(['mta:onboarded', 'mta:active-quals'])
     router.replace('/onboarding')
   }
 
   const handleProToggle = async (v: boolean) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     setIsProState(v)
     await setIsPro(v)
   }

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { View, ActivityIndicator } from 'react-native'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { BlurView } from 'expo-blur'
 import { seedDatabase } from '@/lib/db/seed'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import OnboardingScreen from './onboarding'
@@ -47,7 +48,10 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#0A1306' },
+          headerTransparent: true,
+          headerBackground: () => (
+            <BlurView intensity={60} tint="dark" style={StyleSheet.absoluteFill} />
+          ),
           headerTintColor: '#ECF0E6',
           headerTitleStyle: { fontWeight: '700', color: '#ECF0E6', fontSize: 17 },
           headerShadowVisible: false,
