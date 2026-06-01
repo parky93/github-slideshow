@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
 
   header: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
   headerText: { flex: 1 },
-  name: { fontSize: 28, fontWeight: '800', color: C.text, letterSpacing: -0.6, lineHeight: 34 },
+  name: { fontSize: 30, fontWeight: '800', color: C.text, letterSpacing: -0.8, lineHeight: 36 },
   pathway: { fontSize: 13, color: C.orange, marginTop: 6, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 },
 
   favBtn: { paddingLeft: 12, paddingTop: 6 },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     minWidth: 60,
   },
   countdownPast: { backgroundColor: C.surfaceHi },
-  countdownNum: { fontSize: 22, fontWeight: '800', color: C.orange, letterSpacing: -0.5 },
+  countdownNum: { fontSize: 24, fontWeight: '800', color: C.orange, letterSpacing: -0.5, fontVariant: ['tabular-nums'] },
   countdownUnit: { fontSize: 10, color: C.textSec, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.6 },
 
   /* Ring + stats */
@@ -374,7 +374,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: C.borderSubtle,
   },
   statLabel: { fontSize: 10, color: C.textMuted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 4, fontWeight: '700' },
-  statValue: { fontSize: 18, fontWeight: '800', color: C.text, letterSpacing: -0.4 },
+  statValue: { fontSize: 18, fontWeight: '800', color: C.text, letterSpacing: -0.4, fontVariant: ['tabular-nums'] },
 
   summaryCard: {
     backgroundColor: C.surface, borderRadius: RADIUS.lg, padding: 18, marginBottom: 16,

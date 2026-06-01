@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
   pct: {
     fontWeight: '800',
     letterSpacing: -1,
+    fontVariant: ['tabular-nums'],
   },
   hint: {
     fontSize: 10,

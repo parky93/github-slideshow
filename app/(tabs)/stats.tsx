@@ -253,8 +253,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   heroNumRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  heroNum: { fontSize: 52, fontWeight: '800', color: TEXT_PRI, letterSpacing: -2, lineHeight: 54 },
-  heroPct: { fontSize: 24, fontWeight: '800', color: C.greenBright, marginTop: 6, marginLeft: 2 },
+  heroNum: { fontSize: 68, fontWeight: '800', color: TEXT_PRI, letterSpacing: -3, lineHeight: 70, fontVariant: ['tabular-nums'] },
+  heroPct: { fontSize: 26, fontWeight: '800', color: C.greenBright, marginTop: 10, marginLeft: 2, fontVariant: ['tabular-nums'] },
   heroSub: { fontSize: 13, color: TEXT_SEC, marginTop: 4, fontWeight: '600' },
 
   /* Stat tiles */
@@ -269,10 +269,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   statValue: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '800',
     color: TEXT_PRI,
     letterSpacing: -0.8,
+    fontVariant: ['tabular-nums'],
   },
   statLabel: {
     fontSize: 11,
@@ -335,10 +336,11 @@ const styles = StyleSheet.create({
   },
   trafficDot: { width: 8, height: 8, borderRadius: 4 },
   qualPct: {
-    fontSize: 13,
-    fontWeight: '700',
-    minWidth: 36,
+    fontSize: 14,
+    fontWeight: '800',
+    minWidth: 40,
     textAlign: 'right',
+    fontVariant: ['tabular-nums'],
   },
   barTrack: {
     height: 4,

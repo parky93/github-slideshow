@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     letterSpacing: -0.3,
+    fontVariant: ['tabular-nums'],
   },
   track: {
     height: 8,

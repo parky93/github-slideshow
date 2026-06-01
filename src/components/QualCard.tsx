@@ -39,22 +39,25 @@ export function QualCard({ qual, onPress }: Props) {
         style={styles.pressable}
         accessibilityRole="button"
       >
-        <View style={[styles.accent, { backgroundColor: color }]} />
         <View style={styles.body}>
           <View style={styles.topRow}>
             <Text style={styles.name} numberOfLines={2}>{qual.name}</Text>
-            <View style={styles.chevronWrap}>
-              <View style={[styles.chevronLine, { backgroundColor: C.textMuted }]} />
-              <View style={[styles.chevronLine2, { backgroundColor: C.textMuted }]} />
-            </View>
+            {hasChecklist ? (
+              <View style={styles.numCol}>
+                <View style={styles.numRow}>
+                  <Text style={[styles.pct, { color }]}>{pct}</Text>
+                  <Text style={[styles.pctSign, { color }]}>%</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.emptyChip}>
+                <Text style={styles.emptyChipText}>No checklist</Text>
+              </View>
+            )}
           </View>
 
-          {hasChecklist ? (
+          {hasChecklist && (
             <>
-              <View style={styles.statRow}>
-                <Text style={[styles.pct, { color }]}>{pct}<Text style={styles.pctSign}>%</Text></Text>
-                <Text style={styles.meta}>{qual.ratedItems}/{qual.totalItems} rated</Text>
-              </View>
               <View style={styles.progressTrack}>
                 <LinearGradient
                   colors={fillColors}
@@ -63,11 +66,8 @@ export function QualCard({ qual, onPress }: Props) {
                   style={[styles.progressFill, { width: `${Math.max(pct, 2)}%` as any }]}
                 />
               </View>
+              <Text style={styles.meta}>{qual.ratedItems}/{qual.totalItems} rated</Text>
             </>
-          ) : (
-            <View style={styles.emptyChip}>
-              <Text style={styles.emptyChipText}>No checklist yet</Text>
-            </View>
           )}
         </View>
       </Pressable>
@@ -83,104 +83,85 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.border,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
     elevation: 4,
     overflow: 'hidden',
   },
-  pressable: {
-    flexDirection: 'row',
-    alignItems: 'stretch',
-  },
-  accent: {
-    width: 4,
-    alignSelf: 'stretch',
-  },
+  pressable: {},
   body: {
-    flex: 1,
     paddingHorizontal: 18,
-    paddingTop: 16,
-    paddingBottom: 18,
+    paddingTop: 18,
+    paddingBottom: 16,
   },
   topRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 14,
   },
   name: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
     color: C.text,
-    marginRight: 8,
-    lineHeight: 22,
+    marginRight: 12,
+    lineHeight: 21,
     letterSpacing: -0.2,
   },
-  statRow: {
+  numCol: {
+    alignItems: 'flex-end',
+  },
+  numRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginBottom: 12,
-    gap: 10,
+    alignItems: 'flex-start',
   },
   pct: {
-    fontSize: 32,
+    fontSize: 38,
     fontWeight: '800',
-    letterSpacing: -1,
+    letterSpacing: -1.5,
+    lineHeight: 40,
+    fontVariant: ['tabular-nums'],
   },
   pctSign: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
-  },
-  meta: {
-    fontSize: 12,
-    color: C.textSec,
-    fontWeight: '600',
+    marginTop: 4,
+    marginLeft: 1,
   },
   progressTrack: {
-    height: 6,
+    height: 4,
     backgroundColor: C.bg,
-    borderRadius: 3,
+    borderRadius: 2,
     overflow: 'hidden',
+    marginBottom: 8,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 3,
+    borderRadius: 2,
+  },
+  meta: {
+    fontSize: 11,
+    color: C.textMuted,
+    fontWeight: '600',
+    textAlign: 'right',
+    letterSpacing: 0.2,
   },
   emptyChip: {
     alignSelf: 'flex-start',
     backgroundColor: C.surfaceHi,
     borderRadius: RADIUS.pill,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    marginTop: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginTop: 3,
+    borderWidth: 1,
+    borderColor: C.borderSubtle,
   },
   emptyChipText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: C.textMuted,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
-  },
-  chevronWrap: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 20,
-    height: 20,
-    marginTop: 2,
-  },
-  chevronLine: {
-    position: 'absolute',
-    width: 9,
-    height: 2,
-    borderRadius: 1,
-    transform: [{ rotate: '45deg' }, { translateY: -3 }],
-  },
-  chevronLine2: {
-    position: 'absolute',
-    width: 9,
-    height: 2,
-    borderRadius: 1,
-    transform: [{ rotate: '-45deg' }, { translateY: 3 }],
   },
 })

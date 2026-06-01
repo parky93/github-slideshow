@@ -5,10 +5,10 @@ export const C = {
   surface:      '#111811',
   surfaceHi:    '#182018',
   surfaceHi2:   '#1e281e',
-  // Borders
-  border:       '#2a3a2a',
-  borderSubtle: '#1e2e1e',
-  borderBright: '#3a5a3a',
+  // Borders — glass-edge technique: white at low opacity on dark bg
+  border:       'rgba(255,255,255,0.08)',
+  borderSubtle: 'rgba(255,255,255,0.05)',
+  borderBright: 'rgba(255,255,255,0.14)',
   // Greens
   green:        '#22c55e',   // --green2
   greenBright:  '#4ade80',   // --green

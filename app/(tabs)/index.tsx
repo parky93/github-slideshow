@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   heroTitle: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '800',
     color: C.text,
     letterSpacing: -0.8,
@@ -420,30 +420,32 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   readinessLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '700',
     color: C.textMuted,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: 6,
+    letterSpacing: 1.5,
+    marginBottom: 8,
   },
   readinessNumRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   readinessNum: {
-    fontSize: 56,
+    fontSize: 72,
     fontWeight: '800',
     color: C.text,
-    letterSpacing: -2,
-    lineHeight: 58,
+    letterSpacing: -3,
+    lineHeight: 74,
+    fontVariant: ['tabular-nums'],
   },
   readinessPct: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: '800',
     color: C.greenBright,
-    marginTop: 6,
+    marginTop: 10,
     marginLeft: 2,
+    fontVariant: ['tabular-nums'],
   },
   readinessSub: {
     fontSize: 13,
@@ -469,10 +471,11 @@ const styles = StyleSheet.create({
   },
   miniStat: { flex: 1 },
   miniStatValue: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '800',
     color: C.text,
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
+    fontVariant: ['tabular-nums'],
   },
   miniStatLabel: {
     fontSize: 10,
@@ -485,7 +488,7 @@ const styles = StyleSheet.create({
   miniDivider: {
     width: 1,
     height: 28,
-    backgroundColor: C.border,
+    backgroundColor: 'rgba(255,255,255,0.1)',
     marginHorizontal: 12,
   },
 
