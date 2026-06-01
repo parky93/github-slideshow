@@ -57,10 +57,14 @@ const MAP_HTML = `<!DOCTYPE html>
     polyline.setLatLngs(waypoints.map(function(w) { return [w.lat, w.lng]; }));
   }
   
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   map.on('click', function(e) {
     var wp = { id: Date.now().toString(), lat: e.latlng.lat, lng: e.latlng.lng, name: 'Waypoint ' + (waypoints.length + 1), ele: null };
     waypoints.push(wp);
-    var marker = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(wp.name);
+    var marker = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(escHtml(wp.name));
     markers.push(marker);
     updatePolyline();
     window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'waypointsUpdated', waypoints: waypoints }));
@@ -74,7 +78,7 @@ const MAP_HTML = `<!DOCTYPE html>
         markers = [];
         waypoints = msg.waypoints;
         waypoints.forEach(function(wp) {
-          var m = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(wp.name);
+          var m = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(escHtml(wp.name));
           markers.push(m);
         });
         updatePolyline();
@@ -85,7 +89,7 @@ const MAP_HTML = `<!DOCTYPE html>
         markers.forEach(function(m) { map.removeLayer(m); });
         markers = [];
         waypoints.forEach(function(wp) {
-          var m = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(wp.name);
+          var m = L.marker([wp.lat, wp.lng]).addTo(map).bindPopup(escHtml(wp.name));
           markers.push(m);
         });
         updatePolyline();
@@ -169,13 +173,17 @@ export default function GpxBuilderScreen() {
   const handleImportGpx = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
-        type: ['application/gpx+xml', 'application/octet-stream', 'application/xml', 'text/xml', '*/*'],
+        type: ['application/gpx+xml', 'application/xml', 'text/xml'],
         copyToCacheDirectory: true,
       })
       if (res.canceled || !res.assets?.[0]) return
       const asset = res.assets[0]
       if (!asset.name?.toLowerCase().endsWith('.gpx')) {
         Alert.alert('Not a GPX file', 'Please choose a file ending in .gpx')
+        return
+      }
+      if (asset.size && asset.size > 5 * 1024 * 1024) {
+        Alert.alert('File too large', 'GPX file must be under 5 MB.')
         return
       }
       const file = new File(asset.uri)
@@ -211,7 +219,7 @@ export default function GpxBuilderScreen() {
           javaScriptEnabled
           domStorageEnabled
           originWhitelist={['*']}
-          mixedContentMode="always"
+          mixedContentMode="never"
           allowsInlineMediaPlayback
         />
       </View>

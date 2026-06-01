@@ -1,6 +1,6 @@
 const NOMINATIM = 'https://nominatim.openstreetmap.org'
 const OVERPASS = 'https://overpass-api.de/api/interpreter'
-const UA = 'MTAReadyApp/1.0 (mta-ready)'
+const UA = 'MTAReadyApp/1.0 (+https://github.com/parky93/github-slideshow; jparkinson93@gmail.com)'
 
 export type PlaceType = 'indoor-wall' | 'outdoor-crag' | 'walking-route' | 'summit' | 'place'
 
@@ -26,7 +26,7 @@ export async function searchPlaces(query: string): Promise<OsmPlace[]> {
   const res = await fetch(`${NOMINATIM}/search?${params}`, {
     headers: { 'User-Agent': UA, 'Accept-Language': 'en' },
   })
-  if (!res.ok) return []
+  if (!res.ok) throw new Error(`Nominatim error ${res.status}`)
   const data: any[] = await res.json()
   return data.map(item => ({
     id: `nom-${item.osm_type}-${item.osm_id}`,

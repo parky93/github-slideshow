@@ -63,11 +63,13 @@ export default function ExportScreen() {
           dialogTitle: 'Save GPX file',
           UTI: 'com.topografix.gpx',
         })
+        try { file.delete() } catch {}
       } else {
         Alert.alert('Sharing not available', 'Cannot share files on this device.')
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message ? `Failed to create GPX: ${e.message}` : 'Failed to create GPX file.')
+      console.error('GPX export error:', e)
+      Alert.alert('Export failed', 'Could not create the GPX file. Please try again.')
     }
   }
 

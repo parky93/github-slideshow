@@ -69,8 +69,10 @@ export default function DiscoverScreen() {
       const all = await searchPlaces(q)
       const types = FILTER_TYPES[filter]
       setResults(types ? all.filter(p => types.includes(p.type)) : all)
-    } catch {
+    } catch (e) {
+      console.error('Search error:', e)
       setResults([])
+      Alert.alert('Search unavailable', 'Could not reach the search service. Check your connection and try again.')
     } finally {
       setLoading(false)
     }
