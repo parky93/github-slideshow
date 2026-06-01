@@ -70,6 +70,7 @@ export default function RootLayout() {
         <Stack.Screen name="dlog/gpx-builder" options={{ title: 'GPX Builder' }} />
         <Stack.Screen name="dlog/export" options={{ title: 'DLOG Export' }} />
         <Stack.Screen name="dlog/logbook" options={{ title: 'My Logbook' }} />
+        <Stack.Screen name="dlog/discover" options={{ title: 'Find a Place or Route' }} />
       </Stack>
     </View>
   )
