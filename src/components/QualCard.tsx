@@ -1,6 +1,5 @@
-import React from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated'
+import React, { useRef } from 'react'
+import { View, Text, Pressable, StyleSheet, Animated } from 'react-native'
 import * as Haptics from 'expo-haptics'
 import { TRAFFIC_COLORS } from '../lib/types'
 import type { QualificationWithMeta } from '../lib/types'
@@ -17,17 +16,18 @@ export function QualCard({ qual, onPress }: Props) {
   const color = light ? TRAFFIC_COLORS[light] : '#d1d5db'
   const hasChecklist = qual.totalItems > 0
 
-  const scale = useSharedValue(1)
-  const animStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }))
+  const scale = useRef(new Animated.Value(1)).current
 
   return (
-    <Animated.View style={[styles.card, animStyle]}>
+    <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
       <Pressable
         onPressIn={() => {
-          scale.value = withSpring(0.97, { damping: 20, stiffness: 300 })
+          Animated.spring(scale, { toValue: 0.97, useNativeDriver: true, speed: 40, bounciness: 4 }).start()
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         }}
-        onPressOut={() => { scale.value = withSpring(1, { damping: 15, stiffness: 200 }) }}
+        onPressOut={() => {
+          Animated.spring(scale, { toValue: 1, useNativeDriver: true, speed: 30, bounciness: 6 }).start()
+        }}
         onPress={onPress}
         style={styles.pressable}
         accessibilityRole="button"
