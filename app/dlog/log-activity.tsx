@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { ACTIVITY_TYPES, type Waypoint } from '@/lib/dlog/types'
 import { saveActivity } from '@/lib/dlog/storage'
 import { calcDistanceKm } from '@/lib/dlog/gpx'
+import { MapPreview } from '@/components/MapPreview'
 import { C } from '@/lib/theme'
 
 function getTodayISO() {
@@ -283,6 +284,16 @@ export default function LogActivityScreen() {
                 <Text style={styles.addBtnText}>+ Build GPX</Text>
               </Pressable>
             </View>
+            {/* Live map preview: searched location pin or full route */}
+            <MapPreview
+              waypoints={
+                waypoints.length > 0
+                  ? waypoints
+                  : locationLat != null && locationLng != null
+                    ? [{ id: 'loc', name: locationName || 'Location', lat: locationLat, lng: locationLng }]
+                    : []
+              }
+            />
             {waypoints.length === 0 ? (
               <Text style={styles.noWaypoints}>No waypoints added. Use GPX Builder to plan your route.</Text>
             ) : (

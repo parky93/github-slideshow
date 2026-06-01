@@ -15,6 +15,7 @@ import * as Sharing from 'expo-sharing'
 import { getActivities, saveActivity } from '@/lib/dlog/storage'
 import { buildGpx } from '@/lib/dlog/gpx'
 import { DLOG_CHECKLISTS, type DLogActivity } from '@/lib/dlog/types'
+import { MapPreview } from '@/components/MapPreview'
 import { C } from '@/lib/theme'
 
 export default function ExportScreen() {
@@ -137,6 +138,7 @@ export default function ExportScreen() {
           <Text style={styles.sectionTitle}>GPX File</Text>
           {hasGpx ? (
             <>
+              <MapPreview waypoints={gpxWaypoints} />
               <Text style={styles.sectionHint}>
                 {hasRoute
                   ? `${activity.waypoints.length} point${activity.waypoints.length !== 1 ? 's' : ''} — upload to DLOG to plot your route on the map.`
