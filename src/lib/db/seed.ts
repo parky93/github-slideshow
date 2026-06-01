@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setJSON } from './client'
+import { ITEM_DETAILS } from './itemDetails'
 
 export interface StoredItem {
   id: number
@@ -52,7 +53,8 @@ function makeQual(
         items: s.items.map((item, ii) => ({
           id: ++iid, sectionId: secId,
           prompt: typeof item === 'string' ? item : item.prompt,
-          detail: typeof item === 'string' ? undefined : item.detail,
+          detail: (typeof item === 'string' ? undefined : item.detail)
+            ?? ITEM_DETAILS[`${slug}:${si}:${ii}`],
           sortOrder: ii, isCoachingItem: false,
         })),
       }
