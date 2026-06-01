@@ -8,6 +8,7 @@ import {
   RefreshControl,
   Pressable,
   Animated,
+  SafeAreaView,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter, useFocusEffect, Link } from 'expo-router'
@@ -260,7 +261,7 @@ export default function HomeScreen() {
 
   if (activeTab !== 'All') {
     return (
-      <View style={styles.screen}>
+      <SafeAreaView style={styles.screen}>
         <FlatList
           data={filteredFlat}
           keyExtractor={item => item.slug}
@@ -276,12 +277,12 @@ export default function HomeScreen() {
             </View>
           }
         />
-      </View>
+      </SafeAreaView>
     )
   }
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <SectionList
         sections={sections}
         keyExtractor={item => item.slug}
@@ -297,7 +298,7 @@ export default function HomeScreen() {
         )}
         ListHeaderComponent={Hero}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 
