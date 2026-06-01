@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef, useCallback, useEffect } from 'react'
 import {
   View,
   Text,
@@ -11,9 +11,12 @@ import {
 } from 'react-native'
 import { WebView } from 'react-native-webview'
 import { useRouter } from 'expo-router'
+import { Alert } from 'react-native'
+import * as DocumentPicker from 'expo-document-picker'
+import { File } from 'expo-file-system'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { type Waypoint } from '@/lib/dlog/types'
-import { calcDistanceKm } from '@/lib/dlog/gpx'
+import { calcDistanceKm, parseGpx, simplifyWaypoints } from '@/lib/dlog/gpx'
 import { C } from '@/lib/theme'
 
 const SCREEN_HEIGHT = Dimensions.get('window').height
@@ -41,7 +44,14 @@ const MAP_HTML = `<!DOCTYPE html>
   
   var waypoints = [];
   var markers = [];
-  var polyline = L.polyline([], {color: C.green, weight: 3}).addTo(map);
+  var polyline = L.polyline([], {color: '#8FE34A', weight: 4}).addTo(map);
+
+  function fitToWaypoints() {
+    if (waypoints.length > 0) {
+      var bounds = L.latLngBounds(waypoints.map(function(w){ return [w.lat, w.lng]; }));
+      map.fitBounds(bounds, { padding: [30, 30] });
+    }
+  }
   
   function updatePolyline() {
     polyline.setLatLngs(waypoints.map(function(w) { return [w.lat, w.lng]; }));
@@ -68,6 +78,7 @@ const MAP_HTML = `<!DOCTYPE html>
           markers.push(m);
         });
         updatePolyline();
+        fitToWaypoints();
       }
       if (msg.type === 'removeWaypoint') {
         waypoints = waypoints.filter(function(w) { return w.id !== msg.id; });
@@ -92,8 +103,42 @@ export default function GpxBuilderScreen() {
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
+  const [mapReady, setMapReady] = useState(false)
+  const [seedLoaded, setSeedLoaded] = useState(false)
+  const seedRef = useRef<Waypoint[]>([])
+  const seededRef = useRef(false)
 
   const distanceKm = calcDistanceKm(waypoints)
+
+  // Load any location/route passed in from the activity form, and seed the map:
+  // a searched location drops as a single pin; an existing route loads its points.
+  useEffect(() => {
+    (async () => {
+      try {
+        const raw = await AsyncStorage.getItem('mta:dlog:builder-init')
+        if (raw) {
+          const init = JSON.parse(raw) as { location: { name: string; lat: number; lng: number } | null; waypoints: Waypoint[] }
+          let seed: Waypoint[] = []
+          if (init.waypoints && init.waypoints.length > 0) {
+            seed = init.waypoints
+          } else if (init.location) {
+            seed = [{ id: Date.now().toString(), name: init.location.name, lat: init.location.lat, lng: init.location.lng, ele: undefined }]
+          }
+          seedRef.current = seed
+          if (seed.length > 0) setWaypoints(seed)
+        }
+      } catch {}
+      setSeedLoaded(true)
+    })()
+  }, [])
+
+  // Once both the map is ready and the seed is loaded, push the seed onto the map (once).
+  useEffect(() => {
+    if (mapReady && seedLoaded && !seededRef.current && seedRef.current.length > 0) {
+      seededRef.current = true
+      webViewRef.current?.postMessage(JSON.stringify({ type: 'setWaypoints', waypoints: seedRef.current }))
+    }
+  }, [mapReady, seedLoaded])
 
   const handleMessage = useCallback((event: { nativeEvent: { data: string } }) => {
     try {
@@ -121,8 +166,36 @@ export default function GpxBuilderScreen() {
     setEditName('')
   }
 
+  const handleImportGpx = async () => {
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: ['application/gpx+xml', 'application/octet-stream', 'application/xml', 'text/xml', '*/*'],
+        copyToCacheDirectory: true,
+      })
+      if (res.canceled || !res.assets?.[0]) return
+      const asset = res.assets[0]
+      if (!asset.name?.toLowerCase().endsWith('.gpx')) {
+        Alert.alert('Not a GPX file', 'Please choose a file ending in .gpx')
+        return
+      }
+      const file = new File(asset.uri)
+      const xml = await file.text()
+      const parsed = simplifyWaypoints(parseGpx(xml))
+      if (parsed.length === 0) {
+        Alert.alert('No track found', 'Could not read any track points from that GPX file.')
+        return
+      }
+      setWaypoints(parsed)
+      webViewRef.current?.postMessage(JSON.stringify({ type: 'setWaypoints', waypoints: parsed }))
+      Alert.alert('Imported', `${parsed.length} points loaded from ${asset.name}.`)
+    } catch (e: any) {
+      Alert.alert('Import failed', e?.message ? String(e.message) : 'Could not read that file.')
+    }
+  }
+
   const handleDone = async () => {
     await AsyncStorage.setItem('mta:dlog:pending-waypoints', JSON.stringify(waypoints))
+    await AsyncStorage.removeItem('mta:dlog:builder-init')
     router.back()
   }
 
@@ -134,6 +207,7 @@ export default function GpxBuilderScreen() {
           source={{ html: MAP_HTML }}
           style={styles.map}
           onMessage={handleMessage}
+          onLoadEnd={() => setMapReady(true)}
           javaScriptEnabled
           domStorageEnabled
           originWhitelist={['*']}
@@ -143,6 +217,19 @@ export default function GpxBuilderScreen() {
       </View>
 
       <ScrollView style={styles.panel} contentContainerStyle={styles.panelContent}>
+        {/* Import existing GPX (from a watch / Strava / Garmin) */}
+        <Pressable
+          style={({ pressed }) => [styles.importBtn, pressed && { opacity: 0.7 }]}
+          onPress={handleImportGpx}
+        >
+          <View style={styles.importIcon}>
+            <View style={styles.importArrow} />
+            <View style={styles.importLine} />
+            <View style={styles.importBase} />
+          </View>
+          <Text style={styles.importText}>Import GPX from watch or app</Text>
+        </Pressable>
+
         {/* Distance */}
         <View style={styles.distRow}>
           <View style={styles.distIcon}>
@@ -207,6 +294,29 @@ const styles = StyleSheet.create({
   map: { flex: 1 },
   panel: { flex: 1, backgroundColor: C.bg },
   panelContent: { padding: 16, paddingBottom: 48 },
+
+  importBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: C.surfaceHi,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: C.green,
+    paddingVertical: 13,
+    marginBottom: 12,
+  },
+  importText: { fontSize: 15, fontWeight: '700', color: C.greenBright },
+  importIcon: { width: 18, height: 18, alignItems: 'center', justifyContent: 'center', position: 'relative' },
+  importArrow: {
+    width: 0, height: 0,
+    borderLeftWidth: 4, borderRightWidth: 4, borderTopWidth: 6,
+    borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: C.greenBright,
+    marginBottom: 3,
+  },
+  importLine: { position: 'absolute', top: 1, width: 2, height: 7, backgroundColor: C.greenBright, borderRadius: 1 },
+  importBase: { position: 'absolute', bottom: 0, width: 12, height: 2, backgroundColor: C.greenBright, borderRadius: 1 },
 
   distRow: {
     flexDirection: 'row',

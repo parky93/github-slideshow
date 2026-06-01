@@ -35,25 +35,38 @@ export default function ExportScreen() {
     load()
   }, [activityId])
 
+  // Use the recorded route if present, otherwise fall back to a single
+  // pin at the chosen location so there's always something to upload.
+  const gpxWaypoints = (() => {
+    if (!activity) return []
+    if (activity.waypoints.length > 0) return activity.waypoints
+    if (activity.lat != null && activity.lng != null) {
+      return [{ id: 'loc', name: activity.locationName || 'Location', lat: activity.lat, lng: activity.lng }]
+    }
+    return []
+  })()
+
   const handleDownloadGpx = async () => {
-    if (!activity) return
-    const gpxContent = buildGpx(activity.activityLabel, activity.date, activity.waypoints)
-    const filename = `${activity.activityTypeId}-${activity.date}.gpx`
+    if (!activity || gpxWaypoints.length === 0) return
+    const gpxContent = buildGpx(activity.activityLabel, activity.date, gpxWaypoints)
+    const safeName = `${activity.activityTypeId}-${activity.date}`.replace(/[^a-z0-9-]/gi, '-')
+    const filename = `${safeName}.gpx`
     try {
       const file = new File(Paths.cache, filename)
+      try { file.create({ overwrite: true }) } catch {}
       file.write(gpxContent)
       const canShare = await Sharing.isAvailableAsync()
       if (canShare) {
         await Sharing.shareAsync(file.uri, {
           mimeType: 'application/gpx+xml',
           dialogTitle: 'Save GPX file',
-          UTI: 'public.data',
+          UTI: 'com.topografix.gpx',
         })
       } else {
         Alert.alert('Sharing not available', 'Cannot share files on this device.')
       }
-    } catch (e) {
-      Alert.alert('Error', 'Failed to create GPX file.')
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ? `Failed to create GPX: ${e.message}` : 'Failed to create GPX file.')
     }
   }
 
@@ -96,7 +109,8 @@ export default function ExportScreen() {
 
   const checklist = DLOG_CHECKLISTS[activity.activityTypeId] ?? []
   const summary = buildSummary(activity)
-  const hasWaypoints = activity.waypoints.length > 0
+  const hasRoute = activity.waypoints.length > 0
+  const hasGpx = gpxWaypoints.length > 0
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -119,26 +133,47 @@ export default function ExportScreen() {
         </View>
 
         {/* GPX section */}
-        {hasWaypoints && (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>GPX File</Text>
-            <Text style={styles.sectionHint}>
-              {activity.waypoints.length} waypoint{activity.waypoints.length !== 1 ? 's' : ''} recorded
-            </Text>
-            <Pressable
-              style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, pressed && { opacity: 0.7 }]}
-              onPress={handleDownloadGpx}
-            >
-              {/* Download icon */}
-              <View style={styles.downloadIcon}>
-                <View style={styles.dlArrow} />
-                <View style={styles.dlLine} />
-                <View style={styles.dlBase} />
-              </View>
-              <Text style={styles.actionBtnText}>Download GPX File</Text>
-            </Pressable>
-          </View>
-        )}
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>GPX File</Text>
+          {hasGpx ? (
+            <>
+              <Text style={styles.sectionHint}>
+                {hasRoute
+                  ? `${activity.waypoints.length} point${activity.waypoints.length !== 1 ? 's' : ''} — upload to DLOG to plot your route on the map.`
+                  : 'A location pin will be generated. Build or import a full route for a complete track.'}
+              </Text>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, pressed && { opacity: 0.7 }]}
+                onPress={handleDownloadGpx}
+              >
+                <View style={styles.downloadIcon}>
+                  <View style={styles.dlArrow} />
+                  <View style={styles.dlLine} />
+                  <View style={styles.dlBase} />
+                </View>
+                <Text style={styles.actionBtnText}>Download GPX File</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.actionBtnMuted, pressed && { opacity: 0.7 }]}
+                onPress={() => router.push('/dlog/gpx-builder')}
+              >
+                <Text style={styles.actionBtnText}>{hasRoute ? 'Edit / import route' : 'Build or import a route'}</Text>
+              </Pressable>
+            </>
+          ) : (
+            <>
+              <Text style={styles.sectionHint}>
+                No route or location yet. Add one to generate a GPX file for DLOG.
+              </Text>
+              <Pressable
+                style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, pressed && { opacity: 0.7 }]}
+                onPress={() => router.push('/dlog/gpx-builder')}
+              >
+                <Text style={styles.actionBtnText}>Build or import a route</Text>
+              </Pressable>
+            </>
+          )}
+        </View>
 
         {/* DLOG Summary */}
         <View style={styles.sectionCard}>

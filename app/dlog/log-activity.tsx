@@ -270,7 +270,15 @@ export default function LogActivityScreen() {
               <Text style={styles.sectionLabel}>Waypoints / Route</Text>
               <Pressable
                 style={({ pressed }) => [styles.addBtn, pressed && { opacity: 0.7 }]}
-                onPress={() => router.push('/dlog/gpx-builder')}
+                onPress={async () => {
+                  await AsyncStorage.setItem('mta:dlog:builder-init', JSON.stringify({
+                    location: locationLat != null && locationLng != null
+                      ? { name: locationName || 'Location', lat: locationLat, lng: locationLng }
+                      : null,
+                    waypoints,
+                  }))
+                  router.push('/dlog/gpx-builder')
+                }}
               >
                 <Text style={styles.addBtnText}>+ Build GPX</Text>
               </Pressable>
