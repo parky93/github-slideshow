@@ -53,14 +53,13 @@ export default function StatsScreen() {
         setQuals(allQuals)
         setCoachingCount(coachingItems.length)
 
+        const targetDates = await Promise.all(allQuals.map(q => getTargetDate(q.id)))
         const targetEntries: TargetEntry[] = []
-        for (const q of allQuals) {
-          const td = await getTargetDate(q.id)
+        for (let i = 0; i < allQuals.length; i++) {
+          const td = targetDates[i]
           if (td) {
             const days = daysUntil(td.date)
-            if (days >= 0) {
-              targetEntries.push({ qual: q, dateStr: td.date, days })
-            }
+            if (days >= 0) targetEntries.push({ qual: allQuals[i], dateStr: td.date, days })
           }
         }
         targetEntries.sort((a, b) => a.days - b.days)

@@ -12,7 +12,7 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { File, Paths } from 'expo-file-system'
 import * as Sharing from 'expo-sharing'
-import { getActivities, saveActivity } from '@/lib/dlog/storage'
+import { getActivityById, saveActivity } from '@/lib/dlog/storage'
 import { buildGpx } from '@/lib/dlog/gpx'
 import { DLOG_CHECKLISTS, type DLogActivity } from '@/lib/dlog/types'
 import { MapPreview } from '@/components/MapPreview'
@@ -26,11 +26,10 @@ export default function ExportScreen() {
 
   useEffect(() => {
     async function load() {
-      const all = await getActivities()
-      const found = all.find(a => a.id === activityId)
+      const found = await getActivityById(activityId)
       if (found) {
         setActivity(found)
-        setSaved(true) // already in storage if coming from log-activity
+        setSaved(true)
       }
     }
     load()
