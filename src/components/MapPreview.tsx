@@ -32,7 +32,7 @@ export function MapPreview({ waypoints, height = 180 }: Props) {
     map.setView(pts[0], 13);
     L.marker(pts[0]).addTo(map);
   } else if (pts.length > 1) {
-    var line = L.polyline(pts, { color: '#8FE34A', weight: 4 }).addTo(map);
+    var line = L.polyline(pts, { color: '#4ade80', weight: 4 }).addTo(map);
     L.marker(pts[0]).addTo(map);
     L.marker(pts[pts.length - 1]).addTo(map);
     map.fitBounds(line.getBounds(), { padding: [24, 24] });

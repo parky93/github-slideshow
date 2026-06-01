@@ -63,15 +63,15 @@ export default function TabsLayout() {
         tabBarInactiveTintColor: C.textMuted,
         tabBarStyle: {
           backgroundColor: C.bgElevated,
-          borderTopColor: C.borderSubtle,
+          borderTopColor: C.border,
           borderTopWidth: 1,
           height: Platform.OS === 'ios' ? 88 : 64,
           paddingTop: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '700',
-          letterSpacing: 0.2,
+          fontSize: 10,
+          fontWeight: '500',
+          letterSpacing: 0.5,
         },
         tabBarButton: (props) => {
           const { onPress, ...rest } = props as any

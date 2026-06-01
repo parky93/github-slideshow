@@ -20,10 +20,10 @@ export function QualCard({ qual, onPress }: Props) {
   const scale = useRef(new Animated.Value(1)).current
 
   const fillColors: [string, string] = light === 'green'
-    ? [C.greenBright, C.green]
+    ? [C.green, C.greenBright]
     : light === 'amber'
-      ? ['#FFD24A', C.amber]
-      : [C.red, '#D63B3B']
+      ? [C.amber, '#fde68a']
+      : [C.red, '#fca5a5']
 
   return (
     <Animated.View style={[styles.card, { transform: [{ scale }] }]}>

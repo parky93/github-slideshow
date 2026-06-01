@@ -245,10 +245,10 @@ export default function DiscoverScreen() {
 
 function typeTagColor(type: PlaceType) {
   switch (type) {
-    case 'indoor-wall': return { backgroundColor: '#1C2B3A', borderColor: '#5B9BFF' }
-    case 'outdoor-crag': return { backgroundColor: '#1C2B12', borderColor: C.green }
-    case 'walking-route': return { backgroundColor: '#2B1C12', borderColor: '#FF8A3D' }
-    case 'summit': return { backgroundColor: '#2B1C2B', borderColor: '#C084FC' }
+    case 'indoor-wall': return { backgroundColor: '#18202e', borderColor: C.blue }
+    case 'outdoor-crag': return { backgroundColor: '#182018', borderColor: C.green }
+    case 'walking-route': return { backgroundColor: '#2a1e10', borderColor: C.orange }
+    case 'summit': return { backgroundColor: '#24182e', borderColor: C.purple }
     default: return { backgroundColor: C.surface, borderColor: C.border }
   }
 }

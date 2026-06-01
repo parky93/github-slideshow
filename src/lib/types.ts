@@ -1,27 +1,29 @@
 export type RatingValue = 1 | 2 | 3 | 4 | 5
 
 export const RATING_LABELS: Record<RatingValue, string> = {
-  1: 'Not yet',
+  1: 'New',
   2: 'Aware',
-  3: 'Practicing',
+  3: 'Learning',
   4: 'Confident',
   5: 'Ready',
 }
 
+// Dark-tinted backgrounds for active rating buttons (matches HTML .rb.rN.on)
 export const RATING_COLORS: Record<RatingValue, string> = {
-  1: '#3B1515',
-  2: '#3B2200',
-  3: '#152340',
-  4: '#0F2E1A',
-  5: '#0A2614',
+  1: '#3f1818',
+  2: '#3f2a10',
+  3: '#3f3010',
+  4: '#1a3020',
+  5: '#0f2a18',
 }
 
+// Border + text color when active
 export const RATING_ACTIVE_COLORS: Record<RatingValue, string> = {
-  1: '#EF4444',
-  2: '#F59E0B',
-  3: '#3B82F6',
-  4: '#22C55E',
-  5: '#16A34A',
+  1: '#f87171',
+  2: '#fb923c',
+  3: '#fbbf24',
+  4: '#4ade80',
+  5: '#22c55e',
 }
 
 export const CONFIDENCE_LABELS: Record<number, string> = {

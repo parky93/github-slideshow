@@ -1,44 +1,44 @@
-// Modern design system for MTA Ready
-// Premium forest-dark palette inspired by Strava / Whoop / Linear / Things 3.
-
 export const C = {
-  // Backgrounds — deeper, richer than before
-  bg: '#0A0F08',          // near-black forest base
-  bgElevated: '#0E150B',
-  surface: '#15200E',      // card base
-  surfaceHi: '#1C2B12',    // elevated/active card
-  border: '#283D1B',
-  borderSubtle: '#1E2E14',
+  // Backgrounds
+  bg:           '#0a0f0a',
+  bgElevated:   '#111811',
+  surface:      '#111811',
+  surfaceHi:    '#182018',
+  surfaceHi2:   '#1e281e',
+  // Borders
+  border:       '#2a3a2a',
+  borderSubtle: '#1e2e1e',
+  borderBright: '#3a5a3a',
   // Greens
-  green: '#5BA82E',
-  greenBright: '#8FE34A',  // lime accent for highlights/CTAs
-  greenDim: '#3C6B1F',
+  green:        '#22c55e',   // --green2
+  greenBright:  '#4ade80',   // --green
+  greenDim:     '#15803d',
+  // Accents
+  blue:         '#60a5fa',
+  purple:       '#a78bfa',
+  amber:        '#fbbf24',
+  orange:       '#fb923c',
+  red:          '#f87171',
   // Text
-  text: '#F2F6EC',
-  textSec: '#9DB58C',
-  textMuted: '#5E7350',
-  // Status (brightened)
-  red: '#FF5A5A',
-  amber: '#FFB23E',
-  greenStatus: '#5BD96B',
-  blue: '#5B9BFF',
-  orange: '#FF8A3D',
+  text:         '#e8f5e8',
+  textSec:      '#9ab89a',
+  textMuted:    '#5a7a5a',
+  // Status aliases
+  greenStatus:  '#22c55e',
 }
 
-// Gradients (use with expo-linear-gradient)
 export const GRAD = {
-  cta: ['#5BA82E', '#8FE34A'] as const,        // primary buttons
-  greenGlow: ['#1C2B12', '#15200E'] as const,  // card surfaces
-  hero: ['#16241000', '#0A0F08'] as const,
-  ring: ['#8FE34A', '#5BA82E'] as const,
+  cta:       ['#22c55e', '#4ade80'] as const,
+  greenGlow: ['#1e281e', '#111811'] as const,
+  hero:      ['#16241000', '#0a0f0a'] as const,
+  ring:      ['#4ade80', '#22c55e'] as const,
 }
 
-export const RADIUS = { sm: 10, md: 14, lg: 20, xl: 26, pill: 999 }
-export const SPACE = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 }
+export const RADIUS = { sm: 7, md: 12, lg: 16, xl: 22, pill: 999 }
+export const SPACE  = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 }
 
-// Traffic-light status colors (brightened to match new theme)
 export const STATUS = {
-  red: C.red,
+  red:   C.red,
   amber: C.amber,
   green: C.greenStatus,
 }

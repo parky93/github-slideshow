@@ -13,8 +13,8 @@ interface Props {
 
 const RING_GRADIENTS: Record<TrafficLight, [string, string]> = {
   green: [C.greenBright, C.green],
-  amber: ['#FFD24A', C.amber],
-  red: ['#FF8A8A', C.red],
+  amber: [C.amber, '#fde68a'],
+  red: [C.red, '#fca5a5'],
 }
 
 export function ReadinessRing({ score, light, size = 120 }: Props) {

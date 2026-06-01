@@ -44,7 +44,7 @@ const MAP_HTML = `<!DOCTYPE html>
   
   var waypoints = [];
   var markers = [];
-  var polyline = L.polyline([], {color: '#8FE34A', weight: 4}).addTo(map);
+  var polyline = L.polyline([], {color: '#4ade80', weight: 4}).addTo(map);
 
   function fitToWaypoints() {
     if (waypoints.length > 0) {

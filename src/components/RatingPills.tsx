@@ -1,8 +1,8 @@
 import React from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { RATING_LABELS, RATING_ACTIVE_COLORS } from '../lib/types'
+import { RATING_LABELS, RATING_ACTIVE_COLORS, RATING_COLORS } from '../lib/types'
 import type { RatingValue } from '../lib/types'
-import { C, RADIUS } from '../lib/theme'
+import { C } from '../lib/theme'
 
 interface Props {
   value: RatingValue | null
@@ -17,23 +17,23 @@ export function RatingPills({ value, onChange, disabled }: Props) {
     <View style={styles.row}>
       {RATINGS.map(r => {
         const active = value === r
-        const activeColor = RATING_ACTIVE_COLORS[r]
+        const accentColor = RATING_ACTIVE_COLORS[r]
+        const bgColor = active ? RATING_COLORS[r] : C.surfaceHi
+        const borderColor = active ? accentColor : C.border
+        const textColor = active ? accentColor : C.textMuted
         return (
           <Pressable
             key={r}
             onPress={() => !disabled && onChange(r)}
             style={({ pressed }) => [
-              styles.pill,
-              active
-                ? { backgroundColor: activeColor, borderColor: activeColor }
-                : { backgroundColor: C.surfaceHi, borderColor: C.border },
-              active && styles.pillActive,
-              pressed && styles.pillPressed,
+              styles.btn,
+              { backgroundColor: bgColor, borderColor },
+              pressed && styles.btnPressed,
             ]}
             accessibilityRole="button"
             accessibilityState={{ selected: active }}
           >
-            <Text style={[styles.label, active && styles.labelActive]}>
+            <Text style={[styles.label, { color: textColor }]}>
               {RATING_LABELS[r]}
             </Text>
           </Pressable>
@@ -46,33 +46,23 @@ export function RatingPills({ value, onChange, disabled }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 7,
+    gap: 5,
   },
-  pill: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: RADIUS.pill,
+  btn: {
+    flex: 1,
+    height: 32,
     borderWidth: 1,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
   },
-  pillActive: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  pillPressed: {
-    opacity: 0.85,
-    transform: [{ scale: 0.95 }],
+  btnPressed: {
+    transform: [{ scale: 0.94 }],
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: C.textSec,
-  },
-  labelActive: {
-    color: '#FFFFFF',
-    fontWeight: '800',
+    fontSize: 10,
+    fontWeight: '500',
+    lineHeight: 12,
   },
 })

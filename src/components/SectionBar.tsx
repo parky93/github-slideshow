@@ -16,8 +16,8 @@ export function SectionBar({ section }: Props) {
   const fillColors: [string, string] = section.light === 'green'
     ? [C.greenBright, C.green]
     : section.light === 'amber'
-      ? ['#FFD24A', C.amber]
-      : [C.red, '#D63B3B']
+      ? [C.amber, '#fde68a']
+      : [C.red, '#fca5a5']
 
   return (
     <View style={styles.container}>
