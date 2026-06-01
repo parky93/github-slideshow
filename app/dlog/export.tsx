@@ -49,7 +49,7 @@ export default function ExportScreen() {
 
   const handleDownloadGpx = async () => {
     if (!activity || gpxWaypoints.length === 0) return
-    const gpxContent = buildGpx(activity.activityLabel, activity.date, gpxWaypoints)
+    const gpxContent = buildGpx(activity.activityLabel, activity.date, gpxWaypoints, activity)
     const safeName = `${activity.activityTypeId}-${activity.date}`.replace(/[^a-z0-9-]/gi, '-')
     const filename = `${safeName}.gpx`
     try {
@@ -213,7 +213,7 @@ export default function ExportScreen() {
         {/* Open DLOG */}
         <Pressable
           style={({ pressed }) => [styles.actionBtn, styles.actionBtnGreen, styles.fullWidthBtn, pressed && { opacity: 0.7 }]}
-          onPress={() => Linking.openURL('https://mt.tahdah.me')}
+          onPress={() => Linking.openURL('https://cms.tahdah.me')}
         >
           <Text style={styles.actionBtnText}>Open DLOG</Text>
           <View style={styles.externalIcon}>
@@ -246,13 +246,23 @@ function buildSummary(a: DLogActivity): string {
   const lines = [
     `Activity: ${a.activityLabel}`,
     `Date: ${formatDate(a.date)}`,
-    `Location: ${a.locationName || 'Not specified'}`,
   ]
-  if (a.durationHours != null) lines.push(`Duration: ${a.durationHours} hours`)
+  if (a.endDate) lines.push(`End Date: ${formatDate(a.endDate)}`)
+  lines.push(`Location: ${a.locationName || 'Not specified'}`)
+  if (a.dlogDuration) lines.push(`Duration: ${a.dlogDuration}`)
+  else if (a.durationHours != null) lines.push(`Duration: ${a.durationHours} hours`)
   if (a.distanceKm != null) lines.push(`Distance: ${a.distanceKm} km`)
+  if (a.dlogFrequency) lines.push(`Frequency: ${a.dlogFrequency}`)
+  if (a.dlogType) lines.push(`Type: ${a.dlogType}`)
+  if (a.dlogStyle) lines.push(`Style: ${a.dlogStyle}`)
+  if (a.adjectivalGrade) lines.push(`Adjectival Grade: ${a.adjectivalGrade}`)
+  if (a.technicalGrade) lines.push(`Technical Grade: ${a.technicalGrade}`)
+  if (a.numRoutes != null) lines.push(`Number of Routes: ${a.numRoutes}`)
+  if (a.expeditions) lines.push(`Expeditions: ${a.expeditions}`)
   if (a.isQmd) lines.push('QMD: Yes')
   if (a.isMultiPitch) lines.push('Multi-pitch: Yes')
-  if (a.notes) lines.push(`Notes: ${a.notes}`)
+  const desc = a.description || a.notes
+  if (desc) lines.push(`Description: ${desc}`)
   return lines.join('\n')
 }
 

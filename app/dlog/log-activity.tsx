@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import {
   View,
   Text,
@@ -14,11 +14,21 @@ import {
 } from 'react-native'
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { ACTIVITY_TYPES, type Waypoint } from '@/lib/dlog/types'
+import {
+  ACTIVITY_TYPES,
+  type Waypoint,
+  DLOG_FREQUENCY,
+  DLOG_TYPES,
+  DLOG_STYLES,
+  DLOG_ADJ_GRADES,
+  DLOG_TECH_GRADES,
+  DLOG_DURATIONS,
+} from '@/lib/dlog/types'
 import { saveActivity } from '@/lib/dlog/storage'
 import { calcDistanceKm } from '@/lib/dlog/gpx'
 import { MapPreview } from '@/components/MapPreview'
-import { C } from '@/lib/theme'
+import { PickerModal } from '@/components/PickerModal'
+import { C, RADIUS } from '@/lib/theme'
 
 function getTodayISO() {
   const d = new Date()
@@ -31,7 +41,6 @@ function formatDateDisplay(iso: string) {
 }
 
 function parseDateInput(s: string): string | null {
-  // Accepts DD/MM/YYYY
   const parts = s.split('/')
   if (parts.length !== 3) return null
   const [dd, mm, yyyy] = parts
@@ -41,24 +50,84 @@ function parseDateInput(s: string): string | null {
   return iso
 }
 
+// Small inline chevron drawn with two rectangles
+function Chevron() {
+  return (
+    <View style={styles.rowChevron}>
+      <View style={styles.chevronLine1} />
+      <View style={styles.chevronLine2} />
+    </View>
+  )
+}
+
+interface PickerRowProps {
+  label: string
+  value: string
+  placeholder?: string
+  onPress: () => void
+}
+
+function PickerRow({ label, value, placeholder, onPress }: PickerRowProps) {
+  const hasValue = value !== '' && value !== undefined
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{label}</Text>
+      <Pressable
+        style={({ pressed }) => [styles.pickerRow, pressed && { opacity: 0.7 }]}
+        onPress={onPress}
+      >
+        <Text style={[styles.pickerRowValue, !hasValue && styles.pickerRowPlaceholder]}>
+          {hasValue ? value : (placeholder ?? 'Select...')}
+        </Text>
+        <Chevron />
+      </Pressable>
+    </View>
+  )
+}
+
+type PickerKey =
+  | 'frequency'
+  | 'type'
+  | 'style'
+  | 'adjGrade'
+  | 'techGrade'
+  | 'duration'
+
 export default function LogActivityScreen() {
   const router = useRouter()
   const { typeId } = useLocalSearchParams<{ typeId: string }>()
 
   const activityType = ACTIVITY_TYPES.find(t => t.id === typeId)
+  const isClimbing = activityType?.category === 'climbing-outdoor' || activityType?.category === 'climbing-indoor'
 
+  // Core fields
   const [dateInput, setDateInput] = useState(formatDateDisplay(getTodayISO()))
+  const [endDateInput, setEndDateInput] = useState('')
   const [locationName, setLocationName] = useState('')
   const [locationLat, setLocationLat] = useState<number | null>(null)
   const [locationLng, setLocationLng] = useState<number | null>(null)
-  const [durationHours, setDurationHours] = useState('')
   const [distanceKm, setDistanceKm] = useState('')
   const [isQmd, setIsQmd] = useState(false)
   const [isMultiPitch, setIsMultiPitch] = useState(false)
-  const [notes, setNotes] = useState('')
+  const [description, setDescription] = useState('')
   const [waypoints, setWaypoints] = useState<Waypoint[]>([])
 
-  // Check for pending location from location-search screen
+  // DLOG picker fields
+  const [dlogDuration, setDlogDuration] = useState('')
+  const [dlogFrequency, setDlogFrequency] = useState('None')
+  const [dlogType, setDlogType] = useState('')
+  const [dlogStyle, setDlogStyle] = useState('')
+  const [adjectivalGrade, setAdjectivalGrade] = useState('N/A')
+  const [technicalGrade, setTechnicalGrade] = useState('N/A')
+  const [numRoutes, setNumRoutes] = useState(1)
+  const [expeditions, setExpeditions] = useState('')
+
+  // Picker modal state
+  const [activePicker, setActivePicker] = useState<PickerKey | null>(null)
+
+  const isMultiDay = dlogDuration === 'Multi-day'
+
+  // Check for pending location or waypoints when screen focuses
   useFocusEffect(
     useCallback(() => {
       async function checkPendingLocation() {
@@ -98,23 +167,44 @@ export default function LogActivityScreen() {
       return
     }
 
+    let isoEndDate: string | undefined
+    if (isMultiDay && endDateInput.trim()) {
+      const parsed = parseDateInput(endDateInput.trim())
+      if (!parsed) {
+        Alert.alert('Invalid End Date', 'Please enter end date in DD/MM/YYYY format')
+        return
+      }
+      isoEndDate = parsed
+    }
+
     const id = Date.now().toString()
     const activity = {
       id,
       activityTypeId: activityType.id,
       activityLabel: activityType.label,
       date: isoDate,
+      endDate: isoEndDate,
       locationName: locationName.trim() || 'Unknown location',
       lat: locationLat,
       lng: locationLng,
-      durationHours: durationHours ? parseFloat(durationHours) : null,
+      durationHours: null,
       distanceKm: distanceKm ? parseFloat(distanceKm) : null,
       isQmd,
       isMultiPitch,
-      notes: notes.trim(),
+      notes: description.trim(),
+      description: description.trim(),
       waypoints,
       gpxFilename: null,
       createdAt: new Date().toISOString(),
+      // DLOG fields
+      dlogDuration: dlogDuration || undefined,
+      dlogFrequency: dlogFrequency !== 'None' ? dlogFrequency : undefined,
+      dlogType: dlogType || undefined,
+      dlogStyle: dlogStyle || undefined,
+      adjectivalGrade: adjectivalGrade !== 'N/A' ? adjectivalGrade : undefined,
+      technicalGrade: technicalGrade !== 'N/A' ? technicalGrade : undefined,
+      numRoutes: isClimbing ? numRoutes : undefined,
+      expeditions: expeditions.trim() || undefined,
     }
 
     await saveActivity(activity)
@@ -130,6 +220,18 @@ export default function LogActivityScreen() {
       </SafeAreaView>
     )
   }
+
+  // Picker config
+  const pickerConfig: Record<PickerKey, { title: string; options: string[]; value: string; onSelect: (v: string) => void }> = {
+    frequency: { title: 'Frequency', options: DLOG_FREQUENCY, value: dlogFrequency, onSelect: setDlogFrequency },
+    type: { title: 'Activity Type', options: DLOG_TYPES, value: dlogType, onSelect: setDlogType },
+    style: { title: 'Style', options: DLOG_STYLES, value: dlogStyle, onSelect: setDlogStyle },
+    adjGrade: { title: 'Adjectival Grade', options: DLOG_ADJ_GRADES, value: adjectivalGrade, onSelect: setAdjectivalGrade },
+    techGrade: { title: 'Technical Grade', options: DLOG_TECH_GRADES, value: technicalGrade, onSelect: setTechnicalGrade },
+    duration: { title: 'Duration', options: DLOG_DURATIONS, value: dlogDuration, onSelect: setDlogDuration },
+  }
+
+  const currentPicker = activePicker ? pickerConfig[activePicker] : null
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -157,7 +259,7 @@ export default function LogActivityScreen() {
 
           {/* Date */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Date</Text>
+            <Text style={styles.sectionLabel}>Start Date</Text>
             <TextInput
               style={styles.input}
               value={dateInput}
@@ -167,6 +269,29 @@ export default function LogActivityScreen() {
               keyboardType="numbers-and-punctuation"
             />
           </View>
+
+          {/* Duration picker */}
+          <PickerRow
+            label="Duration"
+            value={dlogDuration}
+            placeholder="Select duration..."
+            onPress={() => setActivePicker('duration')}
+          />
+
+          {/* End date — only shown when Multi-day is selected */}
+          {isMultiDay && (
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>End Date</Text>
+              <TextInput
+                style={styles.input}
+                value={endDateInput}
+                onChangeText={setEndDateInput}
+                placeholder="DD/MM/YYYY"
+                placeholderTextColor={C.textMuted}
+                keyboardType="numbers-and-punctuation"
+              />
+            </View>
+          )}
 
           {/* Location */}
           <View style={styles.section}>
@@ -181,37 +306,88 @@ export default function LogActivityScreen() {
               <Text style={[styles.locationText, !locationName && styles.locationPlaceholder]}>
                 {locationName || 'Search for a location...'}
               </Text>
-              <View style={styles.rowChevron}>
-                <View style={styles.chevronLine1} />
-                <View style={styles.chevronLine2} />
-              </View>
+              <Chevron />
             </Pressable>
           </View>
 
-          {/* Duration */}
-          <View style={styles.sectionRow}>
-            <View style={[styles.section, styles.flex]}>
-              <Text style={styles.sectionLabel}>Duration (hours)</Text>
-              <TextInput
-                style={styles.input}
-                value={durationHours}
-                onChangeText={setDurationHours}
-                placeholder="e.g. 4.5"
-                placeholderTextColor={C.textMuted}
-                keyboardType="decimal-pad"
+          {/* Distance */}
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Distance (km)</Text>
+            <TextInput
+              style={styles.input}
+              value={distanceKm}
+              onChangeText={setDistanceKm}
+              placeholder="Optional"
+              placeholderTextColor={C.textMuted}
+              keyboardType="decimal-pad"
+            />
+          </View>
+
+          {/* Frequency picker */}
+          <PickerRow
+            label="Frequency"
+            value={dlogFrequency}
+            onPress={() => setActivePicker('frequency')}
+          />
+
+          {/* Climbing-specific fields */}
+          {isClimbing && (
+            <>
+              <PickerRow
+                label="Type"
+                value={dlogType}
+                placeholder="Select type..."
+                onPress={() => setActivePicker('type')}
               />
-            </View>
-            <View style={[styles.section, styles.flex]}>
-              <Text style={styles.sectionLabel}>Distance (km)</Text>
-              <TextInput
-                style={styles.input}
-                value={distanceKm}
-                onChangeText={setDistanceKm}
-                placeholder="optional"
-                placeholderTextColor={C.textMuted}
-                keyboardType="decimal-pad"
+              <PickerRow
+                label="Style"
+                value={dlogStyle}
+                placeholder="Select style..."
+                onPress={() => setActivePicker('style')}
               />
-            </View>
+              <PickerRow
+                label="Adjectival Grade"
+                value={adjectivalGrade}
+                onPress={() => setActivePicker('adjGrade')}
+              />
+              <PickerRow
+                label="Technical Grade"
+                value={technicalGrade}
+                onPress={() => setActivePicker('techGrade')}
+              />
+
+              {/* Number of routes stepper */}
+              <View style={styles.section}>
+                <Text style={styles.sectionLabel}>Number of Routes</Text>
+                <View style={styles.stepperRow}>
+                  <Pressable
+                    style={({ pressed }) => [styles.stepperBtn, pressed && { opacity: 0.7 }]}
+                    onPress={() => setNumRoutes(n => Math.max(0, n - 1))}
+                  >
+                    <Text style={styles.stepperBtnText}>-</Text>
+                  </Pressable>
+                  <Text style={styles.stepperValue}>{numRoutes}</Text>
+                  <Pressable
+                    style={({ pressed }) => [styles.stepperBtn, pressed && { opacity: 0.7 }]}
+                    onPress={() => setNumRoutes(n => n + 1)}
+                  >
+                    <Text style={styles.stepperBtnText}>+</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </>
+          )}
+
+          {/* Expeditions */}
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>Expeditions</Text>
+            <TextInput
+              style={styles.input}
+              value={expeditions}
+              onChangeText={setExpeditions}
+              placeholder="None"
+              placeholderTextColor={C.textMuted}
+            />
           </View>
 
           {/* QMD toggle */}
@@ -250,13 +426,13 @@ export default function LogActivityScreen() {
             </View>
           )}
 
-          {/* Notes */}
+          {/* Description */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Notes</Text>
+            <Text style={styles.sectionLabel}>Description</Text>
             <TextInput
-              style={[styles.input, styles.notesInput]}
-              value={notes}
-              onChangeText={setNotes}
+              style={[styles.input, styles.descInput]}
+              value={description}
+              onChangeText={setDescription}
               placeholder="Conditions, companions, highlights..."
               placeholderTextColor={C.textMuted}
               multiline
@@ -265,7 +441,7 @@ export default function LogActivityScreen() {
             />
           </View>
 
-          {/* Waypoints */}
+          {/* Waypoints / Route */}
           <View style={styles.section}>
             <View style={styles.waypointsHeader}>
               <Text style={styles.sectionLabel}>Waypoints / Route</Text>
@@ -284,7 +460,6 @@ export default function LogActivityScreen() {
                 <Text style={styles.addBtnText}>+ Build GPX</Text>
               </Pressable>
             </View>
-            {/* Live map preview: searched location pin or full route */}
             <MapPreview
               waypoints={
                 waypoints.length > 0
@@ -320,6 +495,18 @@ export default function LogActivityScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Picker modals */}
+      {currentPicker && (
+        <PickerModal
+          visible={activePicker !== null}
+          title={currentPicker.title}
+          options={currentPicker.options}
+          selected={currentPicker.value}
+          onSelect={currentPicker.onSelect}
+          onClose={() => setActivePicker(null)}
+        />
+      )}
     </SafeAreaView>
   )
 }
@@ -334,11 +521,6 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 16,
   },
-  sectionRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 0,
-  },
   sectionLabel: {
     fontSize: 11,
     fontWeight: '700',
@@ -349,7 +531,7 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: C.surface,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: C.border,
     paddingHorizontal: 14,
@@ -357,14 +539,36 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: C.text,
   },
-  notesInput: {
+  descInput: {
     minHeight: 90,
     paddingTop: 13,
   },
 
+  pickerRow: {
+    backgroundColor: C.surface,
+    borderRadius: RADIUS.md,
+    borderWidth: 1,
+    borderColor: C.border,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  pickerRowValue: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: C.text,
+    flex: 1,
+  },
+  pickerRowPlaceholder: {
+    color: C.textMuted,
+    fontWeight: '400',
+  },
+
   readOnlyRow: {
     backgroundColor: C.surface,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: C.border,
     paddingHorizontal: 14,
@@ -386,7 +590,7 @@ const styles = StyleSheet.create({
 
   locationRow: {
     backgroundColor: C.surface,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: C.border,
     paddingHorizontal: 14,
@@ -418,7 +622,7 @@ const styles = StyleSheet.create({
 
   toggleRow: {
     backgroundColor: C.surface,
-    borderRadius: 12,
+    borderRadius: RADIUS.md,
     borderWidth: 1,
     borderColor: C.border,
     paddingHorizontal: 14,
@@ -430,6 +634,35 @@ const styles = StyleSheet.create({
   toggleText: { flex: 1 },
   toggleLabel: { fontSize: 15, fontWeight: '600', color: C.text },
   toggleHint: { fontSize: 12, color: C.textMuted, marginTop: 2 },
+
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  stepperBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: C.surface,
+    borderWidth: 1,
+    borderColor: C.green,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperBtnText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: C.green,
+    lineHeight: 22,
+  },
+  stepperValue: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: C.text,
+    minWidth: 32,
+    textAlign: 'center',
+  },
 
   waypointsHeader: {
     flexDirection: 'row',
