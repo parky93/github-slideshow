@@ -57,7 +57,7 @@ export async function searchNearby(lat: number, lng: number, radiusM = 20000): P
         type: classifyOverpass(el),
         lat: el.lat ?? el.center?.lat,
         lng: el.lon ?? el.center?.lon,
-        subtitle: el.tags['addr:town'] || el.tags['addr:city'] || el.tags.ele ? `${el.tags.ele}m` : '',
+        subtitle: el.tags['addr:town'] || el.tags['addr:city'] || (el.tags.ele ? `${el.tags.ele}m` : ''),
       }))
       .filter(p => p.lat && p.lng)
   } catch {

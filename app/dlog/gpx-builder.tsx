@@ -173,7 +173,7 @@ export default function GpxBuilderScreen() {
   const handleImportGpx = async () => {
     try {
       const res = await DocumentPicker.getDocumentAsync({
-        type: ['application/gpx+xml', 'application/xml', 'text/xml'],
+        type: ['application/gpx+xml', 'application/xml', 'text/xml', 'application/octet-stream'],
         copyToCacheDirectory: true,
       })
       if (res.canceled || !res.assets?.[0]) return

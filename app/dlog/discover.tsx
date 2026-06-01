@@ -57,26 +57,31 @@ export default function DiscoverScreen() {
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const doSearch = useCallback(async (q: string) => {
+  const filterRef = useRef(filter)
+  filterRef.current = filter
+
+  const doSearch = useCallback(async (q: string, overrideFilter?: Filter) => {
     if (!q.trim()) {
       setResults([])
       setSearched(false)
       return
     }
     setLoading(true)
-    setSearched(true)
     try {
       const all = await searchPlaces(q)
-      const types = FILTER_TYPES[filter]
+      const activeFilter = overrideFilter ?? filterRef.current
+      const types = FILTER_TYPES[activeFilter]
       setResults(types ? all.filter(p => types.includes(p.type)) : all)
+      setSearched(true)
     } catch (e) {
       console.error('Search error:', e)
       setResults([])
+      setSearched(false)
       Alert.alert('Search unavailable', 'Could not reach the search service. Check your connection and try again.')
     } finally {
       setLoading(false)
     }
-  }, [filter])
+  }, [])
 
   const onQueryChange = (text: string) => {
     setQuery(text)
@@ -86,7 +91,7 @@ export default function DiscoverScreen() {
 
   const onFilterChange = (f: Filter) => {
     setFilter(f)
-    if (query.trim()) doSearch(query)
+    if (query.trim()) doSearch(query, f)
   }
 
   const handleSelect = async (place: OsmPlace) => {

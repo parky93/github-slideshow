@@ -54,7 +54,7 @@ export default function ExportScreen() {
     const filename = `${safeName}.gpx`
     try {
       const file = new File(Paths.cache, filename)
-      try { file.create({ overwrite: true }) } catch {}
+      file.create({ overwrite: true })
       file.write(gpxContent)
       const canShare = await Sharing.isAvailableAsync()
       if (canShare) {
@@ -63,10 +63,10 @@ export default function ExportScreen() {
           dialogTitle: 'Save GPX file',
           UTI: 'com.topografix.gpx',
         })
-        try { file.delete() } catch {}
       } else {
         Alert.alert('Sharing not available', 'Cannot share files on this device.')
       }
+      try { file.delete() } catch {}
     } catch (e: any) {
       console.error('GPX export error:', e)
       Alert.alert('Export failed', 'Could not create the GPX file. Please try again.')

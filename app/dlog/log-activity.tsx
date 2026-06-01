@@ -167,6 +167,11 @@ export default function LogActivityScreen() {
       return
     }
 
+    if (isMultiDay && !endDateInput.trim()) {
+      Alert.alert('End Date Required', 'Please enter an end date for multi-day activities')
+      return
+    }
+
     let isoEndDate: string | undefined
     if (isMultiDay && endDateInput.trim()) {
       const parsed = parseDateInput(endDateInput.trim())

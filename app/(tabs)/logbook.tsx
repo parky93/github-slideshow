@@ -102,7 +102,9 @@ export default function LogbookTab() {
             {item.locationName ? (
               <Text style={styles.rowLocation} numberOfLines={1}>{item.locationName}</Text>
             ) : null}
-            {item.durationHours != null && <Text style={styles.rowDuration}>{item.durationHours}h</Text>}
+            {(item.durationHours != null || item.dlogDuration) && (
+              <Text style={styles.rowDuration}>{item.durationHours != null ? `${item.durationHours}h` : item.dlogDuration}</Text>
+            )}
             {item.distanceKm != null && <Text style={styles.rowDuration}>{item.distanceKm}km</Text>}
           </View>
         </View>
